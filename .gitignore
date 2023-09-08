@@ -62,6 +62,11 @@ cores/*/sch/*/*pdf
 cores/*/sch/*pdf
 cores/*/sidi/*
 cores/*/sockit/*
+cores/*/de1soc/*
+cores/*/de10std/*
+cores/*/deca/*
+cores/*/demistify/*
+cores/*/de10lite/*
 cores/*/ver/regrun
 cores/*/zxuno/*
 default.dip
