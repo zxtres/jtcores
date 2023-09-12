@@ -130,7 +130,7 @@ func update_actions(jtroot string, cfg Config) {
 	rand.Seed(time.Now().UnixNano())
 
 	for target, _ := range cfg.Targets {
-		if target == "mister" || target == "sockit" || target == "de1soc" || target == "de10standard" {
+		if target == "mister" || target == "sockit" || target == "de1soc" || target == "de10std" {
 			continue // not ready yet
 		}
 		for _, core := range cfg.cores {
@@ -236,7 +236,7 @@ func dump_output(cfg Config) {
 	appendif(cfg.Beta != "", "BETA", "JTFRAME_UNLOCKKEY="+cfg.Beta)
 	lockable := func( s string ) bool { // systems that work with jtbeta.zip
 		return s=="pocket" || s=="mister" || s=="sockit" ||
-				 s=="de1soc" || s=="de10standard"
+				 s=="de1soc" || s=="de10std"
 	}
 	for target, valid := range cfg.Targets {
 		if !valid {
