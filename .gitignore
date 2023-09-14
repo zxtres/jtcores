@@ -69,6 +69,9 @@ cores/*/demistify/*
 cores/*/de10lite/*
 cores/*/ver/regrun
 cores/*/zxuno/*
+cores/*/deca/*
+cores/*/de10lite/*
+cores/*/atlas_cyc/*
 default.dip
 defmacros.h
 game.qip
