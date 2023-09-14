@@ -43,7 +43,6 @@ wire ioctl_ram = 0;
 // BRAM buses
 {{- range $cnt, $bus:=.BRAM }}
 wire     {{ data_range . }} {{.Name}}_din;
-wire     {{ data_range . }} {{ data_name . }};
 {{ if .Dual_port.Name }}
 {{ if not .Dual_port.We }}wire    {{ if eq .Data_width 16 }}[ 1:0]{{else}}      {{end}}{{.Dual_port.Name}}_we; // Dual port for {{.Dual_port.Name}}
 {{end}}{{end}}
@@ -71,6 +70,7 @@ wire        pass_io;
     {{- range $v }}
     {{- range .Outputs }}
 wire {{ . }}; {{ end }}{{ end }}{{ end }}
+wire gfx8_en, gfx16_en;
 
 assign pass_io = header | ioctl_ram;
 
@@ -168,8 +168,7 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     // Memory interface - BRAM
 {{ range $cnt, $bus:=.BRAM -}}
     {{if not .Addr}}.{{.Name}}_addr ( {{.Name}}_addr ),{{end}}{{ if .Rw }}
-    {{if not .Din}}.{{.Name}}_din  ( {{.Name}}_din  ),{{end}}{{end}}
-    .{{ data_name . }}    ( {{ data_name . }} ),{{ if .Dual_port.Name }}
+    {{if not .Din}}.{{.Name}}_din  ( {{.Name}}_din  ),{{end}}{{end}}{{ if .Dual_port.Name }}
     {{ if not .Dual_port.We }}.{{.Dual_port.Name}}_we ( {{.Dual_port.Name}}_we ),  // Dual port for {{.Dual_port.Name}}{{end}}
     {{ else }}{{ if not $bus.ROM.Offset }}{{end}}
     {{- end}}
@@ -228,6 +227,8 @@ assign dwnld_busy = downloading | prom_we; // prom_we is really just for sims
 assign dwnld_addr = {{if .Download.Pre_addr }}pre_addr{{else}}ioctl_addr{{end}};
 assign prog_addr = {{if .Download.Post_addr }}post_addr{{else}}raw_addr{{end}};
 assign prog_data = {{if .Download.Post_data }}{2{post_data}}{{else}}raw_data{{end}};
+assign gfx8_en   = {{ .Gfx8 }}
+assign gfx16_en  = {{ .Gfx16 }}
 
 jtframe_dwnld #(
 `ifdef JTFRAME_HEADER
@@ -245,13 +246,17 @@ jtframe_dwnld #(
 `ifdef JTFRAME_PROM_START
     .PROM_START( PROM_START ),
 `endif
-    .SWAB      ( {{if .Download.Noswab }}0{{else}}1{{end}}         )
+    .SWAB      ( {{if .Download.Noswab }}0{{else}}1{{end}}),
+    .GFX8B0    ( {{ .Gfx8b0 }}),
+    .GFX16B0   ( {{ .Gfx16b0 }})
 ) u_dwnld(
     .clk          ( clk            ),
     .downloading  ( downloading & ~ioctl_ram    ),
     .ioctl_addr   ( dwnld_addr     ),
     .ioctl_dout   ( ioctl_dout     ),
     .ioctl_wr     ( ioctl_wr       ),
+    .gfx8_en      ( gfx8_en        ),
+    .gfx16_en     ( gfx16_en       ),
     .prog_addr    ( raw_addr       ),
     .prog_data    ( raw_data       ),
     .prog_mask    ( prog_mask      ), // active low
