@@ -7,3 +7,9 @@ SCR_START=0x08000
 OBJ_START=0xa000
 JTFRAME_PROM_START=0xc000
 
+[deca|de10lite|atlas_cyc]
+# OSD credits cannot be used when
+# DIP base is less than 13
+JTFRAME_OSD_NOCREDITS
+JTFRAME_DIPBASE=8
+
