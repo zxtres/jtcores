@@ -42,7 +42,6 @@ wire ioctl_ram = 0;
 {{end}}
 // BRAM buses
 {{- range $cnt, $bus:=.BRAM }}
-wire     {{ data_range . }} {{.Name}}_din;
 {{ if .Dual_port.Name }}
 {{ if not .Dual_port.We }}wire    {{ if eq .Data_width 16 }}[ 1:0]{{else}}      {{end}}{{.Dual_port.Name}}_we; // Dual port for {{.Dual_port.Name}}
 {{end}}{{end}}
@@ -367,7 +366,12 @@ jtframe_dual_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
 );{{else}}{{if $bus.ROM.Offset }}
 /* verilator tracing_on */
 
-jtframe_bram_rom #(.AW({{$bus.Addr_width}}{{if is_nbits $bus 16 }}-1{{end}}),.DW({{$bus.Data_width}}),.OFFSET({{$bus.ROM.Offset}})) u_brom_{{$bus.Name}}(
+jtframe_bram_rom #(
+    .AW({{$bus.Addr_width}}{{if is_nbits $bus 16 }}-1{{end}}),.DW({{$bus.Data_width}}),
+    .OFFSET({{$bus.ROM.Offset}}),{{ if eq $bus.Data_width 16 }}
+    .SIMFILE_LO("{{$bus.Name}}_lo.bin"),
+    .SIMFILE_HI("{{$bus.Name}}_hi.bin"){{else}}.SIMFILE("{{$bus.Name}}.bin"){{end}}
+) u_brom_{{$bus.Name}}(
     .clk    ( clk       ),
     // Read port
     .addr   ( {{if $bus.Addr}}{{$bus.Addr}}{{else}}{{$bus.Name}}_addr{{end}} ),

@@ -352,13 +352,24 @@ func fill_implicit_ports( macros map[string]string, cfg *MemConfig ) {
 	// get explicit names in SDRAM/BRAM buses and added to the port list
 	all := make( map[string]Port )
 	add := func( p Port ) {
+		if p.Name=="" { return }
 		if p.Name[0]>='0' && p.Name[0]<='9' { return } // not a name
 		if p.Name[0]=='{' { return } // ignore compound buses
 		// remove the brackets
 		k := strings.Index( p.Name, "[" )
 		if k>=0 { p.Name = p.Name[0:k] }
 		if t,_:=implicit[p.Name]; t { return }
-		all[p.Name] = p
+		old, fnd := all[p.Name]
+		if fnd {
+			if old.Input || p.Input { // overwrite if the port should be an input
+				// required for JTKARNOV's objram_dout signal, which comes from one
+				// BRAM and is used on another and is also an input to the game
+				p.Input = true
+				all[p.Name] = p
+			}
+		} else {
+			all[p.Name] = p
+		}
 	}
 	for _, each := range cfg.Ports {
 		all[each.Name] = each
@@ -370,27 +381,32 @@ func fill_implicit_ports( macros map[string]string, cfg *MemConfig ) {
 			if each.Din != "" { add( Port{ Name: each.Din, MSB: each.Data_width-1, } ) }
 		}
 	}
-	for k, each := range cfg.BRAM {
-		if each.Addr == "" {
-			cfg.BRAM[k].Addr = each.Name + "_addr"
-			each=cfg.BRAM[k]
+	for k, _ := range cfg.BRAM {
+		each := &cfg.BRAM[k]
+		bram_rom := !each.Rw && !each.Dual_port.Rw // BRAM used as ROM
+		if each.Addr == "" { each.Addr = each.Name + "_addr" }
+		if each.Din  == "" && !bram_rom { each.Din  = each.Name + "_din"  }
+		if each.Dout == "" {
+			if bram_rom {
+				each.Dout = each.Name + "_data"
+			} else {
+				each.Dout = each.Name + "_dout"
+			}
 		}
 		add( Port{
 			Name: each.Addr,
 			MSB:  each.Addr_width-1,
 			LSB:  each.Data_width>>4, // 8->0, 16->1
 		})
-		if each.Din != "" {
-			add( Port{
-				Name: each.Din,
-				MSB: each.Data_width-1,
-			})
-		} else {
-			add( Port{
-				Name: each.Name + "_dout",
-				MSB: each.Data_width-1,
-			})
-		}
+		add( Port{
+			Name: each.Din,
+			MSB: each.Data_width-1,
+		})
+		add( Port{
+			Name: each.Dout,
+			Input: true,
+			MSB: each.Data_width-1,
+		})
 		if each.Rw {
 			name := each.Name + "_we"
 			if each.We!="" { name = each.We }

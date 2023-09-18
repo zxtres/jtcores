@@ -3,6 +3,7 @@ include ../../outrun/cfg/macros.def
 CORENAME=JTSHANON
 GAMETOP=jtshanon_game_sdram
 SHANON=1
+-JTFRAME_LF_BUFFER
 
 # System 16B Objects don't work
 # well with 64-bit bursts. I just
@@ -10,3 +11,6 @@ SHANON=1
 -JTFRAME_BA0_LEN=64
 -JTFRAME_BA2_LEN=64
 -JTFRAME_BA3_LEN=64
+
+# This system does not fit in MiST because of the 32kB used for road memory
+# Disabled the OSD logo or the credits won't make it fit
