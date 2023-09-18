@@ -72,6 +72,7 @@ cores/*/zxuno/*
 cores/*/deca/*
 cores/*/de10lite/*
 cores/*/atlas_cyc/*
+cores/*/zxtres/*
 default.dip
 defmacros.h
 dump2bin.sh
