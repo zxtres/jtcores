@@ -93,6 +93,10 @@ def main():
     file_paths.append('set_property IS_GLOBAL_INCLUDE true [get_files ./defs.vh]')
     file_paths.append('set_property IS_GLOBAL_INCLUDE true [get_files ./build_id.vh]')
 
+    file_paths.append('set_property -name "top" -value "jtframe_zxtres_top" -objects $obj')
+    file_paths.append('set_property -name "top" -value "jtframe_zxtres_top" -objects $obj')
+    file_paths.append('set_property -name "include_dirs" -value "[file normalize "$origin_dir/../../../modules/jtframe/hdl/inc"] [file normalize "$origin_dir/../hdl"]" -objects $obj')
+    
 
     if file_paths:
         write_file_paths_to_output(file_paths, output_file, target_fpga)
