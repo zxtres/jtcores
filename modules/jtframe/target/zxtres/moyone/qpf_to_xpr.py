@@ -4,7 +4,21 @@ import os
 import re
 from datetime import datetime
 
+# Obtengo directorio actual
+current_dir = os.getcwd()
+
+# Obtengo ficheros en el directorio
+files = os.listdir(current_dir)
+
+# Fichero por defecto en caso de no localizar uno en el directorio
 input_file = "jtkicker.qsf"
+
+# Localizar primer archivo .QSF
+for file in files:
+    if file.endswith(".qsf"):
+        input_file = file
+        break
+
 output_file = "generar_proyecto_vivado.tcl"
     
 def extract_verilog_macros(file_path):
@@ -165,16 +179,16 @@ def main():
         f.write(f"\nputs \"Implementation ZXTRES A200T done!\"\n")
 
         # Launch A100T runs
-        # f.write(f"\nreset_run sintesis_A100T\n")
-        # f.write(f"launch_runs implementacion_A100T -to_step write_bitstream\n")
-        # f.write(f"\nwait_on_run implementacion_A100T\n")
-        # f.write(f"\nputs \"Implementation ZXTRES A100T done!\"\n")
+        f.write(f"\nreset_run sintesis_A100T\n")
+        f.write(f"launch_runs implementacion_A100T -to_step write_bitstream\n")
+        f.write(f"\nwait_on_run implementacion_A100T\n")
+        f.write(f"\nputs \"Implementation ZXTRES A100T done!\"\n")
 
         # Launch A35T runs
-        # f.write(f"\nreset_run sintesis_A35T\n")
-        # f.write(f"launch_runs implementacion_A35T -to_step write_bitstream\n")
-        # f.write(f"\nwait_on_run implementacion_A35T\n")
-        # f.write(f"\nputs \"Implementation ZXTRES A35T done!\"\n")
+        f.write(f"\nreset_run sintesis_A35T\n")
+        f.write(f"launch_runs implementacion_A35T -to_step write_bitstream\n")
+        f.write(f"\nwait_on_run implementacion_A35T\n")
+        f.write(f"\nputs \"Implementation ZXTRES A35T done!\"\n")
 
         # Salir
         f.write(f"close_project\n")

@@ -2,11 +2,10 @@
 
 ```sh
 source setprj.sh
-jtcore2 cps1 -zxtres -d JTFRAME_RELEASE
-cd ../../cores/cps1/zxtres
+jtcore2 pang -zxtres -d JTFRAME_RELEASE
+cd ../../cores/pang/zxtres
 rm -r db output_files
 cp ../../../modules/jtframe/target/zxtres/moyone/* .
-#edit qpf_to_xpr.py and change qsf filename 
 ./generate_vivado_project.sh
 ```
 
