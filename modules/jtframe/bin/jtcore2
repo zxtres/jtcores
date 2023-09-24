@@ -516,7 +516,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
             grep -i error "$LOG" -A 2
             echo -e "${rBG}ERROR:${NC}${wBG} while compiling the project. ${red}Aborting${NC}"
             report FAIL
-            exit 1
+            #exit 1         #somhi# mod to allow running vivado after quartus fails for zxtres target
         fi
         if [ ! -e $corename.map.rpt ]; then
             RPTPATH=$OUTPUTDIR
@@ -586,7 +586,7 @@ case $TARGET in
     neptuno) EXT=np1;;
     deca)  EXT=svf;;
     de10lite)  EXT=svf;;
-	zxtres) EXT=bin;;
+	zxtres) EXT=zx3;;
     mc2) EXT=mc2;;
     mcp) EXT=mcp;;
     pocket) EXT=rbf_r;;
@@ -606,6 +606,13 @@ if is_mister_family || test $TARGET = neptuno; then
     RBF=$PRJPATH/${TARGET}/$OUTPUTDIR/$corename.rbf
 elif test $TARGET = deca || test $TARGET = de10lite; then
     RBF=$PRJPATH/${TARGET}/$OUTPUTDIR/$corename.svf
+elif test $TARGET = zxtres; then
+    RBF=$PRJPATH/${TARGET}/zxtres.runs/implementacion_A200T/jtframe_zxtres_top.bin
+    rm -r $PRJPATH/$TARGET/db
+    rm -r $PRJPATH/$TARGET/incremental_db
+    cp $JTROOT/modules/jtframe/target/zxtres/moyone/* $PRJPATH/$TARGET/
+    cd $PRJPATH/$TARGET/
+ #   $PRJPATH/$TARGET/generate_vivado_project.sh
 else
     RBF=$PRJPATH/${TARGET}/$corename.rbf
 fi

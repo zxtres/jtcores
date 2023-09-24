@@ -2,7 +2,7 @@
 
 ```sh
 source setprj.sh
-jtcore2 pang -zxtres -d JTFRAME_RELEASE
+jtcore2 pang -zxtres --nodbg
 cd ../../cores/pang/zxtres
 rm -r db output_files
 cp ../../../modules/jtframe/target/zxtres/moyone/* .

@@ -178,17 +178,17 @@ def main():
         f.write(f"\nwait_on_run implementacion_A200T\n")
         f.write(f"\nputs \"Implementation ZXTRES A200T done!\"\n")
 
-        # Launch A100T runs
-        f.write(f"\nreset_run sintesis_A100T\n")
-        f.write(f"launch_runs implementacion_A100T -to_step write_bitstream\n")
-        f.write(f"\nwait_on_run implementacion_A100T\n")
-        f.write(f"\nputs \"Implementation ZXTRES A100T done!\"\n")
+        # # Launch A100T runs
+        # f.write(f"\nreset_run sintesis_A100T\n")
+        # f.write(f"launch_runs implementacion_A100T -to_step write_bitstream\n")
+        # f.write(f"\nwait_on_run implementacion_A100T\n")
+        # f.write(f"\nputs \"Implementation ZXTRES A100T done!\"\n")
 
-        # Launch A35T runs
-        f.write(f"\nreset_run sintesis_A35T\n")
-        f.write(f"launch_runs implementacion_A35T -to_step write_bitstream\n")
-        f.write(f"\nwait_on_run implementacion_A35T\n")
-        f.write(f"\nputs \"Implementation ZXTRES A35T done!\"\n")
+        # # Launch A35T runs
+        # f.write(f"\nreset_run sintesis_A35T\n")
+        # f.write(f"launch_runs implementacion_A35T -to_step write_bitstream\n")
+        # f.write(f"\nwait_on_run implementacion_A35T\n")
+        # f.write(f"\nputs \"Implementation ZXTRES A35T done!\"\n")
 
         # Salir
         f.write(f"close_project\n")
