@@ -586,6 +586,7 @@ case $TARGET in
     neptuno) EXT=np1;;
     deca)  EXT=svf;;
     de10lite)  EXT=svf;;
+	zxtres) EXT=bin;;
     mc2) EXT=mc2;;
     mcp) EXT=mcp;;
     pocket) EXT=rbf_r;;
