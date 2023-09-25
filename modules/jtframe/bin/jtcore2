@@ -612,7 +612,8 @@ elif test $TARGET = zxtres; then
     rm -r $PRJPATH/$TARGET/incremental_db
     cp $JTROOT/modules/jtframe/target/zxtres/moyone/* $PRJPATH/$TARGET/
     cd $PRJPATH/$TARGET/
- #   $PRJPATH/$TARGET/generate_vivado_project.sh
+    python3 qpf_to_xpr.py --A200T
+    generate_vivado_project.sh
 else
     RBF=$PRJPATH/${TARGET}/$corename.rbf
 fi

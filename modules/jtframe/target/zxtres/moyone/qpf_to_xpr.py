@@ -2,6 +2,7 @@
 
 import os
 import re
+import getopt,sys
 from datetime import datetime
 
 # Obtengo directorio actual
@@ -20,21 +21,43 @@ for file in files:
         break
 
 output_file = "generar_proyecto_vivado.tcl"
-    
-def extract_verilog_macros(file_path):
-    with open(file_path, 'r') as f:
-        content = f.readlines()
 
-    # Buscamos macros VERILOG_MACRO
-    file_paths = []
-    pattern = r'set_global_assignment\s+-name\s+VERILOG_MACRO\s+"([^"]+)"$'
-    for line in content:
-        line = line.strip()
-        match = re.match(pattern, line)
-        if match:
-            macro = match.group(1)
-            print(macro)
+create_A100T = 0
+create_A200T = 0
+create_A35T = 0
+
+if (len(sys.argv) > 1):
+    argumentList = sys.argv[1:]
+
+    # Opciones cortas 1 = A100T, 2 = A200T, 3 = A35T
+    options = "123"
+
+    # Opciones largas A100T, A200T, A35T
+    long_options = ["A100T", "A200T", "A35T"]
+
+    try:
+        # Parsing
+        arguments, values = getopt.getopt(argumentList, options, long_options)
         
+        # Localizando opciones indicadas por línea de comandos
+        for currentArgument, currentValue in arguments:
+            if currentArgument in ("-1", "--A100T"):
+                create_A100T = 1
+                print("Se procesará Core para A100T")
+            elif currentArgument in ("-2", "--A200T"):
+                create_A200T = 1
+                print("Se procesará Core para A200T")
+            elif currentArgument in ("-3", "--A35T"):
+                create_A35T = 1
+                print("Se procesará Core para A35T")
+    except getopt.error as err:
+        print(str(err))
+else:
+    create_A100T = 1
+    create_A200T = 1
+    create_A35T = 1
+    print("No se especificó FPGA, se crearán las tres.")
+
 def extract_file_paths(file_path, base_path=None):
     if base_path is None:
         base_path = os.path.dirname(os.path.abspath(file_path))
@@ -172,23 +195,26 @@ def main():
         # f.write(f"set_property -name \"steps.opt_design.args.verbose\" -value \"1\" -objects [get_runs implementacion_A200T]\n")
         # f.write(f"set_property -name \"options.verbose\" -value \"0\" -objects [get_report_configs -of_objects [get_runs implementacion_A200T] implementacion_A200T_place_report_control_sets_0]\n")
 
-        # Launch A200T runs
-        f.write(f"\nreset_run sintesis_A200T\n")
-        f.write(f"launch_runs implementacion_A200T -to_step write_bitstream\n")
-        f.write(f"\nwait_on_run implementacion_A200T\n")
-        f.write(f"\nputs \"Implementation ZXTRES A200T done!\"\n")
+        if (create_A200T == 1):
+            # Launch A200T runs
+            f.write(f"\nreset_run sintesis_A200T\n")
+            f.write(f"launch_runs implementacion_A200T -to_step write_bitstream\n")
+            f.write(f"\nwait_on_run implementacion_A200T\n")
+            f.write(f"\nputs \"Implementation ZXTRES A200T done!\"\n")
 
-        # # Launch A100T runs
-        # f.write(f"\nreset_run sintesis_A100T\n")
-        # f.write(f"launch_runs implementacion_A100T -to_step write_bitstream\n")
-        # f.write(f"\nwait_on_run implementacion_A100T\n")
-        # f.write(f"\nputs \"Implementation ZXTRES A100T done!\"\n")
+        if (create_A100T == 1):
+            # Launch A100T runs
+            f.write(f"\nreset_run sintesis_A100T\n")
+            f.write(f"launch_runs implementacion_A100T -to_step write_bitstream\n")
+            f.write(f"\nwait_on_run implementacion_A100T\n")
+            f.write(f"\nputs \"Implementation ZXTRES A100T done!\"\n")
 
-        # # Launch A35T runs
-        # f.write(f"\nreset_run sintesis_A35T\n")
-        # f.write(f"launch_runs implementacion_A35T -to_step write_bitstream\n")
-        # f.write(f"\nwait_on_run implementacion_A35T\n")
-        # f.write(f"\nputs \"Implementation ZXTRES A35T done!\"\n")
+        if (create_A35T == 1):
+            # Launch A35T runs
+            f.write(f"\nreset_run sintesis_A35T\n")
+            f.write(f"launch_runs implementacion_A35T -to_step write_bitstream\n")
+            f.write(f"\nwait_on_run implementacion_A35T\n")
+            f.write(f"\nputs \"Implementation ZXTRES A35T done!\"\n")
 
         # Salir
         f.write(f"close_project\n")
@@ -203,13 +229,7 @@ def main():
     print("Para generar el proyecto ejecutar: vivado -mode tcl -source generar_proyecto_vivado.tcl")
     print("==========================================================================================\n")
     
-    
-def main2():
-   
-    verilog_macros = extract_verilog_macros(input_file)
-    
-if __name__ == "__main__":
-
-    main()
+# Start processing
+main()
 
 
