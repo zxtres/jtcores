@@ -586,7 +586,9 @@ case $TARGET in
     neptuno) EXT=np1;;
     deca)  EXT=svf;;
     de10lite)  EXT=svf;;
-	zxtres) EXT=zx3;;
+	zx3a200) EXT=zx3;;
+	zx3a100) EXT=zx3;;
+	zx3a35) EXT=zx3;;
     mc2) EXT=mc2;;
     mcp) EXT=mcp;;
     pocket) EXT=rbf_r;;
@@ -606,14 +608,27 @@ if is_mister_family || test $TARGET = neptuno; then
     RBF=$PRJPATH/${TARGET}/$OUTPUTDIR/$corename.rbf
 elif test $TARGET = deca || test $TARGET = de10lite; then
     RBF=$PRJPATH/${TARGET}/$OUTPUTDIR/$corename.svf
-elif test $TARGET = zxtres; then
+elif test $TARGET = zx3a200; then
     RBF=$PRJPATH/${TARGET}/zxtres.runs/implementacion_A200T/jtframe_zxtres_top.bin
-    rm -r $PRJPATH/$TARGET/db
-    rm -r $PRJPATH/$TARGET/incremental_db
-    cp $JTROOT/modules/jtframe/target/zxtres/moyone/* $PRJPATH/$TARGET/
+    cp $JTROOT/modules/jtframe/target/zx3a200/moyone/* $PRJPATH/$TARGET/
     cd $PRJPATH/$TARGET/
+    rm -r db incremental_db
     python3 qpf_to_xpr.py --A200T
     generate_vivado_project.sh
+elif test $TARGET = zx3a100; then
+    RBF=$PRJPATH/${TARGET}/zxtres.runs/implementacion_A100T/jtframe_zxtres_top.bin
+    cp $JTROOT/modules/jtframe/target/zx3a100/moyone/* $PRJPATH/$TARGET/
+    cd $PRJPATH/$TARGET/
+    rm -r db incremental_db
+    python3 qpf_to_xpr.py --A100T
+    generate_vivado_project.sh
+elif test $TARGET = zx3a35; then
+    RBF=$PRJPATH/${TARGET}/zxtres.runs/implementacion_A35T/jtframe_zxtres_top.bin
+    cp $JTROOT/modules/jtframe/target/zx3a35/moyone/* $PRJPATH/$TARGET/
+    cd $PRJPATH/$TARGET/
+    rm -r db incremental_db
+    python3 qpf_to_xpr.py --A35T
+    generate_vivado_project.sh    
 else
     RBF=$PRJPATH/${TARGET}/$corename.rbf
 fi
@@ -624,8 +639,7 @@ if test $TARGET = deca || test $TARGET = de10lite; then
     max10_svf_cleaner $RBF
     RBF=$PRJPATH/${TARGET}/$OUTPUTDIR/${corename}_nodsm.svf
 	# remove Quartus db folders
-    rm -r $PRJPATH/$TARGET/db
-    rm -r $PRJPATH/$TARGET/incremental_db
+    rm -r $PRJPATH/$TARGET/db $PRJPATH/$TARGET/incremental_db
 fi
 
 if [ ! -e $RBF ]; then
@@ -655,6 +669,9 @@ if [[ ( "$GIT" = FALSE || (( is_mister_family || $TARGET = pocket || "$BETA" != 
         BINFOLDER=$JTBIN/$TARGET/$PRJ
         BINRBF=$BINFOLDER/releases/$corename.$EXT
         mkdir -p $BINFOLDER/releases
+    elif [[ $TARGET = zx3a* ]]; then
+        BINFOLDER=$JTBIN/$TARGET
+        BINRBF=$BINFOLDER/$corename"_"$TARGET"_"$CORESTAMP.$EXT
     else
         BINFOLDER=$JTBIN/$TARGET
         if [ $TARGET = pocket ]; then
