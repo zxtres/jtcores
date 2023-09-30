@@ -195,6 +195,8 @@ def main():
         # f.write(f"set_property -name \"steps.opt_design.args.verbose\" -value \"1\" -objects [get_runs implementacion_A200T]\n")
         # f.write(f"set_property -name \"options.verbose\" -value \"0\" -objects [get_report_configs -of_objects [get_runs implementacion_A200T] implementacion_A200T_place_report_control_sets_0]\n")
 
+        f.write(f"\ncurrent_run [get_runs sintesis_A200T]\n")
+
         if (create_A200T == 1):
             # Launch A200T runs
             f.write(f"\nreset_run sintesis_A200T\n")
