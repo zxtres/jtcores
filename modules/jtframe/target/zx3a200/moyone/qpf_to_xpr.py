@@ -164,7 +164,6 @@ def main():
     else:
         print("\nNo se encontraron rutas de archivos en el archivo de entrada.")
 
-    
     with open(output_file, 'a') as f:
         # Instrucciones para establecer el TOP MODULE
         f.write(f"set_property top jtframe_zxtres_top [current_fileset]\n")
@@ -173,18 +172,17 @@ def main():
         # Instrucción para establecer los directorios de búsqueda para ficheros de inclusión
         f.write(f"set_property -name \"include_dirs\" -value \"[file normalize \"../../../modules/jtframe/hdl/inc\"] [file normalize \"../hdl\"]\" -objects [current_fileset]\n")
 
-   
         # Instrucciones para crear el Design Run de la plasca ZXTRES (A35T)
-        f.write(f"create_run -name sintesis_A35T -part xc7a35tfgg484-2 -flow {{Vivado Synthesis 2022}} -strategy \"Vivado Synthesis Defaults\" -report_strategy {{No Reports}} -constrset constrs_1\n")
-        f.write(f"create_run -name implementacion_A35T -part xc7a35tfgg484-2 -flow {{Vivado Implementation 2022}} -strategy \"Vivado Implementation Defaults\" -report_strategy {{No Reports}} -constrset constrs_1 -parent_run sintesis_A35T\n")
+        f.write(f"create_run -name sintesis_A35T -part xc7a35tfgg484-2 -flow {{Vivado Synthesis 2022}} -strategy \"Flow_AreaOptimized_high\" -report_strategy {{Vivado Synthesis Default Reports}} -constrset constrs_1\n")
+        f.write(f"create_run -name implementacion_A35T -part xc7a35tfgg484-2 -flow {{Vivado Implementation 2022}} -strategy \"Flow_RunPhysOpt\" -report_strategy {{Vivado Implementation Default Reports}} -constrset constrs_1 -parent_run sintesis_A35T\n")
 
         # Instrucciones para crear el Design Run de la plasca ZXTRES+ (A100T)
-        f.write(f"create_run -name sintesis_A100T -part xc7a100tfgg484-2 -flow {{Vivado Synthesis 2022}} -strategy \"Vivado Synthesis Defaults\" -report_strategy {{No Reports}} -constrset constrs_1\n")
-        f.write(f"create_run -name implementacion_A100T -part xc7a100tfgg484-2 -flow {{Vivado Implementation 2022}} -strategy \"Vivado Implementation Defaults\" -report_strategy {{No Reports}} -constrset constrs_1 -parent_run sintesis_A100T\n")
+        f.write(f"create_run -name sintesis_A100T -part xc7a100tfgg484-2 -flow {{Vivado Synthesis 2022}} -strategy \"Vivado Synthesis Defaults\" -report_strategy {{Vivado Synthesis Default Reports}} -constrset constrs_1\n")
+        f.write(f"create_run -name implementacion_A100T -part xc7a100tfgg484-2 -flow {{Vivado Implementation 2022}} -strategy \"Vivado Implementation Defaults\" -report_strategy {{Vivado Implementation Default Reports}} -constrset constrs_1 -parent_run sintesis_A100T\n")
 
         # Instrucciones para crear el Design Run de la plasca ZXTRES++ (A200T)
-        f.write(f"create_run -name sintesis_A200T -part xc7a200tfbg484-2 -flow {{Vivado Synthesis 2022}} -strategy \"Vivado Synthesis Defaults\" -report_strategy {{No Reports}} -constrset constrs_1\n")
-        f.write(f"create_run -name implementacion_A200T -part xc7a200tfbg484-2 -flow {{Vivado Implementation 2022}} -strategy \"Vivado Implementation Defaults\" -report_strategy {{No Reports}} -constrset constrs_1 -parent_run sintesis_A200T\n")
+        f.write(f"create_run -name sintesis_A200T -part xc7a200tfbg484-2 -flow {{Vivado Synthesis 2022}} -strategy \"Vivado Synthesis Defaults\" -report_strategy {{Vivado Synthesis Default Reports}} -constrset constrs_1\n")
+        f.write(f"create_run -name implementacion_A200T -part xc7a200tfbg484-2 -flow {{Vivado Implementation 2022}} -strategy \"Vivado Implementation Defaults\" -report_strategy {{Vivado Implementation Default Reports}} -constrset constrs_1 -parent_run sintesis_A200T\n")
 
         # Instrucciones para generar el fichro .bin
         f.write(f"set_property -name \"steps.write_bitstream.args.bin_file\" -value \"1\" -objects [get_runs implementacion_A200T]\n")

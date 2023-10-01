@@ -66,6 +66,14 @@ JTFRAME_CREDITS
 JTFRAME_CREDITS_PAGES=3
 JTFRAME_CREDITS_HSTART=32
 
+[zx3a35]
+-JTFRAME_SKIP
+JTFRAME_LF_BUFFER
+JTFRAME_OSD_NOLOGO
+NODEC
+JTFRAME_OSD_NOCREDITS
+-JTFRAME_CREDITS
+
 [mister|sockit|de1soc|de10std]
 # Controller options have only been tested on MiSTer
 CORE_OSD=OKM,Control Type,A.Stick,A.Triggers,A.Wheel;
