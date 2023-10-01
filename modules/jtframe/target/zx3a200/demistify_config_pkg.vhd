@@ -52,6 +52,11 @@ constant demistify_serialdebug : std_logic := '0';
 			SDRAM_CLK	:	 OUT STD_LOGIC;
 			SDRAM_CKE	:	 OUT STD_LOGIC;
 
+			SRAM_A      : 	 OUT   STD_LOGIC_VECTOR(19 downto 0);
+			SRAM_Q      : 	 INOUT STD_LOGIC_VECTOR(15 downto 0);
+			SRAM_WE     : 	 OUT   STD_LOGIC                       := '1';
+			LF_SRAM     : 	 OUT   STD_LOGIC                       := '0';
+
 			UART_RX		:	 IN STD_LOGIC := '1';
 			UART_TX		:	 OUT STD_LOGIC;
 

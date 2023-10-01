@@ -26,12 +26,12 @@ entity jtframe_zxtres_top is
 		DRAM_CAS_N : out std_logic;
 		DRAM_RAS_N : out std_logic;
 		-- SRAM
-		SRAM_A      : out   std_logic_vector(19 downto 0);
-		SRAM_Q      : inout std_logic_vector(15 downto 0);
+		SRAM_A      : out   std_logic_vector(19 downto 0)   := (others => '0');
+		SRAM_Q      : inout std_logic_vector(15 downto 0)   := (others => 'Z');
 		SRAM_WE     : out   std_logic                       := '1';
-		SRAM_OE     : out   std_logic                       := '1';
-		SRAM_UB     : out   std_logic                       := '1';
-		SRAM_LB     : out   std_logic                       := '1';
+		SRAM_OE     : out   std_logic                       := '0';
+		SRAM_UB     : out   std_logic                       := '0';
+		SRAM_LB     : out   std_logic                       := '0';
 		-- VGA
 		VGA_HS : out std_logic;
 		VGA_VS : out std_logic;
@@ -46,10 +46,10 @@ entity jtframe_zxtres_top is
 		PS2_MOUSE_CLK    : inout std_logic;
 		PS2_MOUSE_DAT    : inout std_logic;
 		-- UART
-		-- PMOD4_D4 : in std_logic;		--UART_RXD
-		-- PMOD4_D5 : out std_logic;		--UART_TXD
-		-- PMOD4_D6 : in std_logic;		--UART_CTS
-		-- PMOD4_D7 : out std_logic;		--UART_RTS		
+		PMOD4_D4 : in std_logic;		--UART_RXD
+		PMOD4_D5 : out std_logic;		--UART_TXD
+		PMOD4_D6 : in std_logic;		--UART_CTS
+		PMOD4_D7 : out std_logic;		--UART_RTS		
 		-- JOYSTICK
         joy_clk : out std_logic;
         joy_load_n : out std_logic;
@@ -192,31 +192,27 @@ architecture RTL of jtframe_zxtres_top is
 	alias sigma_l : std_logic is PWM_AUDIO_L;
 	alias sigma_r : std_logic is PWM_AUDIO_R;
 
-
-	signal PMOD4_D5 : std_logic;
-	signal PMOD4_D4 : std_logic;
-
 begin
 
 
--- process(CLK_50_buf)
--- begin
--- 	if (lf_sram = '1') then		--`ifdef JTFRAME_LF_BUFFER
+process(CLK_50_buf)
+begin
+	if (lf_sram = '1') then		--`ifdef JTFRAME_LF_BUFFER
 		SRAM_OE <= '0';
 		SRAM_WE <= sram_we_x;
 		--SRAM_OE <= not sram_we_x;
 		SRAM_UB <= '0';
 		SRAM_LB <= '0';
--- 	else
--- 		--no SRAM for this core
--- 		SRAM_A <=  (others => '0');
--- 		SRAM_Q <=  (others => 'Z');
--- 		SRAM_WE <= '1';
--- 		SRAM_OE <= '1';
--- 		SRAM_UB <= '1';
--- 		SRAM_LB <= '1';
--- 	end if;
--- end process;
+	else
+		--no SRAM for this core
+		SRAM_A <=  (others => '0');
+		SRAM_Q <=  (others => 'Z');
+		SRAM_WE <= '1';
+		SRAM_OE <= '1';
+		SRAM_UB <= '0';
+		SRAM_LB <= '0';
+	end if;
+end process;
 
 
 -- SPI

@@ -60,7 +60,7 @@ module mist_top(
     output          AUDIO_L,
     output          AUDIO_R,
     
-    `ifdef DEMISTIFY
+    // `ifdef DEMISTIFY
     output  [15:0]  DAC_L,   
     output  [15:0]  DAC_R,   
     // Joystick
@@ -78,7 +78,12 @@ module mist_top(
 
     output          clk_rom,
     output          rst,
-    `endif   
+
+    output  [19:0]  SRAM_A,
+    inout   [15:0]  SRAM_Q,
+    output          SRAM_WE,
+    output          LF_SRAM,
+    // `endif   
 
     // user LED
     output          LED
@@ -98,6 +103,12 @@ module mist_top(
 	assign DAC_R = snd_right;
 `endif   
     
+`ifdef JTFRAME_LF_BUFFER
+    assign LF_SRAM = 1'b1;
+`else
+    assign LF_SRAM = 1'b0;
+`endif    
+
 `ifdef JTFRAME_SDRAM_LARGE
     localparam SDRAMW=23; // 64 MB
 `else
@@ -476,7 +487,7 @@ assign dipsw = `ifdef JTFRAME_SIM_DIPS
 `include "jtframe_game_instance.v"
 
 
-`ifdef JTFRAME_LF_BUFFER
+// `ifdef JTFRAME_LF_BUFFER
 
     // line-frame buffer
     wire        [ 7:0] game_vrender;
@@ -495,9 +506,37 @@ assign dipsw = `ifdef JTFRAME_SIM_DIPS
     reg pxl1_cen;
     always @(posedge clk_sys) pxl1_cen <= pxl2_cen & ~pxl_cen;
 
-    // line-frame buffer.
 
-`endif
+    // line-frame buffer.
+    jtframe_lfbuf_sram u_lf_buf(
+        .rst        ( rst           ),
+        .clk        ( clk_rom       ),
+        .pxl_cen    ( pxl1_cen      ),
+
+        .vs         ( vs            ),
+        .lvbl       ( LVBL          ),
+        .lhbl       ( LHBL          ),
+        .vrender    ( game_vrender  ),
+        .hdump      ( game_hdump    ),
+
+        // interface with the game core
+        .ln_addr    ( ln_addr       ),
+        .ln_data    ( ln_data       ),
+        .ln_done    ( ln_done       ),
+        .ln_hs      ( ln_hs         ),
+        .ln_pxl     ( ln_pxl        ),
+        .ln_v       ( ln_v          ),
+        .ln_we      ( ln_we         ),
+
+        .sram_addr ( SRAM_A         ),
+        .sram_data ( SRAM_Q         ),
+        .sram_we   ( SRAM_WE        ),	//negative logic
+
+        .st_addr    ( st_addr       ),
+        .st_dout    ( st_lpbuf      )
+    );
+
+// `endif
 
 
 endmodule
