@@ -10,7 +10,7 @@ use work.demistify_config_pkg.all;
 entity jtframe_zxtres_top is
 	port (
 		CLK_50     : in std_logic;
---		SW2        : in std_logic;
+
 		LED5       : out std_logic := '1';
 		LED6       : out std_logic := '1';
 		-- SDRAM
@@ -182,7 +182,6 @@ architecture RTL of jtframe_zxtres_top is
 
 	signal act_led : std_logic;
 	signal osd_en   : std_logic;
-	signal sram_we_x : std_logic;
 	signal lf_sram : std_logic;
 
 	signal CLK_50_buf : std_logic;
@@ -192,26 +191,6 @@ architecture RTL of jtframe_zxtres_top is
 	alias sigma_r : std_logic is PWM_AUDIO_R;
 
 begin
-
-
--- process(CLK_50_buf)
--- begin
--- 	if (lf_sram = '1') then		--`ifdef JTFRAME_LF_BUFFER
-		SRAM_OE <= '0';
-		SRAM_WE <= sram_we_x;
-		--SRAM_OE <= not sram_we_x;
-		SRAM_UB <= '0';
-		SRAM_LB <= '0';
--- 	else
--- 		--no SRAM for this core
--- 		SRAM_A <=  (others => '0');
--- 		SRAM_Q <=  (others => 'Z');
--- 		SRAM_WE <= '1';
--- 		SRAM_OE <= '1';
--- 		SRAM_UB <= '1';
--- 		SRAM_LB <= '1';
--- 	end if;
--- end process;
 
 
 -- SPI
@@ -315,8 +294,10 @@ audio_i2s : entity work.audio_top
 			--SRAM
 			SRAM_A		=> SRAM_A,
 			SRAM_Q		=> SRAM_Q,
-			SRAM_WE		=> sram_we_x,
-			LF_SRAM		=> lf_sram,
+			SRAM_WE		=> SRAM_WE,
+			SRAM_OE		=> SRAM_OE,
+			SRAM_UB		=> SRAM_UB,
+			SRAM_LB		=> SRAM_LB,			
 
 			--UART
 			UART_TX    => PMOD4_D5,

@@ -82,7 +82,9 @@ module mist_top(
     output  [19:0]  SRAM_A,
     inout   [15:0]  SRAM_Q,
     output          SRAM_WE,
-    output          LF_SRAM,
+    output          SRAM_OE,
+    output          SRAM_UB,
+    output          SRAM_LB,
     `endif   
 
     // user LED
@@ -529,11 +531,18 @@ assign dipsw = `ifdef JTFRAME_SIM_DIPS
         .st_dout    ( st_lpbuf      )
     );
 
-    assign LF_SRAM = 1'b1;
-
+    assign SRAM_OE = 1'b0;
+    assign SRAM_UB = 1'b0;
+    assign SRAM_LB = 1'b0;
 `else
-    assign LF_SRAM = 1'b0;
-`endif    
+    //no SRAM for this core
+    assign SRAM_A = 21'd0;
+    assign SRAM_Q = 16'bZ;
+    assign SRAM_WE = 1'b1;
+    assign SRAM_OE = 1'b1;
+    assign SRAM_UB = 1'b1;
+    assign SRAM_LB = 1'b1;
+`endif
 
 
 
