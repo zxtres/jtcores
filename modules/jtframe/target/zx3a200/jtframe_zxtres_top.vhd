@@ -26,12 +26,12 @@ entity jtframe_zxtres_top is
 		DRAM_CAS_N : out std_logic;
 		DRAM_RAS_N : out std_logic;
 		-- SRAM
-		SRAM_A      : out   std_logic_vector(19 downto 0);
-		SRAM_Q      : inout std_logic_vector(15 downto 0);
-		SRAM_WE     : out   std_logic                       := '1';
-		SRAM_OE     : out   std_logic                       := '1';
-		SRAM_UB     : out   std_logic                       := '1';
-		SRAM_LB     : out   std_logic                       := '1';
+		SRAM_A      : out   std_logic_vector(19 downto 0) := (others => '0');
+		SRAM_Q      : inout std_logic_vector(15 downto 0) := (others => 'Z');
+		SRAM_WE     : out   std_logic := '1';
+		SRAM_OE     : out   std_logic := '1';
+		SRAM_UB     : out   std_logic := '1';
+		SRAM_LB     : out   std_logic := '1';
 		-- VGA
 		VGA_HS : out std_logic;
 		VGA_VS : out std_logic;
