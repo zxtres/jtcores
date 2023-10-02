@@ -46,10 +46,10 @@ entity jtframe_zxtres_top is
 		PS2_MOUSE_CLK    : inout std_logic;
 		PS2_MOUSE_DAT    : inout std_logic;
 		-- UART
-		-- PMOD4_D4 : in std_logic;		--UART_RXD
-		-- PMOD4_D5 : out std_logic;		--UART_TXD
-		-- PMOD4_D6 : in std_logic;		--UART_CTS
-		-- PMOD4_D7 : out std_logic;		--UART_RTS		
+		PMOD4_D4 : in std_logic;		--UART_RXD
+		PMOD4_D5 : out std_logic;		--UART_TXD
+		PMOD4_D6 : in std_logic;		--UART_CTS
+		PMOD4_D7 : out std_logic;		--UART_RTS		
 		-- JOYSTICK
         joy_clk : out std_logic;
         joy_load_n : out std_logic;
@@ -181,7 +181,6 @@ architecture RTL of jtframe_zxtres_top is
 	end component;
 
 	signal act_led : std_logic;
-
 	signal osd_en   : std_logic;
 	signal sram_we_x : std_logic;
 	signal lf_sram : std_logic;
@@ -191,10 +190,6 @@ architecture RTL of jtframe_zxtres_top is
 	alias clock_input 	: std_logic is CLK_50;
 	alias sigma_l : std_logic is PWM_AUDIO_L;
 	alias sigma_r : std_logic is PWM_AUDIO_R;
-
-
-	signal PMOD4_D5 : std_logic;
-	signal PMOD4_D4 : std_logic;
 
 begin
 

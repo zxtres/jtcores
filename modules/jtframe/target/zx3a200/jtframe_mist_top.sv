@@ -60,7 +60,7 @@ module mist_top(
     output          AUDIO_L,
     output          AUDIO_R,
     
-    // `ifdef DEMISTIFY
+    `ifdef DEMISTIFY
     output  [15:0]  DAC_L,   
     output  [15:0]  DAC_R,   
     // Joystick
@@ -83,7 +83,7 @@ module mist_top(
     inout   [15:0]  SRAM_Q,
     output          SRAM_WE,
     output          LF_SRAM,
-    // `endif   
+    `endif   
 
     // user LED
     output          LED
@@ -103,12 +103,6 @@ module mist_top(
 	assign DAC_R = snd_right;
 `endif   
     
-`ifdef JTFRAME_LF_BUFFER
-    assign LF_SRAM = 1'b1;
-`else
-    assign LF_SRAM = 1'b0;
-`endif    
-
 `ifdef JTFRAME_SDRAM_LARGE
     localparam SDRAMW=23; // 64 MB
 `else
@@ -487,7 +481,7 @@ assign dipsw = `ifdef JTFRAME_SIM_DIPS
 `include "jtframe_game_instance.v"
 
 
-// `ifdef JTFRAME_LF_BUFFER
+`ifdef JTFRAME_LF_BUFFER
 
     // line-frame buffer
     wire        [ 7:0] game_vrender;
@@ -505,7 +499,6 @@ assign dipsw = `ifdef JTFRAME_SIM_DIPS
     // this places the pxl1_cen in the pixel centre
     reg pxl1_cen;
     always @(posedge clk_sys) pxl1_cen <= pxl2_cen & ~pxl_cen;
-
 
     // line-frame buffer.
     jtframe_lfbuf_sram u_lf_buf(
@@ -536,7 +529,12 @@ assign dipsw = `ifdef JTFRAME_SIM_DIPS
         .st_dout    ( st_lpbuf      )
     );
 
-// `endif
+    assign LF_SRAM = 1'b1;
+
+`else
+    assign LF_SRAM = 1'b0;
+`endif    
+
 
 
 endmodule
