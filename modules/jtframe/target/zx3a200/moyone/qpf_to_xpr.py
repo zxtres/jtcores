@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+# 03/10/23 modified by @somhi
 
 import os
 import re
@@ -102,7 +103,8 @@ def extract_file_paths(file_path, base_path=None):
             content = f.readlines()
 
         # Buscamos rutas de archivos con los tipos VHDL_FILE, VERILOG_FILE, SYSTEMVERILOG_FILE, SDC_FILE y QIP_FILE
-        pattern = r'set_global_assignment\s+-name\s+(VHDL_FILE|VERILOG_FILE|QIP_FILE|SYSTEMVERILOG_FILE|SDC_FILE)\s+(.*?)$'
+        pattern = r'set_global_assignment\s+-name\s+(VHDL_FILE|VERILOG_FILE|QIP_FILE|SYSTEMVERILOG_FILE)\s+(.*?)$'
+        # pattern = r'set_global_assignment\s+-name\s+(VHDL_FILE|VERILOG_FILE|QIP_FILE|SYSTEMVERILOG_FILE|SDC_FILE)\s+(.*?)$'
         for line in content:
             line = line.replace("file join $::quartus(qip_path) ", "").strip()
             match = re.match(pattern, line)
@@ -214,7 +216,10 @@ def main():
         # Instrucción para establecer los directorios de búsqueda para ficheros de inclusión
         f.write(f"set_property -name \"include_dirs\" -value \"[file normalize \"../../../modules/jtframe/hdl/inc\"] [file normalize \"../hdl\"]\" -objects [current_fileset]\n")
 
-   
+        #SDC
+        f.write(f"add_files -fileset constrs_1 -norecurse \"../../../modules/jtframe/target/zx3a200/mist_io.sdc\"\n")
+        f.write(f"set_property target_constrs_file \"../../../modules/jtframe/target/zx3a200/mist_io.sdc\" [current_fileset -constrset]\n")
+
         # Instrucciones para crear el Design Run de la plasca ZXTRES (A35T)
         f.write(f"create_run -name sintesis_A35T -part xc7a35tfgg484-2 -flow {{Vivado Synthesis 2022}} -strategy \"Flow_AreaOptimized_high\" -report_strategy {{Vivado Synthesis Default Reports}} -constrset constrs_1\n")
         f.write(f"create_run -name implementacion_A35T -part xc7a35tfgg484-2 -flow {{Vivado Implementation 2022}} -strategy \"Flow_RunPhysOpt\" -report_strategy {{Vivado Implementation Default Reports}} -constrset constrs_1 -parent_run sintesis_A35T\n")
