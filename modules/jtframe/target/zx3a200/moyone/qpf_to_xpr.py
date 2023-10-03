@@ -1,5 +1,22 @@
 #!/usr/bin/env python3
 
+# SCRIPT TO CONVERT QUARTUS PROJECT FILE (QSF) INTO VIVADO PROJECT (XPR)
+# Copyright © 2023 by Jose Manuel (@moyone)
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty
+# of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
 import os
 import re
 import getopt,sys
@@ -22,18 +39,21 @@ for file in files:
 
 output_file = "generar_proyecto_vivado.tcl"
 
+# Opciones/Parámetros
+create_A35T = 0
 create_A100T = 0
 create_A200T = 0
-create_A35T = 0
+change_v_to_vs = 1
+run = 1
 
 if (len(sys.argv) > 1):
     argumentList = sys.argv[1:]
 
     # Opciones cortas 1 = A100T, 2 = A200T, 3 = A35T
-    options = "123"
+    options = "123nx"
 
     # Opciones largas A100T, A200T, A35T
-    long_options = ["A100T", "A200T", "A35T"]
+    long_options = ["A100T", "A200T", "A35T", "no_v_to_sv", "norun"]
 
     try:
         # Parsing
@@ -50,12 +70,26 @@ if (len(sys.argv) > 1):
             elif currentArgument in ("-3", "--A35T"):
                 create_A35T = 1
                 print("Se procesará Core para A35T")
+            elif currentArgument in ("-v", "--no_v_to_sv"):
+                change_v_to_vs = 0
+                print("No se cambiará el tipo a SVerilog para los ficheros verilog")
+            elif currentArgument in ("-x", "--norun"):
+                run = 0
+                print("No se crearán las líneas de ejecución de los Design Runs en el TCL")
+        if (create_A35T == 0 and create_A100T == 0 and create_A200T == 0):
+            create_A35T = 1
+            create_A100T = 1
+            create_A200T = 1
+            print("No se especificó FPGA, se crearán las tres.")
+
+            
     except getopt.error as err:
         print(str(err))
 else:
     create_A100T = 1
     create_A200T = 1
     create_A35T = 1
+    change_v_to_vs = 1
     print("No se especificó FPGA, se crearán las tres.")
 
 def extract_file_paths(file_path, base_path=None):
@@ -67,8 +101,8 @@ def extract_file_paths(file_path, base_path=None):
             print(f"Procesando fichero: {file_path}")
             content = f.readlines()
 
-        # Buscamos rutas de archivos con los tipos VHDL_FILE, VERILOG_FILE, SYSTEMVERILOG_FILE y QIP_FILE
-        pattern = r'set_global_assignment\s+-name\s+(VHDL_FILE|VERILOG_FILE|QIP_FILE|SYSTEMVERILOG_FILE)\s+(.*?)$'
+        # Buscamos rutas de archivos con los tipos VHDL_FILE, VERILOG_FILE, SYSTEMVERILOG_FILE, SDC_FILE y QIP_FILE
+        pattern = r'set_global_assignment\s+-name\s+(VHDL_FILE|VERILOG_FILE|QIP_FILE|SYSTEMVERILOG_FILE|SDC_FILE)\s+(.*?)$'
         for line in content:
             line = line.replace("file join $::quartus(qip_path) ", "").strip()
             match = re.match(pattern, line)
@@ -90,16 +124,21 @@ def extract_file_paths(file_path, base_path=None):
                     nested_file_paths = extract_file_paths(qip_file_path, os.path.dirname(file_path))
                     file_paths.extend(nested_file_paths)
                 else:
+                    # XDC y SDC a "constr_1" el resto a "sources_1"
+                    if (file_path.strip()[-2:]=='dc'):
+                        container = "constrs_1"
+                    else:
+                        container = "sources_1"
                     if (" " in file_path.strip()):
-                        file_paths.append('add_files -fileset sources_1 {"' + file_path.strip().replace(" ", "\\ ") +'"}')
                         # Agregamos el tipo SVerilog a los ficheros .v para redudir el numero de alertas de Vivado
-                        if (file_path.strip()[-2:]=='.v'):
-                            file_paths.append('set_property file_type SystemVerilog [get_files  {'+file_path.strip().replace(" ", "\\ ")+'}]')
+                        file_paths.append(f'add_files -fileset {container} {{\"{file_path.strip()}\"}}')
+                        if (file_path.strip()[-2:]=='.v'  and change_v_to_vs == 1):
+                            file_paths.append(f'set_property file_type SystemVerilog [get_files  {{\"{file_path.strip()}\"}}]')
                     else:
                         # Agregamos el tipo SVerilog a los ficheros .v para redudir el numero de alertas de Vivado
-                        file_paths.append('add_files -fileset sources_1 {' + file_path.strip().replace(" ", "\\ ") +'}')
-                        if (file_path.strip()[-2:]=='.v'):
-                            file_paths.append('set_property file_type SystemVerilog [get_files  {'+file_path.strip().replace(" ", "\\ ")+'}]')
+                        file_paths.append(f'add_files -fileset {container} {{{file_path.strip()}}}')
+                        if (file_path.strip()[-2:]=='.v'  and change_v_to_vs == 1):
+                            file_paths.append(f'set_property file_type SystemVerilog [get_files  {{{file_path.strip()}}}]')
     except:
         print(f"Warning: No se encontró el fichero {file_path}")
         
@@ -139,14 +178,16 @@ def crear_build_id_vh():
         f.write(f"`define BUILD_DATE \"{fechahora.strftime('%y%m%d')}\"\n`define BUILD_TIME \"{fechahora.strftime('%H%M%S')}\"\n")
 
 def main():
-    # ZXTRES
-    #target_fpga = 'xc7a35tfgg484-2' 
     
-    # ZXTRES +
-    #target_fpga = 'xc7a100tfgg484-2'
-    
-    # ZXTRES ++
-    target_fpga = 'xc7a200tfbg484-2'
+    if (create_A200T == 1):
+        # ZXTRES ++
+        target_fpga = 'xc7a200tfbg484-2'  
+    elif (create_A35T == 1):
+        # ZXTRES
+        target_fpga = 'xc7a35tfgg484-2' 
+    elif (create_A100T == 1):
+        # ZXTRES +
+        target_fpga = 'xc7a100tfgg484-2'
     
     file_paths = extract_file_paths(input_file)
 
@@ -160,10 +201,11 @@ def main():
     if file_paths:
         # Agregar todos los ficheros del proyecto al script TCL
         write_file_paths_to_output(file_paths, output_file, target_fpga)
-        print(f"\nSe han extraído {len(file_paths)} rutas de archivos y se han guardado en '{output_file}'.")
+        print(f"\nSe han extraído {len(file_paths)} rutas de archivos y se han guardado en el script '{output_file}'.")
     else:
         print("\nNo se encontraron rutas de archivos en el archivo de entrada.")
 
+    
     with open(output_file, 'a') as f:
         # Instrucciones para establecer el TOP MODULE
         f.write(f"set_property top jtframe_zxtres_top [current_fileset]\n")
@@ -172,6 +214,7 @@ def main():
         # Instrucción para establecer los directorios de búsqueda para ficheros de inclusión
         f.write(f"set_property -name \"include_dirs\" -value \"[file normalize \"../../../modules/jtframe/hdl/inc\"] [file normalize \"../hdl\"]\" -objects [current_fileset]\n")
 
+   
         # Instrucciones para crear el Design Run de la plasca ZXTRES (A35T)
         f.write(f"create_run -name sintesis_A35T -part xc7a35tfgg484-2 -flow {{Vivado Synthesis 2022}} -strategy \"Flow_AreaOptimized_high\" -report_strategy {{Vivado Synthesis Default Reports}} -constrset constrs_1\n")
         f.write(f"create_run -name implementacion_A35T -part xc7a35tfgg484-2 -flow {{Vivado Implementation 2022}} -strategy \"Flow_RunPhysOpt\" -report_strategy {{Vivado Implementation Default Reports}} -constrset constrs_1 -parent_run sintesis_A35T\n")
@@ -184,7 +227,15 @@ def main():
         f.write(f"create_run -name sintesis_A200T -part xc7a200tfbg484-2 -flow {{Vivado Synthesis 2022}} -strategy \"Vivado Synthesis Defaults\" -report_strategy {{Vivado Synthesis Default Reports}} -constrset constrs_1\n")
         f.write(f"create_run -name implementacion_A200T -part xc7a200tfbg484-2 -flow {{Vivado Implementation 2022}} -strategy \"Vivado Implementation Defaults\" -report_strategy {{Vivado Implementation Default Reports}} -constrset constrs_1 -parent_run sintesis_A200T\n")
 
-        # Instrucciones para generar el fichro .bin
+        # Instrucciones para deshabilitar la síntesis incremental
+        f.write(f"set_property -name \"auto_incremental_checkpoint\" -value \"1\" -objects [get_runs sintesis_A200T]\n")
+        f.write(f"set_property -name \"steps.synth_design.args.incremental_mode\" -value \"off\" -objects [get_runs sintesis_A200T]\n")
+        f.write(f"set_property -name \"auto_incremental_checkpoint\" -value \"1\" -objects [get_runs sintesis_A100T]\n")
+        f.write(f"set_property -name \"steps.synth_design.args.incremental_mode\" -value \"off\" -objects [get_runs sintesis_A100T]\n")
+        f.write(f"set_property -name \"auto_incremental_checkpoint\" -value \"1\" -objects [get_runs sintesis_A35T]\n")
+        f.write(f"set_property -name \"steps.synth_design.args.incremental_mode\" -value \"off\" -objects [get_runs sintesis_A35T]\n")
+        
+        # Instrucciones para generar el fichero .bin (bit sin cabecera = .zx3)
         f.write(f"set_property -name \"steps.write_bitstream.args.bin_file\" -value \"1\" -objects [get_runs implementacion_A200T]\n")
         f.write(f"set_property -name \"steps.write_bitstream.args.bin_file\" -value \"1\" -objects [get_runs implementacion_A100T]\n")
         f.write(f"set_property -name \"steps.write_bitstream.args.bin_file\" -value \"1\" -objects [get_runs implementacion_A35T]\n")
@@ -193,23 +244,33 @@ def main():
         # f.write(f"set_property -name \"steps.opt_design.args.verbose\" -value \"1\" -objects [get_runs implementacion_A200T]\n")
         # f.write(f"set_property -name \"options.verbose\" -value \"0\" -objects [get_report_configs -of_objects [get_runs implementacion_A200T] implementacion_A200T_place_report_control_sets_0]\n")
 
-        f.write(f"\ncurrent_run [get_runs sintesis_A200T]\n")
-
+        # Cambiar el Design Run Activo
         if (create_A200T == 1):
+            f.write("\ncurrent_run [get_runs sintesis_A200T]\n")
+        elif (create_A35T == 1):
+            f.write("\ncurrent_run [get_runs sintesis_A35T]\n")
+        elif (create_A100T == 1):
+            f.write("\ncurrent_run [get_runs sintesis_A100T]\n")
+        
+        # Eliminar los Design Runs por defecto de Vivado
+        f.write("delete_runs \"impl_1\"\n")
+        f.write("delete_runs \"synth_1\"\n")
+
+        if (create_A200T == 1 and run == 1):
             # Launch A200T runs
             f.write(f"\nreset_run sintesis_A200T\n")
             f.write(f"launch_runs implementacion_A200T -to_step write_bitstream\n")
             f.write(f"\nwait_on_run implementacion_A200T\n")
             f.write(f"\nputs \"Implementation ZXTRES A200T done!\"\n")
 
-        if (create_A100T == 1):
+        if (create_A100T == 1 and run == 1):
             # Launch A100T runs
             f.write(f"\nreset_run sintesis_A100T\n")
             f.write(f"launch_runs implementacion_A100T -to_step write_bitstream\n")
             f.write(f"\nwait_on_run implementacion_A100T\n")
             f.write(f"\nputs \"Implementation ZXTRES A100T done!\"\n")
 
-        if (create_A35T == 1):
+        if (create_A35T == 1 and run == 1):
             # Launch A35T runs
             f.write(f"\nreset_run sintesis_A35T\n")
             f.write(f"launch_runs implementacion_A35T -to_step write_bitstream\n")
@@ -225,7 +286,7 @@ def main():
     crear_build_id_vh()
     
     print("\n==========================================================================================")
-    print("Agregar al PATH la ruta de los comandos de Vivado (D:\\Xilinx\\Vivado 2022.2\\bin\\)")
+    print("Agregar al PATH la ruta de los comandos de Vivado (D:\\Xilinx\\Vivado\2022.2\\bin\\)")
     print("Para generar el proyecto ejecutar: vivado -mode tcl -source generar_proyecto_vivado.tcl")
     print("==========================================================================================\n")
     
