@@ -1,5 +1,5 @@
 ##
-## DEVICE  "EP3C25E144C8"
+## DEVICE  Artix7 A35T, A100T, A200T
 ##
 
 
@@ -38,8 +38,7 @@ set FALSE_IN  {SW* PS2_* JOY1* EAR UART_RXD SD_MISO_I}
 
 create_clock -name {clk_50} -period 20.000 -waveform {0.000 10.000} { CLK_50 }
 
-#create_generated_clock -name spiclk -source [get_ports {CLK_50}] -divide_by 16 [get_nets {controller/spi/sck_i_1_n_0}]
-create_generated_clock -name spiclk -source [get_ports CLK_50] -divide_by 16 [get_nets -hierarchical "*sck_i_1_n_0*"]
+create_generated_clock -name spiclk -source [get_ports CLK_50] -divide_by 16 [get_pins controller/spi/sck_reg/Q]
 
 set hostclk { clk_50 }
 set supportclk { clk_50 }
@@ -52,7 +51,7 @@ set topmodule "guest/"
 #     -divide_by 1 \
 #     [get_ports ${RAM_CLK}]
 
-create_generated_clock -name SDRAM_CLK -source [get_pins guest/u_clocks/u_pll_game/clk_out3] -divide_by 1 [get_ports ${RAM_CLK}]
+create_generated_clock -name SDRAM_CLK -source [get_pins guest/u_clocks/u_pll_game/plle2_adv_inst/CLKOUT2] -divide_by 1 [get_ports ${RAM_CLK}]
 
 #**************************************************************
 # Set Clock Latency
@@ -108,8 +107,8 @@ set_false_path -to [get_ports ${FALSE_OUT}]
 set_false_path -from [get_ports ${FALSE_IN}]
 
 # These are static signals that don't need to be concerned with
-set_false_path -from [get_cells ${topmodule}u_frame/u_board/u_dip/enable_psg]
-set_false_path -from [get_cells ${topmodule}u_frame/u_board/u_dip/enable_fm]
+set_false_path -from [get_cells ${topmodule}u_frame/u_board/u_dip/enable_psg_reg]
+set_false_path -from [get_cells ${topmodule}u_frame/u_board/u_dip/enable_fm_reg]
 
 # Reset synchronization signal
 set_false_path -from [get_cells ${topmodule}u_frame/u_board/u_reset/rst_rom_reg[0]] -to [get_cells ${topmodule}u_frame/u_board/u_reset/rst_rom_sync_reg]
@@ -118,9 +117,9 @@ set_false_path -from [get_cells ${topmodule}u_frame/u_board/u_reset/rst_rom_reg[
 # Set Multicycle Path
 #**************************************************************
 
-set_multicycle_path -hold -end -from  [get_clocks {SDRAM_CLK}]  -to  [get_clocks ${clk2}] 2
+set_multicycle_path -hold -end -from  [get_clocks {SDRAM_CLK}]  -to  [get_clocks {clk_out2_pll}] 2
 
-set_multicycle_path -setup -end -from [get_ports ${RAM_IN}] -to [get_cells ${topmodule}u_frame|u_board|u_sdram|dout_reg[*]] 2
+set_multicycle_path -setup -end -from [get_ports ${RAM_IN}] -to [get_cells ${topmodule}u_frame/u_board/u_sdram/dout_reg[*]] 2
 
 # set_multicycle_path -from [get_clocks {u_clocks|u_pll_game|altpll_component|auto_generated|pll1|clk[1]}] -to [get_clocks {u_clocks|u_pll_game|altpll_component|auto_generated|pll1|clk[2]}] -start 2
 
@@ -159,3 +158,30 @@ set_multicycle_path -setup -end -from [get_ports ${RAM_IN}] -to [get_cells ${top
 # set_output_delay -add_delay -min -clock SPI_SCK  3.2 [get_ports SPI_DO]
 
 set_false_path -to [get_cells {*/jtframe_sync:*/synchronizer[*].s_reg[0]}]
+
+
+#**************************************************************
+# # TIMINGS S16B   ./cores/s16b/syn/timing.sdc
+#**************************************************************
+# # Games using the MCU don't use the FD1094/89
+# set_false_path -from [get_keepers *mcu*] -to [get_keepers *fd1094*]
+# set_false_path -from [get_keepers *mcu*] -to [get_keepers *fd1089*]
+
+# # Most -but not all- of JT7751 runs under a clock enable signal at 640kHz
+# # The CPU interface is not cen'ed but it has small combinational logic
+# # so the risk of including it here is low
+# set_multicycle_path -from {*|jt7759:u_pcm|*} -to {*|jt7759:u_pcm|*} -setup -end 2
+# set_multicycle_path -from {*|jt7759:u_pcm|*} -to {*|jt7759:u_pcm|*} -hold -end 2
+
+
+#**************************************************************
+# # TIMINGS S16    ./cores/s16b/syn/timing.sdc
+#**************************************************************
+# # Most -but not all- of JT51 runs under a clock enable signal at 4MHz
+# # The CPU interface is not cen'ed but it has small combinational logic
+# # so the risk of including it here is low
+# set_multicycle_path -from {*|jt51:u_jt51|*} -to {*|jt51:u_jt51|*} -setup -end 2
+# set_multicycle_path -from {*|jt51:u_jt51|*} -to {*|jt51:u_jt51|*} -hold -end 2
+
+# set_multicycle_path -from [get_pins -hierarchical -regexp guest/u_game/u_game/u_sound/u_jt51/] -to [get_pins -hierarchical u_jt51/*] -setup -end 2
+# set_multicycle_path -from {-hierarchical "*u_jt51*"} -to {-hierarchical "*u_jt51*"} -hold -end 2
