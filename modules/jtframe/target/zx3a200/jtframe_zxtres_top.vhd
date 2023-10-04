@@ -39,7 +39,7 @@ entity jtframe_zxtres_top is
 		VGA_G  		: out std_logic_vector(7 downto 0);
 		VGA_B  		: out std_logic_vector(7 downto 0);
 		-- EAR
-		-- EAR 			 : in std_logic;
+		-- EAR_I		 : in std_logic;
 		-- PS2
 		PS2_KEYBOARD_CLK : inout std_logic := '1';
 		PS2_KEYBOARD_DAT : inout std_logic := '1';
@@ -47,14 +47,14 @@ entity jtframe_zxtres_top is
 		PS2_MOUSE_DAT    : inout std_logic;
 		-- UART
 		PMOD4_D4 	: in std_logic;		--UART_RXD
-		PMOD4_D5 	: out std_logic;		--UART_TXD
+		PMOD4_D5 	: out std_logic;	--UART_TXD
 		PMOD4_D6 	: in std_logic;		--UART_CTS
-		PMOD4_D7 	: out std_logic;		--UART_RTS		
+		PMOD4_D7 	: out std_logic;	--UART_RTS		
 		-- JOYSTICK
-        joy_clk		: out std_logic;
-        joy_load_n	: out std_logic;
-        joy_data	: in std_logic;
-        joy_sel		: out std_logic := '1';
+        JOY_CLK		: out std_logic;
+        JOY_LOAD_N	: out std_logic;
+        JOY_DATA	: in std_logic;
+        JOY_SEL		: out std_logic := '1';
 		-- SD Card
 		SD_CS_N_O   : out std_logic := '1';
 		SD_SCLK_O   : out std_logic := '0';
@@ -220,9 +220,9 @@ VGA_VS      <= vga_vsync;
 joy : component joydecoder_neptuno
 	port map(
 		clk_i         => CLK_50_buf,
-		joy_data_i    => joy_data,
-		joy_clk_o     => joy_clk,
-		joy_load_o    => joy_load_n,
+		joy_data_i    => JOY_DATA,
+		joy_clk_o     => JOY_CLK,
+		joy_load_o    => JOY_LOAD_N,
 		joy1_up_o     => joy1up,
 		joy1_down_o   => joy1down,
 		joy1_left_o   => joy1left,
@@ -249,10 +249,10 @@ process(CLK_50_buf)
 begin
 	if (intercept = '1') then
 		intercept_joy <= "111111";
-		joy_sel    <= '1';
+		JOY_SEL    <= '1';
 	else
 		intercept_joy <= "000000";
-		joy_sel    <= joy_select_o;
+		JOY_SEL    <= joy_select_o;
 	end if;
 end process;
 

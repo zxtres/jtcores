@@ -116,9 +116,9 @@ set_property PACKAGE_PIN U17 [get_ports PWM_AUDIO_R]
 set_property IOSTANDARD LVCMOS33 [get_ports PWM_AUDIO_R]
 
 #Audio Ear
-#set_property PACKAGE_PIN B1 [get_ports ear_i]
-#set_property IOSTANDARD LVCMOS33 [get_ports ear_i]
-#set_property PULLUP true [get_ports ear_i]
+#set_property PACKAGE_PIN B1 [get_ports EAR_I]
+#set_property IOSTANDARD LVCMOS33 [get_ports EAR_I]
+#set_property PULLUP true [get_ports EAR_I]
 
 #Audio I2S
 set_property PACKAGE_PIN V9 [get_ports I2S_BCLK]
@@ -129,15 +129,15 @@ set_property PACKAGE_PIN U6 [get_ports I2S_DATA]
 set_property IOSTANDARD LVCMOS33 [get_ports I2S_DATA]
 
 #Joystick
-set_property PACKAGE_PIN G1 [get_ports joy_sel]
-set_property IOSTANDARD LVCMOS33 [get_ports joy_sel]
-set_property PACKAGE_PIN V2 [get_ports joy_clk]
-set_property IOSTANDARD LVCMOS33 [get_ports joy_clk]
-set_property PACKAGE_PIN U2 [get_ports joy_load_n]
-set_property IOSTANDARD LVCMOS33 [get_ports joy_load_n]
-set_property PACKAGE_PIN W2 [get_ports joy_data]
-set_property IOSTANDARD LVCMOS33 [get_ports joy_data]
-set_property PULLUP true [get_ports joy_data]
+set_property PACKAGE_PIN G1 [get_ports JOY_SEL]
+set_property IOSTANDARD LVCMOS33 [get_ports JOY_SEL]
+set_property PACKAGE_PIN V2 [get_ports JOY_CLK]
+set_property IOSTANDARD LVCMOS33 [get_ports JOY_CLK]
+set_property PACKAGE_PIN U2 [get_ports JOY_LOAD_N]
+set_property IOSTANDARD LVCMOS33 [get_ports JOY_LOAD_N]
+set_property PACKAGE_PIN W2 [get_ports JOY_DATA]
+set_property IOSTANDARD LVCMOS33 [get_ports JOY_DATA]
+set_property PULLUP true [get_ports JOY_DATA]
 
 #SRAM
 set_property PACKAGE_PIN U18 [get_ports {SRAM_A[0]}]
