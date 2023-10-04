@@ -612,21 +612,21 @@ elif test $TARGET = zx3a200; then
     RBF=$PRJPATH/${TARGET}/zxtres.runs/implementacion_A200T/jtframe_zxtres_top.bin
     cp $JTROOT/modules/jtframe/target/zx3a200/moyone/* $PRJPATH/$TARGET/
     cd $PRJPATH/$TARGET/
-    rm -r db incremental_db
+    rm -r db incremental_db output_files
     python3 qpf_to_xpr.py --A200T
     generate_vivado_project.sh
 elif test $TARGET = zx3a100; then
     RBF=$PRJPATH/${TARGET}/zxtres.runs/implementacion_A100T/jtframe_zxtres_top.bin
     cp $JTROOT/modules/jtframe/target/zx3a100/moyone/* $PRJPATH/$TARGET/
     cd $PRJPATH/$TARGET/
-    rm -r db incremental_db
+    rm -r db incremental_db output_files
     python3 qpf_to_xpr.py --A100T
     generate_vivado_project.sh
 elif test $TARGET = zx3a35; then
     RBF=$PRJPATH/${TARGET}/zxtres.runs/implementacion_A35T/jtframe_zxtres_top.bin
     cp $JTROOT/modules/jtframe/target/zx3a35/moyone/* $PRJPATH/$TARGET/
     cd $PRJPATH/$TARGET/
-    rm -r db incremental_db
+    rm -r db incremental_db output_files
     python3 qpf_to_xpr.py --A35T
     generate_vivado_project.sh    
 else
