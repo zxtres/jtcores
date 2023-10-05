@@ -216,6 +216,14 @@ VGA_B       <= vga_blue(7 downto 2) &vga_blue(7 downto 6);
 VGA_HS      <= vga_hsync;
 VGA_VS      <= vga_vsync;
 
+-- Buffered input clock
+clkin_buff : component IBUF 
+	port map
+	(
+		O => (CLK_50_buf),
+		I => (clock_input)
+		);
+
 -- JOYSTICKS
 joy : component joydecoder_neptuno
 	port map(
@@ -274,7 +282,7 @@ guest : component mist_top
 	port map
 	(
 		CLOCK_27 	=> clock_input&clock_input,
-		CLOCK_27_buff => CLK_50_buf,
+		-- CLOCK_27_buff => CLK_50_buf,
 		LED 		=> act_led,
 
 		--SDRAM

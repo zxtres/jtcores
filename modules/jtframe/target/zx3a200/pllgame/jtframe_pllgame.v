@@ -43,7 +43,7 @@
 // liability of any use of Xilinx products in Critical
 // Applications, subject only to applicable laws and
 // regulations governing limitations on product liability.
-// 
+//
 // THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
 // PART OF THIS FILE AT ALL TIMES.
 // 
@@ -73,25 +73,24 @@
 module jtframe_pllgame
 
  (// Clock in ports
+  input wire        clk_in1,
   // Clock out ports
-  output        clk_out1,
-  output        clk_out2,
-  output        clk_out3,
-  output        clk_out4,
-  output        clk_out5,
+  output wire       clk_out1,
+  output wire       clk_out2,
+  output wire       clk_out3,
+  output wire       clk_out4,
+  output wire       clk_out5,
   // Status and control signals
-  input         reset,
-  output        locked,
-  input         clk_in1,
-  output        clk_in1_pll
+  input wire        reset,
+  output wire       locked
  );
   // Input buffering
   //------------------------------------
-wire clk_in2_pll;
+wire clk_in1_clk_wiz_0;
+wire clk_in2_clk_wiz_0;
   IBUF clkin1_ibufg
-   (.O (clk_in1_pll),
+   (.O (clk_in1_clk_wiz_0),
     .I (clk_in1));
-
 
   // Clocking PRIMITIVE
   //------------------------------------
@@ -100,72 +99,86 @@ wire clk_in2_pll;
   //    * Unused inputs are tied off
   //    * Unused outputs are labeled unused
 
-  wire        clk_out1_pll;
-  wire        clk_out2_pll;
-  wire        clk_out3_pll;
-  wire        clk_out4_pll;
-  wire        clk_out5_pll;
-  wire        clk_out6_pll;
-  wire        clk_out7_pll;
+  wire        clk_out1_clk_wiz_0;
+  wire        clk_out2_clk_wiz_0;
+  wire        clk_out3_clk_wiz_0;
+  wire        clk_out4_clk_wiz_0;
+  wire        clk_out5_clk_wiz_0;
+  wire        clk_out6_clk_wiz_0;
+  wire        clk_out7_clk_wiz_0;
 
   wire [15:0] do_unused;
   wire        drdy_unused;
   wire        psdone_unused;
   wire        locked_int;
-  wire        clkfbout_pll;
-  wire        clkfbout_buf_pll;
+  wire        clkfbout_clk_wiz_0;
   wire        clkfboutb_unused;
-  wire        clkout3_unused;
-  wire 	      clkout4_unused;
+  wire clkout0b_unused;
+  wire clkout1b_unused;
+  wire clkout2b_unused;
+  wire clkout3_unused;
+  wire clkout3b_unused;
+  wire clkout4_unused;
   wire        clkout5_unused;
   wire        clkout6_unused;
   wire        clkfbstopped_unused;
   wire        clkinstopped_unused;
-  wire        reset_high;
 
-  PLLE2_ADV
+  MMCME2_ADV
   #(.BANDWIDTH            ("OPTIMIZED"),
+    .CLKOUT4_CASCADE      ("FALSE"),
     .COMPENSATION         ("ZHOLD"),
     .STARTUP_WAIT         ("FALSE"),
     .DIVCLK_DIVIDE        (1),
-    .CLKFBOUT_MULT        (16),
+    .CLKFBOUT_MULT_F      (24.000),
     .CLKFBOUT_PHASE       (0.000),
-    
-    .CLKOUT0_DIVIDE       (8),
+    .CLKFBOUT_USE_FINE_PS ("FALSE"),
+    //
+    .CLKOUT0_DIVIDE_F     (12),
     .CLKOUT0_PHASE        (0.000),
     .CLKOUT0_DUTY_CYCLE   (0.500),
-    
-    .CLKOUT1_DIVIDE       (16),
+    .CLKOUT0_USE_FINE_PS  ("FALSE"),
+    //
+    .CLKOUT1_DIVIDE       (24),
     .CLKOUT1_PHASE        (0.000),
     .CLKOUT1_DUTY_CYCLE   (0.500),
-    
-    .CLKOUT2_DIVIDE       (16),
+    .CLKOUT1_USE_FINE_PS  ("FALSE"),
+    //
+    .CLKOUT2_DIVIDE       (24),
     .CLKOUT2_PHASE        (90.000),
     .CLKOUT2_DUTY_CYCLE   (0.500),
-
-    .CLKOUT3_DIVIDE       (32),
+    .CLKOUT2_USE_FINE_PS  ("FALSE"),
+    //
+    .CLKOUT3_DIVIDE       (48),
     .CLKOUT3_PHASE        (0.000),
-    .CLKOUT3_DUTY_CYCLE   (0.500),   
-
-    .CLKOUT4_DIVIDE       (127),
+    .CLKOUT3_DUTY_CYCLE   (0.500),
+    .CLKOUT3_USE_FINE_PS  ("FALSE"),
+    //
+    .CLKOUT4_DIVIDE       (192),
     .CLKOUT4_PHASE        (0.000),
     .CLKOUT4_DUTY_CYCLE   (0.500),
-
+    .CLKOUT4_USE_FINE_PS  ("FALSE"),
+    //    
     .CLKIN1_PERIOD        (20.000))
-
-  plle2_adv_inst
+  mmcm_adv_inst
     // Output clocks
    (
-    .CLKFBOUT            (clkfbout_pll),
-    .CLKOUT0             (clk_out1_pll),
-    .CLKOUT1             (clk_out2_pll),
-    .CLKOUT2             (clk_out3_pll),
-    .CLKOUT3             (clk_out4_pll),
-    .CLKOUT4             (clk_out5_pll),
-    .CLKOUT5             (clkout5_unused),
+    .CLKFBOUT            (clkfbout_clk_wiz_0),
+    .CLKFBOUTB           (),
+    .CLKOUT0             (clk_out1_clk_wiz_0),
+    .CLKOUT0B            (),
+    .CLKOUT1             (clk_out2_clk_wiz_0),
+    .CLKOUT1B            (),
+    .CLKOUT2             (clk_out3_clk_wiz_0),
+    .CLKOUT2B            (),
+    .CLKOUT3             (clk_out4_clk_wiz_0),
+    .CLKOUT3B            (),
+    .CLKOUT4             (clk_out5_clk_wiz_0),
+    .CLKOUT5             (),
+    .CLKOUT6             (),
      // Input clock control
-    .CLKFBIN             (clkfbout_buf_pll),
-    .CLKIN1              (clk_in1_pll),
+    .CLKFBIN             (clkfbout_clk_wiz_0),
+    .CLKIN1              (clk_in1_clk_wiz_0),
     .CLKIN2              (1'b0),
      // Tied to always select the primary input clock
     .CLKINSEL            (1'b1),
@@ -177,11 +190,17 @@ wire clk_in2_pll;
     .DO                  (do_unused),
     .DRDY                (drdy_unused),
     .DWE                 (1'b0),
+    // Ports for dynamic phase shift
+    .PSCLK               (1'b0),
+    .PSEN                (1'b0),
+    .PSINCDEC            (1'b0),
+    .PSDONE              (psdone_unused),
     // Other control and status signals
     .LOCKED              (locked_int),
+    .CLKINSTOPPED        (clkinstopped_unused),
+    .CLKFBSTOPPED        (clkfbstopped_unused),
     .PWRDWN              (1'b0),
-    .RST                 (reset_high));
-  assign reset_high = reset; 
+    .RST                 (reset));
 
   assign locked = locked_int;
 // Clock Monitor clock assigning
@@ -189,31 +208,29 @@ wire clk_in2_pll;
  // Output buffering
   //-----------------------------------
 
-  BUFG clkf_buf
-   (.O (clkfbout_buf_pll),
-    .I (clkfbout_pll));
+  BUFG bclk_out1 (
+    .O(clk_out1),
+    .I(clk_out1_clk_wiz_0)
+    );
 
+  BUFG bclkout2 (
+   .O(clk_out2),
+   .I(clk_out2_clk_wiz_0)
+   );
 
+  BUFG bclkout3 (
+   .O(clk_out3),
+   .I(clk_out3_clk_wiz_0)
+   );
 
-  BUFG clkout1_buf
-   (.O   (clk_out1),
-    .I   (clk_out1_pll));
+  BUFG bclkout4 (
+   .O(clk_out4),
+   .I(clk_out4_clk_wiz_0)
+   );
 
-  BUFG clkout2_buf
-   (.O   (clk_out2),
-    .I   (clk_out2_pll));
-
-  BUFG clkout3_buf
-   (.O   (clk_out3),
-    .I   (clk_out3_pll));
-
-  BUFG clkout4_buf
-  (.O   (clk_out4),
-    .I   (clk_out4_pll));
-
-  BUFG clkout5_buf
-  (.O   (clk_out5),
-  .I   (clk_out5_pll));     
-
+   BUFG bclkout5 (
+    .O(clk_out5),
+    .I(clk_out5_clk_wiz_0)
+    );   
 
 endmodule

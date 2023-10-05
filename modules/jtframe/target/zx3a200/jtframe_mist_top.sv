@@ -39,7 +39,6 @@ module mist_top(
     output          SDRAM_CKE,      // SDRAM Clock Enable
 
     `ifdef VIVADO
-	output 		    CLOCK_27_buff,
     // SPI interface to arm io controller
 	input           SPI_DO_IN,
 	output          SPI_DO,	
@@ -254,10 +253,7 @@ assign VGA_CLK   = pxl2_cen;    //clk6 (6MHz 320x224@60); pxl2_cen (12MHz 640x22
 `endif
 
 jtframe_mist_clocks u_clocks(
-    .clk_ext    ( CLOCK_27[0]    ),    // 27MHz for MiST, 50MHz for Neptuno
-    `ifdef VIVADO
-	.CLOCK_27_buff(CLOCK_27_buff ),
-    `endif
+    .clk_ext    ( CLOCK_27[0]    ),    // 27MHz for MiST, 50MHz for ZXtres
 
     // PLL outputs
     .clk96      ( clk96          ),

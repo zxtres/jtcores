@@ -18,10 +18,6 @@
 
 module jtframe_mist_clocks(
     input   clk_ext,    // 27MHz for MiST, 50MHz for Neptuno
-	
-    `ifdef VIVADO
-	output 		  CLOCK_27_buff,
-    `endif
 
     // PLL outputs
     output  clk96,
@@ -69,14 +65,13 @@ assign pll0_lock = 1;
 
 `ifdef VIVADO
 `JTFRAME_PLL u_basepll (			// Xilinx PLL
+	// Clock in ports
+	.clk_in1(clk27),                // input  clk_in1
 	// Clock out ports
 	.clk_out1(pll_base),                 
 	// Status and control signals
-	.reset(1'b0),              // input reset
-	.locked(pll2_lock),       // output locked
-	// Clock in ports
-	.clk_in1(clk27),         // input  clk_in1
-	.clk_in1_pll(CLOCK_27_buff)	// output clk_in1 buffered
+	.reset(1'b0),                   // input reset
+	.locked(pll2_lock)             // output locked
 );
 
 `else
@@ -94,7 +89,9 @@ assign pll0_lock = 1;
 // clk96, clk24 and clk6 inputs to the core can be enabled via macros
 
 `ifdef VIVADO
-`JTFRAME_GAMEPLL u_pll_game	(		// Xilinx PLL
+`JTFRAME_GAMEPLL u_pll_game	(	// Xilinx PLL
+	// Clock in ports
+	.clk_in1(pll_base),         // input  clk_in1
 	// Clock out ports
 	.clk_out1(clk96),        
 	.clk_out2(clk48),    
@@ -103,10 +100,7 @@ assign pll0_lock = 1;
 	.clk_out5(clk6),
 	// Status and control signals
 	.reset(1'b0),              // input reset
-	.locked(pll1_lock),       // output locked
-	// Clock in ports
-	.clk_in1(pll_base)         // input  clk_in1
-	//.clk_in1_pll(CLOCK_27_buff)	// output clk_in1 buffered
+	.locked(pll1_lock)         // output locked
 );
 `else
 `JTFRAME_GAMEPLL u_pll_game (
