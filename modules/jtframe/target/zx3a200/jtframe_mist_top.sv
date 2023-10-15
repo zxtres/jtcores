@@ -72,7 +72,7 @@ module mist_top(
     output   [5:0]  BLUE_x,
     output          HS_x,
 	output			VS_x,
-    output          VGA_DE,
+    output          VGA_CE,
     output          VGA_CLK,
 
     output          clk_rom,
@@ -210,22 +210,34 @@ osd #(0,0,6'b01_11_01) osd (
    .VSync_out  ( VSync_osd    )
 );
 
-assign RED_x     = osd_r_o;
-assign GREEN_x   = osd_g_o;
-assign BLUE_x    = osd_b_o;
-assign HS_x      = HSync_osd;
-assign VS_x      = VSync_osd;
-assign VGA_DE    = LHBL & LVBL;
-assign VGA_CLK   = pxl2_cen;    //clk6 (6MHz 320x224@60); pxl2_cen (12MHz 640x224@60); clk_sys (48MHz 2560x224@60);
-
-// //// without OSD
-// assign RED_x     = red;
-// assign GREEN_x   = green;
-// assign BLUE_x    = blue;
-// assign HS_x      = hs;
-// assign VS_x      = vs;
+// assign RED_x     = osd_r_o;
+// assign GREEN_x   = osd_g_o;
+// assign BLUE_x    = osd_b_o;
+// assign HS_x      = HSync_osd;
+// assign VS_x      = VSync_osd;
+// assign VGA_CE    = LHBL & LVBL;
+// assign VGA_CLK   = pxl2_cen;    //clk6 (6MHz 320x224@60); pxl2_cen (12MHz 640x224@60); clk_sys (48MHz 2560x224@60);
 // assign VGA_DE    = LHBL & LVBL;
-// assign VGA_CLK   = pxl2_cen;  //clk6 (6MHz 320x224@60); pxl2_cen (12MHz 640x224@60); clk_sys (48MHz 2560x224@60);
+
+//// without OSD
+assign RED_x     = red;
+assign GREEN_x   = green;
+assign BLUE_x    = blue;
+assign HS_x      = hs;
+assign VS_x      = vs;
+assign VGA_CE    = pxl2_cen;    //pxl_cen
+assign VGA_CLK   = clk_sys;     //clk6 (6MHz 320x224@60); pxl2_cen (12MHz 640x224@60); clk_sys (48MHz 2560x224@60);
+// assign VGA_DE = LHBL & LVBL;
+
+
+//Probado y se ve algo
+//VGA_CLK   = pxl2_cen;     enclkvideo => '1'           CLKVIDEO => 12,      INITIAL_FIELD => 0
+//VGA_CLK   = clk_sys;      VGA_CE    = pxl2_cen;   	CLKVIDEO => 48,      INITIAL_FIELD => 0 / 1
+
+//No se ve nada
+
+
+
 `endif   
 
 

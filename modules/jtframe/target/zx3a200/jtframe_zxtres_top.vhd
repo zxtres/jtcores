@@ -38,6 +38,16 @@ entity jtframe_zxtres_top is
 		VGA_R  		: out std_logic_vector(7 downto 0);
 		VGA_G  		: out std_logic_vector(7 downto 0);
 		VGA_B  		: out std_logic_vector(7 downto 0);
+		-- DISPLAYPORT
+		dp_tx_lane_p		: out   std_logic;
+		dp_tx_lane_n		: out   std_logic;
+		dp_refclk_p			: in	std_logic;
+		dp_refclk_n			: in	std_logic;
+		dp_tx_hp_detect		: in	std_logic;
+		dp_tx_auxch_tx_p	: inout	std_logic;
+		dp_tx_auxch_tx_n	: inout	std_logic;
+		dp_tx_auxch_rx_p	: inout	std_logic;
+		dp_tx_auxch_rx_n	: inout	std_logic;
 		-- EAR
 		-- EAR_I		 : in std_logic;
 		-- PS2
@@ -48,8 +58,8 @@ entity jtframe_zxtres_top is
 		-- UART
 		PMOD4_D4 	: in std_logic;		--UART_RXD
 		PMOD4_D5 	: out std_logic;	--UART_TXD
-		PMOD4_D6 	: in std_logic;		--UART_CTS
-		PMOD4_D7 	: out std_logic;	--UART_RTS		
+		-- PMOD4_D6 	: in std_logic;		--UART_CTS
+		-- PMOD4_D7 	: out std_logic;	--UART_RTS		
 		-- JOYSTICK
         JOY_CLK		: out std_logic;
         JOY_LOAD_N	: out std_logic;
@@ -113,6 +123,14 @@ architecture RTL of jtframe_zxtres_top is
 	signal vga_hsync : std_logic;
 	signal vga_vsync : std_logic;
 
+	signal vga_clk   : std_logic;
+	signal vga_ce 	 : std_logic;
+	signal vga_x_r   : std_logic_vector(5 downto 0);
+	signal vga_x_g   : std_logic_vector(5 downto 0);
+	signal vga_x_b   : std_logic_vector(5 downto 0);
+	signal vga_x_hs  : std_logic;
+	signal vga_x_vs  : std_logic;
+
 	-- RS232 serial
 	signal rs232_rxd : std_logic;
 	signal rs232_txd : std_logic;
@@ -159,7 +177,8 @@ architecture RTL of jtframe_zxtres_top is
 			joy2_fire2_o  : out std_logic
 		);
 	end component;	
-	
+
+	-- signal clk100 	  : std_logic;
 
 	-- DAC AUDIO
 	signal dac_l : signed(15 downto 0);
@@ -264,6 +283,15 @@ begin
 	end if;
 end process;
 
+-- Displayport clock
+-- relojes_mmcm_inst : entity work.relojes_mmcm
+--   port map (
+--     CLK_IN1 => clock_input,
+--     CLK_OUT1 => clk100,
+--     -- reset => '0',
+--     locked => locked
+--   );
+
 
 -- I2S audio
 audio_i2s : entity work.audio_top
@@ -282,7 +310,6 @@ guest : component mist_top
 	port map
 	(
 		CLOCK_27 	=> clock_input&clock_input,
-		-- CLOCK_27_buff => CLK_50_buf,
 		LED 		=> act_led,
 
 		--SDRAM
@@ -328,14 +355,14 @@ guest : component mist_top
 		VGA_G      => vga_green(7 downto 2),
 		VGA_B      => vga_blue(7 downto 2),
 
-		--HDMI
-		--RED_x      => vga_x_r,
-		--GREEN_x    => vga_x_g,
-		--BLUE_x     => vga_x_b,
-		--HS_x       => vga_x_hs,
-		--VS_x       => vga_x_vs,
-		--VGA_DE     => vga_de,
-		--VGA_CLK    => vga_clk,
+		--DISPLAYPORT
+		RED_x      => vga_x_r,
+		GREEN_x    => vga_x_g,
+		BLUE_x     => vga_x_b,
+		HS_x       => vga_x_hs,
+		VS_x       => vga_x_vs,
+		VGA_CE     => vga_ce,
+		VGA_CLK    => vga_clk,
 
 		--JOYSTICKS
 		JOY1 	   => joy1 or intercept_joy,   -- Block joystick when OSD is active
@@ -410,5 +437,99 @@ controller : entity work.substitute_mcu
 	);
 
 LED5 <= not act_led;
+
+
+zxtres_wrapper_inst : entity work.zxtres_wrapper
+	generic map (
+		HSTART => 0,
+		VSTART => 0,
+		CLKVIDEO => 48,
+		INITIAL_FIELD => 1
+	)
+  port map (
+    clkvideo => vga_clk,
+    enclkvideo => vga_ce,	--'1'
+    clkpalntsc => '0',
+    reset_n => 	'1',   --reset_n,
+    reboot_fpga => '0',
+	----
+    -- sram_addr_in => sram_addr_in,
+    -- sram_we_n_in => sram_we_n_in,
+    -- sram_oe_n_in => sram_oe_n_in,
+    -- sram_data_to_chip => sram_data_to_chip,
+    -- sram_data_from_chip => sram_data_from_chip,
+    -- sram_addr_out => sram_addr_out,
+    -- sram_we_n_out => sram_we_n_out,
+    -- sram_oe_n_out => sram_oe_n_out,
+    -- sram_ub_n_out => sram_ub_n_out,
+    -- sram_lb_n_out => sram_lb_n_out,
+    -- sram_data => sram_data,
+    -- poweron_reset => poweron_reset,
+    -- config_vga_on => config_vga_on,
+    -- config_scanlines_off => config_scanlines_off,
+	----
+    -- video_output_sel => video_output_sel,
+    -- disable_scanlines => disable_scanlines,
+    -- monochrome_sel => monochrome_sel,
+    -- interlaced_image => '0',
+    -- ad724_modo => '0',
+    -- ad724_clken => '0',
+	----
+    ri => vga_x_r & vga_x_r(5 downto 4),
+    gi => vga_x_g & vga_x_g(5 downto 4),
+    bi => vga_x_b & vga_x_b(5 downto 4),
+    hsync_ext_n => vga_x_hs,
+    vsync_ext_n => vga_x_vs,
+    csync_ext_n => vga_x_hs & vga_x_vs,
+	----
+    -- ro => ro,
+    -- go => go,
+    -- bo => bo,
+    -- hsync => hsync,
+    -- vsync => vsync,
+	----
+	-- audio_l => audio_l,
+    -- audio_r => audio_r,
+    -- sd_audio_l => sd_audio_l,
+    -- sd_audio_r => sd_audio_r,
+    -- i2s_bclk => i2s_bclk,
+    -- i2s_lrclk => i2s_lrclk,
+    -- i2s_dout => i2s_dout,
+	----
+    -- joy_data => joy_data,
+    -- joy_latch_megadrive => joy_latch_megadrive,
+    -- joy_clk => joy_clk,
+    -- joy_load_n => joy_load_n,
+    -- joy1up => joy1up,
+    -- joy1down => joy1down,
+    -- joy1left => joy1left,
+    -- joy1right => joy1right,
+    -- joy1fire1 => joy1fire1,
+    -- joy1fire2 => joy1fire2,
+    -- joy1fire3 => joy1fire3,
+    -- joy1start => joy1start,
+    -- joy2up => joy2up,
+    -- joy2down => joy2down,
+    -- joy2left => joy2left,
+    -- joy2right => joy2right,
+    -- joy2fire1 => joy2fire1,
+    -- joy2fire2 => joy2fire2,
+    -- joy2fire3 => joy2fire3,
+    -- joy2start => joy2start,
+	----
+    dp_tx_lane_p => dp_tx_lane_p,
+    dp_tx_lane_n => dp_tx_lane_n,
+    dp_refclk_p => dp_refclk_p,
+    dp_refclk_n => dp_refclk_n,
+    dp_tx_hp_detect => dp_tx_hp_detect,
+    dp_tx_auxch_tx_p => dp_tx_auxch_tx_p,
+    dp_tx_auxch_tx_n => dp_tx_auxch_tx_n,
+    dp_tx_auxch_rx_p => dp_tx_auxch_rx_p,
+    dp_tx_auxch_rx_n => dp_tx_auxch_rx_n
+	----
+    -- dp_ready => dp_ready,
+    -- dp_heartbeat => dp_heartbeat
+  );
+
 
 end rtl;
