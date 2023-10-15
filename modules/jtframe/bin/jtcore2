@@ -341,6 +341,10 @@ case $TARGET in
                 exit 1
             fi
         fi;;
+    zx3a200|zx3a100|zx3a35)             #somhi# no check for zxtres boards    
+        if ! (which quartus_sh|grep intelFPGA_lite -q); then
+            echo "No need for Quartus for this target"
+        fi;;
     *)
         if ! (which quartus_sh|grep 13 -q); then
             PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:.
@@ -511,7 +515,14 @@ if [ $SKIP_COMPILE = FALSE ]; then
         jtframe mem $PRJ --target=$TARGET || exit $?
         jtframe files syn $PRJ --target=$TARGET
         # Compilation
-        quartus_sh --flow compile $corename > "$LOG"
+        if test $TARGET = zx3a200 || test $TARGET = zx3a100 || test $TARGET = zx3a35; then
+            # No need to run quartus  #somhi# mod
+            if ! (which quartus_sh|grep intelFPGA_lite -q); then
+                echo "No need for Quartus for this target"
+            fi
+        else
+            quartus_sh --flow compile $corename > "$LOG"
+        fi
         if ! grep "Full Compilation was successful" "$LOG"; then
             grep -i error "$LOG" -A 2
             echo -e "${rBG}ERROR:${NC}${wBG} while compiling the project. ${red}Aborting${NC}"
