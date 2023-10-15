@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-`default_nettype none
+//`default_nettype none
 
 // A200T
 
@@ -374,7 +374,7 @@ module zxtres_wrapper (
   always @* begin
     if (video_output_sel == 1'b0) begin // 15kHz + DP output
       ro = riproc;   // esta salida depende exclusivamente de
-      go = giproc;   // como esté codificado el color en el
+      go = giproc;   // como est\E9 codificado el color en el
       bo = biproc;   // video original
       hsync = csync_ext_n;
       vsync = clkcolor4x;
@@ -786,4 +786,4 @@ module color_dimmed (
   end
 endmodule
 
-`default_nettype wire
+//`default_nettype wire

@@ -178,6 +178,7 @@ architecture RTL of jtframe_zxtres_top is
 		);
 	end component;	
 
+	-- ZXTRES WRAPPER
 	-- signal clk100 	  : std_logic;
 
 	-- DAC AUDIO
@@ -439,7 +440,7 @@ controller : entity work.substitute_mcu
 LED5 <= not act_led;
 
 
-zxtres_wrapper_inst : entity work.zxtres_wrapper
+zxtres_wrapper_inst : zxtres_wrapper
 	generic map (
 		HSTART => 0,
 		VSTART => 0,

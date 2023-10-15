@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-`default_nettype none
+//`default_nettype none
 
 //    This file is part of the ZXUNO Spectrum core. 
 //    Creation date is 09:00:25 2018-07-20 by Miguel Angel Rodriguez Jodar
@@ -102,4 +102,4 @@ module joydecoder (
   end
 endmodule
 
-`default_nettype wire
+//`default_nettype wire

@@ -19,7 +19,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 `timescale 1ns / 1ps
-`default_nettype none
+//`default_nettype none
 
 module gen_hvconts (
     input wire clk,

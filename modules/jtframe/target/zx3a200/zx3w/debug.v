@@ -1,5 +1,5 @@
  `timescale 1ns / 1ps
-`default_nettype none
+//`default_nettype none
 
 //    This file is part of the ZXUNO Spectrum core. 
 //    Creation date is 21:14:58 2019-03-30 by Miguel Angel Rodriguez Jodar
@@ -256,4 +256,4 @@ module charset_rom (
   end
 endmodule
 
-`default_nettype wire
+//`default_nettype wire

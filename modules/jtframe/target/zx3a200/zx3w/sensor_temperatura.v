@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-`default_nettype none
+//`default_nettype none
 
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
@@ -167,4 +167,4 @@ module sensor (
   end
 endmodule
 
-`default_nettype wire
+//`default_nettype wire

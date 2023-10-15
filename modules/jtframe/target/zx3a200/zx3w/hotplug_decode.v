@@ -57,7 +57,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 `timescale 1ns / 1ps
-`default_nettype none
+//`default_nettype none
 
 module hotplug_decode (
     input wire  clk,
@@ -116,4 +116,4 @@ module hotplug_decode (
   end
 endmodule
 
-`default_nettype wire
+//`default_nettype wire

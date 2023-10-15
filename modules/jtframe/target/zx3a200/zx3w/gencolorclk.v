@@ -21,7 +21,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 `timescale 1ns / 1ns
-`default_nettype none
+//`default_nettype none
 
 module gencolorclk (
   input wire clk,        // reloj lo más rápido posible (ahora mismo, 140 MHz o 165 Mhz segun valor de altern)
