@@ -451,15 +451,15 @@ zxtres_wrapper_inst : zxtres_wrapper
     clkvideo => vga_clk,
     enclkvideo => vga_ce,	--'1'
     clkpalntsc => '0',
-    reset_n => 	'1',   --reset_n,
+    reset_n => 	reset_n,     --'1',
     reboot_fpga => '0',
 	----
-    -- video_output_sel => video_output_sel,
-    -- disable_scanlines => disable_scanlines,
-    -- monochrome_sel => monochrome_sel,
-    -- interlaced_image => '0',
-    -- ad724_modo => '0',
-    -- ad724_clken => '0',
+    video_output_sel => '0',	-- 0: RGB 15kHz + DP   1: VGA + DP pantalla azul
+    disable_scanlines => '1',  	-- 1: sin scanlines  0: emular scanlines (cuidado con el policía del retro!)  
+    monochrome_sel => '0',  	-- 0 : RGB, 1: fósforo verde, 2: fósforo ámbar, 3: escala de grises
+    interlaced_image => '0', 	-- 1: Indico que la fuente de video es una señal entrelazada, no progresiva.
+    -- ad724_modo => '0',		-- Reloj de color. 0 : PAL, 1: NTSC
+    -- ad724_clken => '0',		-- 0 = AD724 usa su propio cristal. 1 = AD724 usa reloj de FPGA.
 	----
     ri => vga_x_r & vga_x_r(5 downto 4),
     gi => vga_x_g & vga_x_g(5 downto 4),
