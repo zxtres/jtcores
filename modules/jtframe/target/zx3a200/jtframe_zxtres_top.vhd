@@ -442,10 +442,10 @@ LED5 <= not act_led;
 
 zxtres_wrapper_inst : zxtres_wrapper
 	generic map (
-		HSTART => 0,
-		VSTART => 0,
+		HSTART => 48,
+		VSTART => 15,
 		CLKVIDEO => 48,
-		INITIAL_FIELD => 1
+		INITIAL_FIELD => 0
 	)
   port map (
     clkvideo => vga_clk,
@@ -453,21 +453,6 @@ zxtres_wrapper_inst : zxtres_wrapper
     clkpalntsc => '0',
     reset_n => 	'1',   --reset_n,
     reboot_fpga => '0',
-	----
-    -- sram_addr_in => sram_addr_in,
-    -- sram_we_n_in => sram_we_n_in,
-    -- sram_oe_n_in => sram_oe_n_in,
-    -- sram_data_to_chip => sram_data_to_chip,
-    -- sram_data_from_chip => sram_data_from_chip,
-    -- sram_addr_out => sram_addr_out,
-    -- sram_we_n_out => sram_we_n_out,
-    -- sram_oe_n_out => sram_oe_n_out,
-    -- sram_ub_n_out => sram_ub_n_out,
-    -- sram_lb_n_out => sram_lb_n_out,
-    -- sram_data => sram_data,
-    -- poweron_reset => poweron_reset,
-    -- config_vga_on => config_vga_on,
-    -- config_scanlines_off => config_scanlines_off,
 	----
     -- video_output_sel => video_output_sel,
     -- disable_scanlines => disable_scanlines,
@@ -489,35 +474,6 @@ zxtres_wrapper_inst : zxtres_wrapper
     -- hsync => hsync,
     -- vsync => vsync,
 	----
-	-- audio_l => audio_l,
-    -- audio_r => audio_r,
-    -- sd_audio_l => sd_audio_l,
-    -- sd_audio_r => sd_audio_r,
-    -- i2s_bclk => i2s_bclk,
-    -- i2s_lrclk => i2s_lrclk,
-    -- i2s_dout => i2s_dout,
-	----
-    -- joy_data => joy_data,
-    -- joy_latch_megadrive => joy_latch_megadrive,
-    -- joy_clk => joy_clk,
-    -- joy_load_n => joy_load_n,
-    -- joy1up => joy1up,
-    -- joy1down => joy1down,
-    -- joy1left => joy1left,
-    -- joy1right => joy1right,
-    -- joy1fire1 => joy1fire1,
-    -- joy1fire2 => joy1fire2,
-    -- joy1fire3 => joy1fire3,
-    -- joy1start => joy1start,
-    -- joy2up => joy2up,
-    -- joy2down => joy2down,
-    -- joy2left => joy2left,
-    -- joy2right => joy2right,
-    -- joy2fire1 => joy2fire1,
-    -- joy2fire2 => joy2fire2,
-    -- joy2fire3 => joy2fire3,
-    -- joy2start => joy2start,
-	----
     dp_tx_lane_p => dp_tx_lane_p,
     dp_tx_lane_n => dp_tx_lane_n,
     dp_refclk_p => dp_refclk_p,
@@ -527,9 +483,6 @@ zxtres_wrapper_inst : zxtres_wrapper
     dp_tx_auxch_tx_n => dp_tx_auxch_tx_n,
     dp_tx_auxch_rx_p => dp_tx_auxch_rx_p,
     dp_tx_auxch_rx_n => dp_tx_auxch_rx_n
-	----
-    -- dp_ready => dp_ready,
-    -- dp_heartbeat => dp_heartbeat
   );
 
 

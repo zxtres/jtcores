@@ -229,15 +229,6 @@ assign VGA_CE    = pxl2_cen;    //pxl_cen
 assign VGA_CLK   = clk_sys;     //clk6 (6MHz 320x224@60); pxl2_cen (12MHz 640x224@60); clk_sys (48MHz 2560x224@60);
 // assign VGA_DE = LHBL & LVBL;
 
-
-//Probado y se ve algo
-//VGA_CLK   = pxl2_cen;     enclkvideo => '1'           CLKVIDEO => 12,      INITIAL_FIELD => 0
-//VGA_CLK   = clk_sys;      VGA_CE    = pxl2_cen;   	CLKVIDEO => 48,      INITIAL_FIELD => 0 / 1
-
-//No se ve nada
-
-
-
 `endif   
 
 
