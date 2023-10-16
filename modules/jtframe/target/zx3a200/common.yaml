@@ -13,8 +13,6 @@ here:
 #  - DeMiSTify/controller/controller.qip
   - firmware/controller_rom1_word.vhd
   - firmware/controller_rom2_word.vhd
-  # Displayport clock
-  - plldp/relojes.v
 jtframe:
   - from: sound
     unless: POCKET

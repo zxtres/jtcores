@@ -220,7 +220,7 @@ def main():
         f.write(f"add_files -fileset constrs_1 -norecurse \"../../../modules/jtframe/target/zx3a200/mist_io.sdc\"\n")
         f.write(f"set_property target_constrs_file \"../../../modules/jtframe/target/zx3a200/mist_io.sdc\" [current_fileset -constrset]\n")
         #DP XDC
-        f.write(f"add_files -fileset constrs_1 -norecurse \"../../../modules/jtframe/target/zx3a200/plldp/dp.xdc\"\n")
+        f.write(f"add_files -fileset constrs_1 -norecurse \"../../../modules/jtframe/target/zx3a200/zx3w/dp.xdc\"\n")
 
         # Instrucciones para crear el Design Run de la plasca ZXTRES (A35T)
         f.write(f"create_run -name sintesis_A35T -part xc7a35tfgg484-2 -flow {{Vivado Synthesis 2022}} -strategy \"Flow_AreaOptimized_high\" -report_strategy {{Vivado Synthesis Default Reports}} -constrset constrs_1\n")
