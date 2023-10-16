@@ -14,3 +14,6 @@ here:
   - ../zx3a200/pll6144/jtframe_pll6144.qip
   - ../zx3a200/pll6293/jtframe_pll6293.qip
   - ../zx3a200/pll6671/jtframe_pll6671.qip
+  # ZXtres wrapper (Display port video)
+  - ../zx3a200/zx3w/zxtres_wrapper_a35t.v
+  - ../zx3a200/zx3w.yaml  

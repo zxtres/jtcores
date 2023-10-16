@@ -242,7 +242,7 @@ clkin_buff : component IBUF
 	(
 		O => (CLK_50_buf),
 		I => (clock_input)
-		);
+	);
 
 -- JOYSTICKS
 joy : component joydecoder_neptuno
@@ -283,15 +283,6 @@ begin
 		JOY_SEL    <= joy_select_o;
 	end if;
 end process;
-
--- Displayport clock
--- relojes_mmcm_inst : entity work.relojes_mmcm
---   port map (
---     CLK_IN1 => clock_input,
---     CLK_OUT1 => clk100,
---     -- reset => '0',
---     locked => locked
---   );
 
 
 -- I2S audio
@@ -339,7 +330,7 @@ guest : component mist_top
 		UART_RX    => PMOD4_D4,
 
 		--SPI
-	--	SPI_DO     => spi_do,
+		--SPI_DO     => spi_do,
 		SPI_DO     => spi_fromguest,
 		SPI_DO_IN  => sd_miso,
 		SPI_DI     => spi_toguest,
@@ -397,9 +388,9 @@ controller : entity work.substitute_mcu
 		jtag_uart => false
 	)
 	port map(
-		clk       => CLK_50_buf,					--50 MHz
-		reset_in  => '1',							--reset_in  when 0
-		reset_out => reset_n,						--reset_out when 0
+		clk       => CLK_50_buf,	--50 MHz
+		reset_in  => '1',			--reset_in  when 0
+		reset_out => reset_n,		--reset_out when 0
 
 		-- SPI signals
 		spi_miso      => sd_miso,
@@ -441,12 +432,12 @@ LED5 <= not act_led;
 
 
 zxtres_wrapper_inst : zxtres_wrapper
-	generic map (
-		HSTART => 48,
-		VSTART => 15,
-		CLKVIDEO => 48,
-		INITIAL_FIELD => 0
-	)
+  generic map (
+	HSTART => 48,
+	VSTART => 15,
+	CLKVIDEO => 48,
+	INITIAL_FIELD => 0
+  )
   port map (
     clkvideo => vga_clk,
     enclkvideo => vga_ce,	--'1'
