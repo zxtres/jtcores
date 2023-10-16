@@ -210,24 +210,24 @@ osd #(0,0,6'b01_11_01) osd (
    .VSync_out  ( VSync_osd    )
 );
 
-// assign RED_x     = osd_r_o;
-// assign GREEN_x   = osd_g_o;
-// assign BLUE_x    = osd_b_o;
-// assign HS_x      = HSync_osd;
-// assign VS_x      = VSync_osd;
-// assign VGA_CE    = LHBL & LVBL;
-// assign VGA_CLK   = pxl2_cen;    //clk6 (6MHz 320x224@60); pxl2_cen (12MHz 640x224@60); clk_sys (48MHz 2560x224@60);
+assign RED_x     = osd_r_o;
+assign GREEN_x   = osd_g_o;
+assign BLUE_x    = osd_b_o;
+assign HS_x      = HSync_osd;
+assign VS_x      = VSync_osd;
+assign VGA_CE    = pxl2_cen;
+assign VGA_CLK   = clk_sys;    //clk6 (6MHz 320x224@60); pxl2_cen (12MHz 640x224@60); clk_sys (48MHz 2560x224@60);
 // assign VGA_DE    = LHBL & LVBL;
 
-//// without OSD
-assign RED_x     = red;
-assign GREEN_x   = green;
-assign BLUE_x    = blue;
-assign HS_x      = hs;
-assign VS_x      = vs;
-assign VGA_CE    = pxl2_cen;    //pxl_cen
-assign VGA_CLK   = clk_sys;     //clk6 (6MHz 320x224@60); pxl2_cen (12MHz 640x224@60); clk_sys (48MHz 2560x224@60);
-// assign VGA_DE = LHBL & LVBL;
+// //// without OSD
+// assign RED_x     = game_r6;
+// assign GREEN_x   = game_g6;
+// assign BLUE_x    = game_b6;
+// assign HS_x      = hs;
+// assign VS_x      = vs;
+// assign VGA_CE    = pxl2_cen;    //pxl_cen
+// assign VGA_CLK   = clk_sys;     //clk6 (6MHz 320x224@60); pxl2_cen (12MHz 640x224@60); clk_sys (48MHz 2560x224@60);
+// // assign VGA_DE = LHBL & LVBL;
 
 `endif   
 
