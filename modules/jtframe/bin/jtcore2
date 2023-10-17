@@ -343,7 +343,7 @@ case $TARGET in
         fi;;
     zx3a200|zx3a100|zx3a35)             #somhi# no check for zxtres boards    
         if ! (which quartus_sh|grep intelFPGA_lite -q); then
-            echo "No need for Quartus for this target"
+            echo "" #No need for Quartus for this target"
         fi;;
     *)
         if ! (which quartus_sh|grep 13 -q); then
@@ -460,10 +460,14 @@ fi
 
 ################ compilation
 if [ $SKIP_COMPILE = FALSE ]; then
-    if ! which quartus_sh>/dev/null; then
-        echo -e "${rBG}ERROR:${NC}${wBG} cannot find quartus_sh in the path. Please add the correct path${NC}"
-        echo -e "      ${wBG} to the PATH environment variable${NC}"
-#       exit 1			#somhi# to generate project for mist
+    if test $TARGET = zx3a200 || test $TARGET = zx3a100 || test $TARGET = zx3a35; then
+        echo "" #No need for Quartus for this target"   #somhi# mod
+    else
+        if ! which quartus_sh>/dev/null; then
+            echo -e "${rBG}ERROR:${NC}${wBG} cannot find quartus_sh in the path. Please add the correct path${NC}"
+            echo -e "      ${wBG} to the PATH environment variable${NC}"
+    #       exit 1			#somhi# to generate project for mist
+        fi
     fi
     mkdir -p $PRJPATH/$TARGET
     cd $PRJPATH/$TARGET || exit 1
@@ -516,54 +520,51 @@ if [ $SKIP_COMPILE = FALSE ]; then
         jtframe files syn $PRJ --target=$TARGET
         # Compilation
         if test $TARGET = zx3a200 || test $TARGET = zx3a100 || test $TARGET = zx3a35; then
-            # No need to run quartus  #somhi# mod
-            if ! (which quartus_sh|grep intelFPGA_lite -q); then
-                echo "No need for Quartus for this target"
-            fi
+            echo "" #No need for Quartus for this target"   #somhi# mod
         else
             quartus_sh --flow compile $corename > "$LOG"
-        fi
-        if ! grep "Full Compilation was successful" "$LOG"; then
-            grep -i error "$LOG" -A 2
-            echo -e "${rBG}ERROR:${NC}${wBG} while compiling the project. ${red}Aborting${NC}"
-            report FAIL
-            #exit 1         #somhi# mod to allow running vivado after quartus fails for zxtres target
-        fi
-        if [ ! -e $corename.map.rpt ]; then
-            RPTPATH=$OUTPUTDIR
-        else
-            RPTPATH=.
-        fi
-        grep "SDRAM_.* is stuck" $RPTPATH/$corename.map.rpt | grep "SDRAM_[^\"]*" -o > $RPTPATH/sdram_stuck.rpt
-        gawk -f $JTFRAME/bin/jtioreg.awk $RPTPATH/$corename.fit.rpt > $RPTPATH/sdram_io.rpt
-        cat $RPTPATH/sdram_stuck.rpt $RPTPATH/sdram_io.rpt | sort | uniq --unique > sdram_badio.rpt
-        if [ -s sdram_badio.rpt ]; then
-            echo -e "${yBG}WARNING:${NC}${wBG} some SDRAM signals are not IO registers${NC}"
-            cat sdram_badio.rpt
-        fi
-        if grep "inferring latch" $RPTPATH/jt$PRJ.map.rpt; then
-            echo "Warning: latch inferred"
-        fi
-        # Report FPGA usage
-        if [ -e $RPTPATH/*.fit.summary ]; then
-            grep "Total logic" $RPTPATH/*.fit.summary
-            grep "Total memory" $RPTPATH/*.fit.summary
-        fi
-        # Report connectivity problems
-        grep \^Warning $LOG | grep \\.v | grep -v altera_pll\\.v \
-        | grep -v altera_cyclonev_pll\\.v \
-        | grep -v "\.data_a.*has no driver or initial value" \
-        | grep -v "\.waddr_a.*has no driver or initial value" \
-        | grep -v "\.we_a.*has no driver or initial value"
-        # Report timing
-        grep --color=auto "Worst-case.*-[0-9.]*" "$LOG"
-        if [[ $? = 0 && -z "$SKIPTIMING" ]]; then
-            FAIL=1
-            report FAIL
-            echo FAIL $PRJ
-        else
-            echo PASS
-            report PASS
+            if ! grep "Full Compilation was successful" "$LOG"; then
+                grep -i error "$LOG" -A 2
+                echo -e "${rBG}ERROR:${NC}${wBG} while compiling the project. ${red}Aborting${NC}"
+                report FAIL
+                exit 1         
+            fi
+            if [ ! -e $corename.map.rpt ]; then
+                RPTPATH=$OUTPUTDIR
+            else
+                RPTPATH=.
+            fi
+            grep "SDRAM_.* is stuck" $RPTPATH/$corename.map.rpt | grep "SDRAM_[^\"]*" -o > $RPTPATH/sdram_stuck.rpt
+            gawk -f $JTFRAME/bin/jtioreg.awk $RPTPATH/$corename.fit.rpt > $RPTPATH/sdram_io.rpt
+            cat $RPTPATH/sdram_stuck.rpt $RPTPATH/sdram_io.rpt | sort | uniq --unique > sdram_badio.rpt
+            if [ -s sdram_badio.rpt ]; then
+                echo -e "${yBG}WARNING:${NC}${wBG} some SDRAM signals are not IO registers${NC}"
+                cat sdram_badio.rpt
+            fi
+            if grep "inferring latch" $RPTPATH/jt$PRJ.map.rpt; then
+                echo "Warning: latch inferred"
+            fi
+            # Report FPGA usage
+            if [ -e $RPTPATH/*.fit.summary ]; then
+                grep "Total logic" $RPTPATH/*.fit.summary
+                grep "Total memory" $RPTPATH/*.fit.summary
+            fi
+            # Report connectivity problems
+            grep \^Warning $LOG | grep \\.v | grep -v altera_pll\\.v \
+            | grep -v altera_cyclonev_pll\\.v \
+            | grep -v "\.data_a.*has no driver or initial value" \
+            | grep -v "\.waddr_a.*has no driver or initial value" \
+            | grep -v "\.we_a.*has no driver or initial value"
+            # Report timing
+            grep --color=auto "Worst-case.*-[0-9.]*" "$LOG"
+            if [[ $? = 0 && -z "$SKIPTIMING" ]]; then
+                FAIL=1
+                report FAIL
+                echo FAIL $PRJ
+            else
+                echo PASS
+                report PASS
+            fi
         fi
     else
         # Simulation
@@ -623,25 +624,26 @@ elif test $TARGET = zx3a200; then
     RBF=$PRJPATH/${TARGET}/zxtres.runs/implementacion_A200T/jtframe_zxtres_top.bin
     cp $JTROOT/modules/jtframe/target/zx3a200/moyone/* $PRJPATH/$TARGET/
     cd $PRJPATH/$TARGET/
-    rm -r db incremental_db output_files
-    python3 qpf_to_xpr.py --A200T
-    generate_vivado_project.sh
+    python3 qpf_to_xpr.py --A200T > "$LOG" 2>&1
 elif test $TARGET = zx3a100; then
     RBF=$PRJPATH/${TARGET}/zxtres.runs/implementacion_A100T/jtframe_zxtres_top.bin
     cp $JTROOT/modules/jtframe/target/zx3a100/moyone/* $PRJPATH/$TARGET/
     cd $PRJPATH/$TARGET/
-    rm -r db incremental_db output_files
-    python3 qpf_to_xpr.py --A100T
-    generate_vivado_project.sh
+    python3 qpf_to_xpr.py --A100T > "$LOG" 2>&1
 elif test $TARGET = zx3a35; then
     RBF=$PRJPATH/${TARGET}/zxtres.runs/implementacion_A35T/jtframe_zxtres_top.bin
     cp $JTROOT/modules/jtframe/target/zx3a35/moyone/* $PRJPATH/$TARGET/
     cd $PRJPATH/$TARGET/
-    rm -r db incremental_db output_files
-    python3 qpf_to_xpr.py --A35T
-    generate_vivado_project.sh    
+    python3 qpf_to_xpr.py --A35T > "$LOG" 2>&1
 else
     RBF=$PRJPATH/${TARGET}/$corename.rbf
+fi
+
+if test $TARGET = zx3a200 || test $TARGET = zx3a100 || test $TARGET = zx3a35; then
+    rm -r db incremental_db output_files >> "$LOG" 2>&1
+    #generate_vivado_project.sh
+    source /opt/Xilinx/Vivado/2022.2/settings64.sh    
+    vivado -mode tcl -source generar_proyecto_vivado.tcl >> "$LOG" 2>&1
 fi
 
 if test $TARGET = deca || test $TARGET = de10lite; then

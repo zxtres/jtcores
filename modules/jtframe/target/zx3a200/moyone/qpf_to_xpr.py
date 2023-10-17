@@ -161,8 +161,10 @@ def write_file_paths_to_output(file_paths, output_path, target_fpga):
 def crear_defs_vh():
     with open('./defs.vh', 'w') as f_defs:
     #    f_defs.write('`define VIVADO\n')
-        with open(input_file, 'r') as f_input:
+        with open(input_file, 'r') as f_input:     
             content = f_input.readlines()
+
+            f_defs.write(f"`define JTFRAME_RELEASE\n")
 
             # Buscamos macros VERILOG_MACRO en el QSF
             file_paths = []
@@ -292,10 +294,10 @@ def main():
     crear_defs_vh()
     crear_build_id_vh()
     
-    print("\n==========================================================================================")
-    print("Agregar al PATH la ruta de los comandos de Vivado (D:\\Xilinx\\Vivado\2022.2\\bin\\)")
-    print("Para generar el proyecto ejecutar: vivado -mode tcl -source generar_proyecto_vivado.tcl")
-    print("==========================================================================================\n")
+    # print("\n==========================================================================================")
+    # print("Agregar al PATH la ruta de los comandos de Vivado (D:\\Xilinx\\Vivado\2022.2\\bin\\)")
+    # print("Para generar el proyecto ejecutar: vivado -mode tcl -source generar_proyecto_vivado.tcl")
+    # print("==========================================================================================\n")
     
 # Start processing
 main()
