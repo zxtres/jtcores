@@ -2,7 +2,7 @@ here:
   - ../zx3a200/common.yaml
   - ../zx3a200/data_io.v
   - ../zx3a200/jtframe_mist_clocks.v  
-  - ../zx3a200/jtframe_zxtres_top.vhd
+  - jtframe_zxtres_top.vhd
   # DeMiSTify specific board modules
   - ../zx3a200/rtl/audio_i2s.vhd 
   - ../zx3a200/rtl/joydecoder_neptuno.v
