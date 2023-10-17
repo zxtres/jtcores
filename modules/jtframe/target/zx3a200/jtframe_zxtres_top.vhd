@@ -433,7 +433,7 @@ LED5 <= not act_led;
 
 zxtres_wrapper_inst : zxtres_wrapper
   generic map (
-	HSTART => 48,
+	HSTART => 128,  --kicker (48 right, 108 cent) --128 s16b ok
 	VSTART => 15,
 	CLKVIDEO => 48,
 	INITIAL_FIELD => 0
