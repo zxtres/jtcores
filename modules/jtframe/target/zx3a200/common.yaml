@@ -6,7 +6,6 @@ here:
   - jtframe_mist_base.v  
   - mist_io.sdc
   # joystick direct support
-  - joydecoder.v
   - jtframe_demistify_joy.v
   - mc2_hid_joy.vhd
   # DeMiSTify
@@ -46,4 +45,4 @@ target:
       - DeMiSTify/controller/controller.qip
   - from: neptuno
     get:
-      #- joydecoder.v
+      - joydecoder.v
