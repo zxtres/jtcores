@@ -10,7 +10,6 @@ use work.demistify_config_pkg.all;
 entity jtframe_zxtres_top is
 	port (
 		CLK_50      : in std_logic;
-
 		LED5        : out std_logic := '1';
 		LED6        : out std_logic := '1';
 		-- SDRAM
@@ -139,47 +138,23 @@ architecture RTL of jtframe_zxtres_top is
 	signal joya : std_logic_vector(7 downto 0);
 	signal joyb : std_logic_vector(7 downto 0);
 
-	signal joy1 : std_logic_vector(5 downto 0);
-	signal joy2 : std_logic_vector(5 downto 0);
+	signal joy1_bus : std_logic_vector(5 downto 0);
+	signal joy2_bus : std_logic_vector(5 downto 0);
 	signal intercept_joy : std_logic_vector(5 downto 0);
 	signal joy_select_o  : std_logic;
 
-	signal joy1up      : std_logic := '1';
-	signal joy1down    : std_logic := '1';
-	signal joy1left    : std_logic := '1';
-	signal joy1right   : std_logic := '1';
-	signal joy1fire1   : std_logic := '1';
-	signal joy1fire2   : std_logic := '1';
-	signal joy2up      : std_logic := '1';
-	signal joy2down    : std_logic := '1';
-	signal joy2left    : std_logic := '1';
-	signal joy2right   : std_logic := '1';
-	signal joy2fire1   : std_logic := '1';
-	signal joy2fire2   : std_logic := '1';
-
-	component joydecoder_neptuno is
-		port (
-			clk_i         : in std_logic;
-			joy_data_i    : in std_logic;
-			joy_clk_o     : out std_logic;
-			joy_load_o    : out std_logic;
-			joy1_up_o     : out std_logic;
-			joy1_down_o   : out std_logic;
-			joy1_left_o   : out std_logic;
-			joy1_right_o  : out std_logic;
-			joy1_fire1_o  : out std_logic;
-			joy1_fire2_o  : out std_logic;
-			joy2_up_o     : out std_logic;
-			joy2_down_o   : out std_logic;
-			joy2_left_o   : out std_logic;
-			joy2_right_o  : out std_logic;
-			joy2_fire1_o  : out std_logic;
-			joy2_fire2_o  : out std_logic
-		);
-	end component;	
-
-	-- ZXTRES WRAPPER
-	-- signal clk100 	  : std_logic;
+	signal joy1up      : std_logic;
+	signal joy1down    : std_logic;
+	signal joy1left    : std_logic;
+	signal joy1right   : std_logic;
+	signal joy1fire1   : std_logic;
+	signal joy1fire2   : std_logic;
+	signal joy2up      : std_logic;
+	signal joy2down    : std_logic;
+	signal joy2left    : std_logic;
+	signal joy2right   : std_logic;
+	signal joy2fire1   : std_logic;
+	signal joy2fire2   : std_logic;
 
 	-- DAC AUDIO
 	signal dac_l : signed(15 downto 0);
@@ -230,11 +205,11 @@ PS2_KEYBOARD_DAT    <= '0' when ps2_keyboard_dat_out = '0' else 'Z';
 ps2_keyboard_clk_in <= PS2_KEYBOARD_CLK;
 PS2_KEYBOARD_CLK    <= '0' when ps2_keyboard_clk_out = '0' else 'Z';
 
-VGA_R       <= vga_red(7 downto 2)  &vga_red(7 downto 6);
-VGA_G       <= vga_green(7 downto 2)&vga_green(7 downto 6);
-VGA_B       <= vga_blue(7 downto 2) &vga_blue(7 downto 6);
-VGA_HS      <= vga_hsync;
-VGA_VS      <= vga_vsync;
+VGA_R  <= vga_red(7 downto 2)   & vga_red(7 downto 6);
+VGA_G  <= vga_green(7 downto 2) & vga_green(7 downto 6);
+VGA_B  <= vga_blue(7 downto 2)  & vga_blue(7 downto 6);
+VGA_HS <= vga_hsync;
+VGA_VS <= vga_vsync;
 
 -- Buffered input clock
 clkin_buff : component IBUF 
@@ -245,35 +220,38 @@ clkin_buff : component IBUF
 	);
 
 -- JOYSTICKS
-joy : component joydecoder_neptuno
-	port map(
-		clk_i         => CLK_50_buf,
-		joy_data_i    => JOY_DATA,
-		joy_clk_o     => JOY_CLK,
-		joy_load_o    => JOY_LOAD_N,
-		joy1_up_o     => joy1up,
-		joy1_down_o   => joy1down,
-		joy1_left_o   => joy1left,
-		joy1_right_o  => joy1right,
-		joy1_fire1_o  => joy1fire1,
-		joy1_fire2_o  => joy1fire2,
-		joy2_up_o     => joy2up,
-		joy2_down_o   => joy2down,
-		joy2_left_o   => joy2left,
-		joy2_right_o  => joy2right,
-		joy2_fire1_o  => joy2fire1,
-		joy2_fire2_o  => joy2fire2
-	);
-	
+joystick_serial_inst : entity work.joystick_serial
+port map (
+	clk_i 		  => vga_clk,		-- vga_clk = clk_sys
+	joy_data_i 	  => JOY_DATA,
+	joy_clk_o 	  => JOY_CLK,
+	joy_load_o 	  => JOY_LOAD_N,
+
+	joy1_up_o     => joy1up,
+	joy1_down_o   => joy1down,
+	joy1_left_o   => joy1left,
+	joy1_right_o  => joy1right,
+	joy1_fire1_o  => joy1fire1,
+	joy1_fire2_o  => joy1fire2,
+
+	joy2_up_o     => joy2up,
+	joy2_down_o   => joy2down,
+	joy2_left_o   => joy2left,
+	joy2_right_o  => joy2right,
+	joy2_fire1_o  => joy2fire1,
+	joy2_fire2_o  => joy2fire2
+);
+
+-- osd joystick
 joya <= "11" & joy1fire2 & joy1fire1 & joy1right & joy1left & joy1down & joy1up;
 joyb <= "11" & joy2fire2 & joy2fire1 & joy2right & joy2left & joy2down & joy2up;
 
 -- Core direct joystick
-joy1 <= joy1fire2 & joy1fire1 & joy1up & joy1down & joy1left & joy1right;
-joy2 <= joy2fire2 & joy2fire1 & joy2up & joy2down & joy2left & joy2right;
+joy1_bus <= joy1fire2 & joy1fire1 & joy1up & joy1down & joy1left & joy1right;
+joy2_bus <= joy2fire2 & joy2fire1 & joy2up & joy2down & joy2left & joy2right;
 
 --  Joystick intercept signal
-process(CLK_50_buf)
+process(vga_clk, intercept)
 begin
 	if (intercept = '1') then
 		intercept_joy <= "111111";
@@ -301,7 +279,7 @@ audio_i2s : entity work.audio_top
 guest : component mist_top
 	port map
 	(
-		CLOCK_27 	=> clock_input&clock_input,
+		CLOCK_27 	=> clock_input & clock_input,
 		LED 		=> act_led,
 
 		--SDRAM
@@ -354,11 +332,11 @@ guest : component mist_top
 		HS_x       => vga_x_hs,
 		VS_x       => vga_x_vs,
 		VGA_CE     => vga_ce,
-		VGA_CLK    => vga_clk,
+		VGA_CLK    => vga_clk,		-- vga_clk = clk_sys
 
 		--JOYSTICKS
-		JOY1 	   => joy1 or intercept_joy,   -- Block joystick when OSD is active
-		JOY2 	   => joy2 or intercept_joy,   -- Block joystick when OSD is active
+		JOY1_BUS   => joy1_bus or intercept_joy,   -- Block joystick when OSD is active
+		JOY2_BUS   => joy2_bus or intercept_joy,   -- Block joystick when OSD is active
 		JOY_SELECT => joy_select_o,
 
 		--AUDIO

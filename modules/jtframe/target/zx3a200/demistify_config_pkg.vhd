@@ -91,8 +91,8 @@ constant demistify_serialdebug : std_logic := '0';
 			DAC_L       : 	 OUT SIGNED(15 downto 0);
 			DAC_R       : 	 OUT SIGNED(15 downto 0);
 			
-			JOY1		:	 IN STD_LOGIC_VECTOR(5 DOWNTO 0) := "111111";
-			JOY2		:	 IN STD_LOGIC_VECTOR(5 DOWNTO 0) := "111111";
+			JOY1_BUS	:	 IN STD_LOGIC_VECTOR(5 DOWNTO 0);
+			JOY2_BUS	:	 IN STD_LOGIC_VECTOR(5 DOWNTO 0);
 			JOY_SELECT	:	 OUT STD_LOGIC;
 
 			OSD_EN		:	 OUT STD_LOGIC

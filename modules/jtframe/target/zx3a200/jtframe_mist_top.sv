@@ -63,8 +63,8 @@ module mist_top(
     output  [15:0]  DAC_L,   
     output  [15:0]  DAC_R,   
     // Joystick
-    input [5:0]     JOY1,
-    input [5:0]     JOY2,
+    input [5:0]     JOY1_BUS,
+    input [5:0]     JOY2_BUS,
     output          JOY_SELECT,
 
     output   [5:0]  RED_x,
@@ -444,8 +444,8 @@ u_frame(
     .ps2_clk        (                ),
     .ps2_dout       (                ),
 	`ifdef DEMISTIFY
-    .joy1_bus       ( JOY1           ),
-    .joy2_bus       ( JOY2           ),
+    .joy1_bus       ( JOY1_BUS       ),
+    .joy2_bus       ( JOY2_BUS       ),
     .JOY_SELECT     ( JOY_SELECT     ),
 	`endif   
     // DIP and OSD settings
