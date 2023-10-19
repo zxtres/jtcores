@@ -51,7 +51,7 @@ set topmodule "guest/"
 #     -divide_by 1 \
 #     [get_ports ${RAM_CLK}]
 
-create_generated_clock -name SDRAM_CLK -source [get_pins guest/u_clocks/u_pll_game/plle2_adv_inst/CLKOUT2] -divide_by 1 [get_ports ${RAM_CLK}]
+create_generated_clock -name SDRAM_CLK -source [get_pins guest/u_clocks/u_pll_game/mmcm_adv_inst/CLKOUT2] -divide_by 1 [get_ports ${RAM_CLK}]
 
 #**************************************************************
 # Set Clock Latency
@@ -97,7 +97,7 @@ set_output_delay -clock  SDRAM_CLK -min -0.8 \
 # Set Clock Groups
 #**************************************************************
 
-set_clock_groups -asynchronous -group [get_clocks spiclk] -group [get_clocks {clk_out1_pll clk_out2_pll clk_out3_pll clk_out4_pll clk_out5_pll}]
+set_clock_groups -asynchronous -group [get_clocks spiclk] -group [get_clocks {guest/u_clocks/u_pll_game/clk_out1_clk_wiz_0 clk_out2_clk_wiz_0 clk_out3_clk_wiz_0 clk_out4_clk_wiz_0 clk_out5_clk_wiz_0}]
 
 #**************************************************************
 # Set False Path
@@ -117,7 +117,7 @@ set_false_path -from [get_cells ${topmodule}u_frame/u_board/u_reset/rst_rom_reg[
 # Set Multicycle Path
 #**************************************************************
 
-set_multicycle_path -hold -end -from  [get_clocks {SDRAM_CLK}]  -to  [get_clocks {clk_out2_pll}] 2
+set_multicycle_path -hold -end -from  [get_clocks {SDRAM_CLK}]  -to  [get_clocks {clk_out2_clk_wiz_0}] 2
 
 set_multicycle_path -setup -end -from [get_ports ${RAM_IN}] -to [get_cells ${topmodule}u_frame/u_board/u_sdram/dout_reg[*]] 2
 
