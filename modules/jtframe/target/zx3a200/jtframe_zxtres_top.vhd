@@ -47,7 +47,7 @@ entity jtframe_zxtres_top is
 		dp_tx_auxch_tx_n	: inout	std_logic;
 		dp_tx_auxch_rx_p	: inout	std_logic;
 		dp_tx_auxch_rx_n	: inout	std_logic;
-		-- EAR
+		-- -- EAR
 		-- EAR_I		 : in std_logic;
 		-- PS2
 		PS2_KEYBOARD_CLK : inout std_logic := '1';
@@ -159,7 +159,9 @@ architecture RTL of jtframe_zxtres_top is
 	-- DAC AUDIO
 	signal dac_l : signed(15 downto 0);
 	signal dac_r : signed(15 downto 0);
-	
+	signal dac_l_s : signed(15 downto 0);
+	signal dac_r_s : signed(15 downto 0);
+
 	-- I2S 
 	signal i2s_mclk : std_logic;
 
@@ -271,9 +273,12 @@ audio_i2s : entity work.audio_top
 		dac_SCLK  => I2S_BCLK,
 		dac_SDIN  => I2S_DATA,
 		dac_LRCK  => I2S_LRCLK,
-		L_data    => std_logic_vector(dac_l),
-		R_data    => std_logic_vector(dac_r)
-	);
+		L_data    => std_logic_vector(dac_l_s),
+		R_data    => std_logic_vector(dac_r_s)
+		);
+
+	dac_l_s <= (dac_l(15) & dac_l(15 downto 1));
+	dac_r_s <= (dac_r(15) & dac_r(15 downto 1));
 
 
 guest : component mist_top
@@ -346,7 +351,6 @@ guest : component mist_top
 		AUDIO_R    => sigma_r,
 
 		OSD_EN	   => osd_en
-
 	);
 
 
