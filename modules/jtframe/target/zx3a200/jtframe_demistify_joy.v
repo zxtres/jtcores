@@ -34,7 +34,8 @@ module jtframe_demistify_joy(
     output  [11:0] joystick1,
     output  [11:0] joystick2,
 
-    output         scan2x_enb,
+    //output         scan2x_enb,
+    output         scan2x_toggle,
     output         osd_en
 );
 
@@ -82,7 +83,7 @@ always @(*) begin
     nept_cmd = osd_en_filt ? NEPT_CMD_OSD : NEPT_CMD_NOP;
 end
 
-wire scan2x_toggle = joy_mix[10] & joy_mix[9]; // Start + X buttons
+assign scan2x_toggle = joy_mix[10] & joy_mix[9]; // Start + X buttons
 // TODO: manage scan2x_toggle to toggle scan doubler  scan2x_enb  signal
 
 

@@ -112,7 +112,8 @@ module jtframe_mist_base #(parameter
     output          ioctl_cheat,
     output          downloading,
 
-    output         osd_en
+    output          scan2x_toggle,
+    output          osd_en
 );
 
 localparam [7:0] IDX_CHEAT = 8'h10,
@@ -338,8 +339,8 @@ jtframe_ram #(.SYNFILE("cfgstr.hex")) u_cfgstr(
 		    .joystick1      (joystick1[11:0]),
 		    .joystick2      (joystick2[11:0]),
 
-            //.scan2x_enb   (scan2x_enb     ),            
-            .osd_en         (osd_en         )
+            .scan2x_toggle  ( scan2x_toggle ),            
+            .osd_en         ( osd_en        )
 		);
 
 		assign joystick1[31:12] = 0;

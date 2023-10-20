@@ -37,7 +37,7 @@ constant demistify_serialdebug : std_logic := '0';
 		PORT
 		(
 			CLOCK_27 	:	 IN STD_LOGIC_VECTOR(1 downto 0);
-			LED		:	 OUT STD_LOGIC;
+			LED			:	 OUT STD_LOGIC;
 
 			SDRAM_DQ	:	 INOUT STD_LOGIC_VECTOR(15 DOWNTO 0);
 			SDRAM_A		:	 OUT STD_LOGIC_VECTOR(12 DOWNTO 0);
@@ -96,6 +96,7 @@ constant demistify_serialdebug : std_logic := '0';
 			JOY_SELECT	:	 OUT STD_LOGIC;
 
 			SCAN2x_ENB	:	 OUT STD_LOGIC;
+			SCAN2x_TOGGLE:	 OUT STD_LOGIC;			
 			OSD_EN		:	 OUT STD_LOGIC
 
 		);

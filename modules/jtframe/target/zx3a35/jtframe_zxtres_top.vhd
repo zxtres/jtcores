@@ -8,6 +8,9 @@ use work.demistify_config_pkg.all;
 -------------------------------------------------------------------------
 
 entity jtframe_zxtres_top is
+	generic (
+		VIDEO_OUTPUT: natural := 2  -- 1=MIST VIDEO, 2=ZXTRES WRAPPER
+	);	
 	port (
 		CLK_50      : in std_logic;
 		LED5        : out std_logic := '1';
@@ -122,6 +125,12 @@ architecture RTL of jtframe_zxtres_top is
 	signal vga_hsync : std_logic;
 	signal vga_vsync : std_logic;
 
+	signal vga_red_w   : std_logic_vector(7 downto 0);
+	signal vga_green_w : std_logic_vector(7 downto 0);
+	signal vga_blue_w  : std_logic_vector(7 downto 0);
+	signal vga_hsync_w : std_logic;
+	signal vga_vsync_w : std_logic;	
+
 	signal vga_clk   : std_logic;
 	signal vga_ce 	 : std_logic;
 	signal vga_x_r   : std_logic_vector(5 downto 0);
@@ -131,6 +140,7 @@ architecture RTL of jtframe_zxtres_top is
 	signal vga_x_vs  : std_logic;
 
 	signal scan2x_enb: std_logic;
+	signal scan2x_toggle : std_logic;
 
 	-- RS232 serial
 	signal rs232_rxd : std_logic;
@@ -159,10 +169,10 @@ architecture RTL of jtframe_zxtres_top is
 	signal joy2fire2   : std_logic;
 
 	-- DAC AUDIO
-	signal dac_l : signed(15 downto 0);
-	signal dac_r : signed(15 downto 0);
-	signal dac_l_s : signed(15 downto 0);
-	signal dac_r_s : signed(15 downto 0);
+	signal dac_l 	: signed(15 downto 0);
+	signal dac_r 	: signed(15 downto 0);
+	signal dac_l_s  : signed(15 downto 0);
+	signal dac_r_s  : signed(15 downto 0);
 
 	-- I2S 
 	signal i2s_mclk : std_logic;
@@ -209,42 +219,55 @@ PS2_KEYBOARD_DAT    <= '0' when ps2_keyboard_dat_out = '0' else 'Z';
 ps2_keyboard_clk_in <= PS2_KEYBOARD_CLK;
 PS2_KEYBOARD_CLK    <= '0' when ps2_keyboard_clk_out = '0' else 'Z';
 
-VGA_R  <= vga_red;
-VGA_G  <= vga_green;
-VGA_B  <= vga_blue;
-VGA_HS <= vga_hsync;
-VGA_VS <= vga_vsync;
+-- VIDEO_OUTPUT    1=MIST VIDEO, 2=ZXTRES WRAPPER
+VIDEO_1 : if VIDEO_OUTPUT = 1 generate --  1=MIST VIDEO
+	-- Video signals from guest mist_top 
+	VGA_R  <= vga_red(7 downto 2)   & vga_red(7 downto 6);
+	VGA_G  <= vga_green(7 downto 2) & vga_green(7 downto 6);
+	VGA_B  <= vga_blue(7 downto 2)  & vga_blue(7 downto 6);
+	VGA_HS <= vga_hsync;
+	VGA_VS <= vga_vsync;
+end generate VIDEO_1;
+
+VIDEO_2 : if VIDEO_OUTPUT = 2 generate -- 2=ZXTRES WRAPPER
+	-- Video signals from zxtres_wrapper
+	VGA_R  <= vga_red_w;
+	VGA_G  <= vga_green_w;
+	VGA_B  <= vga_blue_w;
+	VGA_HS <= vga_hsync_w;
+	VGA_VS <= vga_vsync_w;
+end generate VIDEO_2;
+
 
 -- Buffered input clock
 clkin_buff : component IBUF 
-	port map
-	(
+	port map (
 		O => (CLK_50_buf),
 		I => (clock_input)
 	);
 
 -- JOYSTICKS
 joystick_serial_inst : entity work.joystick_serial
-port map (
-	clk_i 		  => vga_clk,		-- vga_clk = clk_sys
-	joy_data_i 	  => JOY_DATA,
-	joy_clk_o 	  => JOY_CLK,
-	joy_load_o 	  => JOY_LOAD_N,
+	port map (
+		clk_i 		  => vga_clk,		-- vga_clk = clk_sys
+		joy_data_i 	  => JOY_DATA,
+		joy_clk_o 	  => JOY_CLK,
+		joy_load_o 	  => JOY_LOAD_N,
 
-	joy1_up_o     => joy1up,
-	joy1_down_o   => joy1down,
-	joy1_left_o   => joy1left,
-	joy1_right_o  => joy1right,
-	joy1_fire1_o  => joy1fire1,
-	joy1_fire2_o  => joy1fire2,
+		joy1_up_o     => joy1up,
+		joy1_down_o   => joy1down,
+		joy1_left_o   => joy1left,
+		joy1_right_o  => joy1right,
+		joy1_fire1_o  => joy1fire1,
+		joy1_fire2_o  => joy1fire2,
 
-	joy2_up_o     => joy2up,
-	joy2_down_o   => joy2down,
-	joy2_left_o   => joy2left,
-	joy2_right_o  => joy2right,
-	joy2_fire1_o  => joy2fire1,
-	joy2_fire2_o  => joy2fire2
-);
+		joy2_up_o     => joy2up,
+		joy2_down_o   => joy2down,
+		joy2_left_o   => joy2left,
+		joy2_right_o  => joy2right,
+		joy2_fire1_o  => joy2fire1,
+		joy2_fire2_o  => joy2fire2
+	);
 
 -- osd joystick
 joya <= "11" & joy1fire2 & joy1fire1 & joy1right & joy1left & joy1down & joy1up;
@@ -255,17 +278,8 @@ joy1_bus <= joy1fire2 & joy1fire1 & joy1up & joy1down & joy1left & joy1right;
 joy2_bus <= joy2fire2 & joy2fire1 & joy2up & joy2down & joy2left & joy2right;
 
 --  Joystick intercept signal
-process(vga_clk, intercept)
-begin
-	if (intercept = '1') then
-		intercept_joy <= "111111";
-		JOY_SEL    <= '1';
-	else
-		intercept_joy <= "000000";
-		JOY_SEL    <= joy_select_o;
-	end if;
-end process;
-
+intercept_joy <= "111111"   when intercept = '1' else "000000";
+JOY_SEL       <= '1' 		when intercept = '1' else joy_select_o;
 
 -- I2S audio
 audio_i2s : entity work.audio_top
@@ -279,13 +293,12 @@ audio_i2s : entity work.audio_top
 		R_data    => std_logic_vector(dac_r_s)
 		);
 
-	dac_l_s <= (dac_l(15) & dac_l(15 downto 1));
-	dac_r_s <= (dac_r(15) & dac_r(15 downto 1));
+dac_l_s <= (dac_l(15) & dac_l(15 downto 1));
+dac_r_s <= (dac_r(15) & dac_r(15 downto 1));
 
 
 guest : component mist_top
-	port map
-	(
+	port map (
 		CLOCK_27 	=> clock_input & clock_input,
 		LED 		=> act_led,
 
@@ -303,19 +316,19 @@ guest : component mist_top
 		SDRAM_CKE  => DRAM_CKE,
 
 		--SRAM
-		SRAM_A		=> SRAM_A,
-		SRAM_Q		=> SRAM_Q,
-		SRAM_WE		=> SRAM_WE,
-		SRAM_OE		=> SRAM_OE,
-		SRAM_UB		=> SRAM_UB,
-		SRAM_LB		=> SRAM_LB,			
+		SRAM_A	   => SRAM_A,
+		SRAM_Q	   => SRAM_Q,
+		SRAM_WE	   => SRAM_WE,
+		SRAM_OE	   => SRAM_OE,
+		SRAM_UB	   => SRAM_UB,
+		SRAM_LB	   => SRAM_LB,			
 
 		--UART
 		UART_TX    => PMOD4_D5,
 		UART_RX    => PMOD4_D4,
 
 		--SPI
-		--SPI_DO     => spi_do,
+		--SPI_DO   => spi_do,
 		SPI_DO     => spi_fromguest,
 		SPI_DO_IN  => sd_miso,
 		SPI_DI     => spi_toguest,
@@ -326,11 +339,11 @@ guest : component mist_top
 		CONF_DATA0 => conf_data0,
 
 		--VGA
-		-- VGA_HS     => vga_hsync,
-		-- VGA_VS     => vga_vsync,
-		-- VGA_R      => vga_red(7 downto 2),
-		-- VGA_G      => vga_green(7 downto 2),
-		-- VGA_B      => vga_blue(7 downto 2),
+		VGA_HS     => vga_hsync,
+		VGA_VS     => vga_vsync,
+		VGA_R      => vga_red(7 downto 2),
+		VGA_G      => vga_green(7 downto 2),
+		VGA_B      => vga_blue(7 downto 2),
 
 		--DISPLAYPORT
 		RED_x      => vga_x_r,
@@ -353,6 +366,7 @@ guest : component mist_top
 		AUDIO_R    => sigma_r,
 
 		SCAN2x_ENB => scan2x_enb,
+		SCAN2x_TOGGLE => scan2x_toggle,
 		OSD_EN	   => osd_en
 	);
 
@@ -363,7 +377,7 @@ sd_clk <= spi_clk_int;
 -- spi_fromguest <= spi_do;  -- to control CPU
 
 controller : entity work.substitute_mcu
-	generic map(
+	generic map (
 		sysclk_frequency => 500,
 --		SPI_FASTBIT=>3,
 --		SPI_INTERNALBIT=>2,		--needed if OSD hungs
@@ -372,7 +386,7 @@ controller : entity work.substitute_mcu
 		debug     => false,
 		jtag_uart => false
 	)
-	port map(
+	port map (
 		clk       => CLK_50_buf,	--50 MHz
 		reset_in  => '1',			--reset_in  when 0
 		reset_out => reset_n,		--reset_out when 0
@@ -444,11 +458,11 @@ zxtres_wrapper_inst : zxtres_wrapper
     vsync_ext_n => vga_x_vs,
     csync_ext_n => vga_x_hs & vga_x_vs,
 	----
-    ro => vga_red,
-    go => vga_green,
-    bo => vga_blue,
-    hsync => vga_hsync,
-    vsync => vga_vsync,
+    ro => vga_red_w,
+    go => vga_green_w,
+    bo => vga_blue_w,
+    hsync => vga_hsync_w,
+    vsync => vga_vsync_w,
 	----
     dp_tx_lane_p => dp_tx_lane_p,
     dp_tx_lane_n => dp_tx_lane_n,

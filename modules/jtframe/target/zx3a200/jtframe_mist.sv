@@ -150,8 +150,9 @@ module jtframe_mist #(parameter
     output      [ 7:0] debug_bus,
     input       [ 7:0] debug_view,
 
-    output         scan2x_enb,      // scan doubler enable bar = scan doubler disable.
-    output         osd_en
+    output             scan2x_enb,      // scan doubler enable bar = scan doubler disable.
+    output             scan2x_toggle,
+    output             osd_en
 );
 
 // control
@@ -286,7 +287,8 @@ jtframe_mist_base #(
     .ioctl_cheat    ( ioctl_cheat   ),
     .downloading    ( downloading   ),
 
-    .osd_en         (osd_en         )
+    .scan2x_toggle  ( scan2x_toggle ),            
+    .osd_en         ( osd_en        )
 );
 
 jtframe_board #(

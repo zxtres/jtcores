@@ -96,8 +96,9 @@ module mist_top(
     output          sim_dwnld_busy
     `endif
 
-    ,output        scan2x_enb,      // scan doubler enable bar = scan doubler disable.
-    output         osd_en
+    ,output         scan2x_enb,      // scan doubler enable bar = scan doubler disable.
+    output          scan2x_toggle,
+    output          osd_en
 );
 
 `ifdef DEMISTIFY
@@ -465,6 +466,7 @@ u_frame(
     .debug_view     ( debug_view     ),
 
     .scan2x_enb     ( scan2x_enb     ),
+    .scan2x_toggle  ( scan2x_toggle  ),            
     .osd_en         ( osd_en         )
 );
 
