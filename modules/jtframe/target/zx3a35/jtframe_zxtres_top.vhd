@@ -10,7 +10,6 @@ use work.demistify_config_pkg.all;
 entity jtframe_zxtres_top is
 	port (
 		CLK_50      : in std_logic;
-
 		LED5        : out std_logic := '1';
 		LED6        : out std_logic := '1';
 		-- SDRAM
@@ -38,17 +37,17 @@ entity jtframe_zxtres_top is
 		VGA_R  		: out std_logic_vector(7 downto 0);
 		VGA_G  		: out std_logic_vector(7 downto 0);
 		VGA_B  		: out std_logic_vector(7 downto 0);
-		-- -- DISPLAYPORT
-		-- dp_tx_lane_p		: out   std_logic;
-		-- dp_tx_lane_n		: out   std_logic;
-		-- dp_refclk_p			: in	std_logic;
-		-- dp_refclk_n			: in	std_logic;
-		-- dp_tx_hp_detect		: in	std_logic;
-		-- dp_tx_auxch_tx_p	: inout	std_logic;
-		-- dp_tx_auxch_tx_n	: inout	std_logic;
-		-- dp_tx_auxch_rx_p	: inout	std_logic;
-		-- dp_tx_auxch_rx_n	: inout	std_logic;
-		-- EAR
+		-- DISPLAYPORT
+		dp_tx_lane_p		: out   std_logic;
+		dp_tx_lane_n		: out   std_logic;
+		dp_refclk_p			: in	std_logic;
+		dp_refclk_n			: in	std_logic;
+		dp_tx_hp_detect		: in	std_logic;
+		dp_tx_auxch_tx_p	: inout	std_logic;
+		dp_tx_auxch_tx_n	: inout	std_logic;
+		dp_tx_auxch_rx_p	: inout	std_logic;
+		dp_tx_auxch_rx_n	: inout	std_logic;
+		-- -- EAR
 		-- EAR_I		 : in std_logic;
 		-- PS2
 		PS2_KEYBOARD_CLK : inout std_logic := '1';
@@ -139,52 +138,30 @@ architecture RTL of jtframe_zxtres_top is
 	signal joya : std_logic_vector(7 downto 0);
 	signal joyb : std_logic_vector(7 downto 0);
 
-	signal joy1 : std_logic_vector(5 downto 0);
-	signal joy2 : std_logic_vector(5 downto 0);
+	signal joy1_bus : std_logic_vector(5 downto 0);
+	signal joy2_bus : std_logic_vector(5 downto 0);
 	signal intercept_joy : std_logic_vector(5 downto 0);
 	signal joy_select_o  : std_logic;
 
-	signal joy1up      : std_logic := '1';
-	signal joy1down    : std_logic := '1';
-	signal joy1left    : std_logic := '1';
-	signal joy1right   : std_logic := '1';
-	signal joy1fire1   : std_logic := '1';
-	signal joy1fire2   : std_logic := '1';
-	signal joy2up      : std_logic := '1';
-	signal joy2down    : std_logic := '1';
-	signal joy2left    : std_logic := '1';
-	signal joy2right   : std_logic := '1';
-	signal joy2fire1   : std_logic := '1';
-	signal joy2fire2   : std_logic := '1';
-
-	component joydecoder_neptuno is
-		port (
-			clk_i         : in std_logic;
-			joy_data_i    : in std_logic;
-			joy_clk_o     : out std_logic;
-			joy_load_o    : out std_logic;
-			joy1_up_o     : out std_logic;
-			joy1_down_o   : out std_logic;
-			joy1_left_o   : out std_logic;
-			joy1_right_o  : out std_logic;
-			joy1_fire1_o  : out std_logic;
-			joy1_fire2_o  : out std_logic;
-			joy2_up_o     : out std_logic;
-			joy2_down_o   : out std_logic;
-			joy2_left_o   : out std_logic;
-			joy2_right_o  : out std_logic;
-			joy2_fire1_o  : out std_logic;
-			joy2_fire2_o  : out std_logic
-		);
-	end component;	
-
-	-- ZXTRES WRAPPER
-	-- signal clk100 	  : std_logic;
+	signal joy1up      : std_logic;
+	signal joy1down    : std_logic;
+	signal joy1left    : std_logic;
+	signal joy1right   : std_logic;
+	signal joy1fire1   : std_logic;
+	signal joy1fire2   : std_logic;
+	signal joy2up      : std_logic;
+	signal joy2down    : std_logic;
+	signal joy2left    : std_logic;
+	signal joy2right   : std_logic;
+	signal joy2fire1   : std_logic;
+	signal joy2fire2   : std_logic;
 
 	-- DAC AUDIO
 	signal dac_l : signed(15 downto 0);
 	signal dac_r : signed(15 downto 0);
-	
+	signal dac_l_s : signed(15 downto 0);
+	signal dac_r_s : signed(15 downto 0);
+
 	-- I2S 
 	signal i2s_mclk : std_logic;
 
@@ -230,11 +207,11 @@ PS2_KEYBOARD_DAT    <= '0' when ps2_keyboard_dat_out = '0' else 'Z';
 ps2_keyboard_clk_in <= PS2_KEYBOARD_CLK;
 PS2_KEYBOARD_CLK    <= '0' when ps2_keyboard_clk_out = '0' else 'Z';
 
-VGA_R       <= vga_red(7 downto 2)  &vga_red(7 downto 6);
-VGA_G       <= vga_green(7 downto 2)&vga_green(7 downto 6);
-VGA_B       <= vga_blue(7 downto 2) &vga_blue(7 downto 6);
-VGA_HS      <= vga_hsync;
-VGA_VS      <= vga_vsync;
+VGA_R  <= vga_red;
+VGA_G  <= vga_green;
+VGA_B  <= vga_blue;
+VGA_HS <= vga_hsync;
+VGA_VS <= vga_vsync;
 
 -- Buffered input clock
 clkin_buff : component IBUF 
@@ -245,35 +222,38 @@ clkin_buff : component IBUF
 	);
 
 -- JOYSTICKS
-joy : component joydecoder_neptuno
-	port map(
-		clk_i         => CLK_50_buf,
-		joy_data_i    => JOY_DATA,
-		joy_clk_o     => JOY_CLK,
-		joy_load_o    => JOY_LOAD_N,
-		joy1_up_o     => joy1up,
-		joy1_down_o   => joy1down,
-		joy1_left_o   => joy1left,
-		joy1_right_o  => joy1right,
-		joy1_fire1_o  => joy1fire1,
-		joy1_fire2_o  => joy1fire2,
-		joy2_up_o     => joy2up,
-		joy2_down_o   => joy2down,
-		joy2_left_o   => joy2left,
-		joy2_right_o  => joy2right,
-		joy2_fire1_o  => joy2fire1,
-		joy2_fire2_o  => joy2fire2
-	);
-	
+joystick_serial_inst : entity work.joystick_serial
+port map (
+	clk_i 		  => vga_clk,		-- vga_clk = clk_sys
+	joy_data_i 	  => JOY_DATA,
+	joy_clk_o 	  => JOY_CLK,
+	joy_load_o 	  => JOY_LOAD_N,
+
+	joy1_up_o     => joy1up,
+	joy1_down_o   => joy1down,
+	joy1_left_o   => joy1left,
+	joy1_right_o  => joy1right,
+	joy1_fire1_o  => joy1fire1,
+	joy1_fire2_o  => joy1fire2,
+
+	joy2_up_o     => joy2up,
+	joy2_down_o   => joy2down,
+	joy2_left_o   => joy2left,
+	joy2_right_o  => joy2right,
+	joy2_fire1_o  => joy2fire1,
+	joy2_fire2_o  => joy2fire2
+);
+
+-- osd joystick
 joya <= "11" & joy1fire2 & joy1fire1 & joy1right & joy1left & joy1down & joy1up;
 joyb <= "11" & joy2fire2 & joy2fire1 & joy2right & joy2left & joy2down & joy2up;
 
 -- Core direct joystick
-joy1 <= joy1fire2 & joy1fire1 & joy1up & joy1down & joy1left & joy1right;
-joy2 <= joy2fire2 & joy2fire1 & joy2up & joy2down & joy2left & joy2right;
+joy1_bus <= joy1fire2 & joy1fire1 & joy1up & joy1down & joy1left & joy1right;
+joy2_bus <= joy2fire2 & joy2fire1 & joy2up & joy2down & joy2left & joy2right;
 
 --  Joystick intercept signal
-process(CLK_50_buf)
+process(vga_clk, intercept)
 begin
 	if (intercept = '1') then
 		intercept_joy <= "111111";
@@ -293,15 +273,18 @@ audio_i2s : entity work.audio_top
 		dac_SCLK  => I2S_BCLK,
 		dac_SDIN  => I2S_DATA,
 		dac_LRCK  => I2S_LRCLK,
-		L_data    => std_logic_vector(dac_l),
-		R_data    => std_logic_vector(dac_r)
-	);
+		L_data    => std_logic_vector(dac_l_s),
+		R_data    => std_logic_vector(dac_r_s)
+		);
+
+	dac_l_s <= (dac_l(15) & dac_l(15 downto 1));
+	dac_r_s <= (dac_r(15) & dac_r(15 downto 1));
 
 
 guest : component mist_top
 	port map
 	(
-		CLOCK_27 	=> clock_input&clock_input,
+		CLOCK_27 	=> clock_input & clock_input,
 		LED 		=> act_led,
 
 		--SDRAM
@@ -341,24 +324,24 @@ guest : component mist_top
 		CONF_DATA0 => conf_data0,
 
 		--VGA
-		VGA_HS     => vga_hsync,
-		VGA_VS     => vga_vsync,
-		VGA_R      => vga_red(7 downto 2),
-		VGA_G      => vga_green(7 downto 2),
-		VGA_B      => vga_blue(7 downto 2),
+		-- VGA_HS     => vga_hsync,
+		-- VGA_VS     => vga_vsync,
+		-- VGA_R      => vga_red(7 downto 2),
+		-- VGA_G      => vga_green(7 downto 2),
+		-- VGA_B      => vga_blue(7 downto 2),
 
-		-- --DISPLAYPORT
-		-- RED_x      => vga_x_r,
-		-- GREEN_x    => vga_x_g,
-		-- BLUE_x     => vga_x_b,
-		-- HS_x       => vga_x_hs,
-		-- VS_x       => vga_x_vs,
-		-- VGA_CE     => vga_ce,
-		-- VGA_CLK    => vga_clk,
+		--DISPLAYPORT
+		RED_x      => vga_x_r,
+		GREEN_x    => vga_x_g,
+		BLUE_x     => vga_x_b,
+		HS_x       => vga_x_hs,
+		VS_x       => vga_x_vs,
+		VGA_CE     => vga_ce,
+		VGA_CLK    => vga_clk,		-- vga_clk = clk_sys
 
 		--JOYSTICKS
-		JOY1 	   => joy1 or intercept_joy,   -- Block joystick when OSD is active
-		JOY2 	   => joy2 or intercept_joy,   -- Block joystick when OSD is active
+		JOY1_BUS   => joy1_bus or intercept_joy,   -- Block joystick when OSD is active
+		JOY2_BUS   => joy2_bus or intercept_joy,   -- Block joystick when OSD is active
 		JOY_SELECT => joy_select_o,
 
 		--AUDIO
@@ -415,7 +398,7 @@ controller : entity work.substitute_mcu
 		ps2m_dat_out => ps2_mouse_dat_out,
 
 		-- Buttons
-		buttons => (others => '1'),	-- 0 = opens OSD
+		buttons => (0 => (not osd_en), others => '1'),	-- 0 => OSD_button
 
 		-- Joysticks
 		joy1 => joya,
@@ -431,50 +414,50 @@ controller : entity work.substitute_mcu
 LED5 <= not act_led;
 
 
--- zxtres_wrapper_inst : zxtres_wrapper
---   generic map (
--- 	HSTART => 48,
--- 	VSTART => 15,
--- 	CLKVIDEO => 48,
--- 	INITIAL_FIELD => 0
---   )
---   port map (
---     clkvideo => vga_clk,
---     enclkvideo => vga_ce,	--'1'
---     clkpalntsc => '0',
---     reset_n => 	reset_n,     --'1',
---     reboot_fpga => '0',
--- 	----
---     video_output_sel => '0',	-- 0: RGB 15kHz + DP   1: VGA + DP pantalla azul
---     disable_scanlines => '1',  	-- 1: sin scanlines  0: emular scanlines (cuidado con el policía del retro!)  
---     monochrome_sel => '0',  	-- 0 : RGB, 1: fósforo verde, 2: fósforo ámbar, 3: escala de grises
---     interlaced_image => '0', 	-- 1: Indico que la fuente de video es una señal entrelazada, no progresiva.
---     -- ad724_modo => '0',		-- Reloj de color. 0 : PAL, 1: NTSC
---     -- ad724_clken => '0',		-- 0 = AD724 usa su propio cristal. 1 = AD724 usa reloj de FPGA.
--- 	----
---     ri => vga_x_r & vga_x_r(5 downto 4),
---     gi => vga_x_g & vga_x_g(5 downto 4),
---     bi => vga_x_b & vga_x_b(5 downto 4),
---     hsync_ext_n => vga_x_hs,
---     vsync_ext_n => vga_x_vs,
---     csync_ext_n => vga_x_hs & vga_x_vs,
--- 	----
---     -- ro => ro,
---     -- go => go,
---     -- bo => bo,
---     -- hsync => hsync,
---     -- vsync => vsync,
--- 	----
---     dp_tx_lane_p => dp_tx_lane_p,
---     dp_tx_lane_n => dp_tx_lane_n,
---     dp_refclk_p => dp_refclk_p,
---     dp_refclk_n => dp_refclk_n,
---     dp_tx_hp_detect => dp_tx_hp_detect,
---     dp_tx_auxch_tx_p => dp_tx_auxch_tx_p,
---     dp_tx_auxch_tx_n => dp_tx_auxch_tx_n,
---     dp_tx_auxch_rx_p => dp_tx_auxch_rx_p,
---     dp_tx_auxch_rx_n => dp_tx_auxch_rx_n
---   );
+zxtres_wrapper_inst : zxtres_wrapper
+  generic map (
+	HSTART => 128,  --kicker (48 right, 108 cent) --128 s16b ok
+	VSTART => 15,
+	CLKVIDEO => 48,
+	INITIAL_FIELD => 0
+  )
+  port map (
+    clkvideo => vga_clk,
+    enclkvideo => vga_ce,	--'1'
+    clkpalntsc => '0',
+    reset_n => 	reset_n,     --'1',
+    reboot_fpga => '0',
+	----
+    video_output_sel => '1',	-- 0: RGB 15kHz + DP   1: VGA + DP pantalla azul
+    disable_scanlines => '1',  	-- 1: sin scanlines  0: emular scanlines (cuidado con el policía del retro!)  
+    monochrome_sel => '0',  	-- 0 : RGB, 1: fósforo verde, 2: fósforo ámbar, 3: escala de grises
+    interlaced_image => '0', 	-- 1: Indico que la fuente de video es una señal entrelazada, no progresiva.
+    -- ad724_modo => '0',		-- Reloj de color. 0 : PAL, 1: NTSC
+    -- ad724_clken => '0',		-- 0 = AD724 usa su propio cristal. 1 = AD724 usa reloj de FPGA.
+	----
+    ri => vga_x_r & vga_x_r(5 downto 4),
+    gi => vga_x_g & vga_x_g(5 downto 4),
+    bi => vga_x_b & vga_x_b(5 downto 4),
+    hsync_ext_n => vga_x_hs,
+    vsync_ext_n => vga_x_vs,
+    csync_ext_n => vga_x_hs & vga_x_vs,
+	----
+    ro => vga_red,
+    go => vga_green,
+    bo => vga_blue,
+    hsync => vga_hsync,
+    vsync => vga_vsync,
+	----
+    dp_tx_lane_p => dp_tx_lane_p,
+    dp_tx_lane_n => dp_tx_lane_n,
+    dp_refclk_p => dp_refclk_p,
+    dp_refclk_n => dp_refclk_n,
+    dp_tx_hp_detect => dp_tx_hp_detect,
+    dp_tx_auxch_tx_p => dp_tx_auxch_tx_p,
+    dp_tx_auxch_tx_n => dp_tx_auxch_tx_n,
+    dp_tx_auxch_rx_p => dp_tx_auxch_rx_p,
+    dp_tx_auxch_rx_n => dp_tx_auxch_rx_n
+  );
 
 
 end rtl;

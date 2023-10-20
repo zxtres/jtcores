@@ -5,7 +5,6 @@ here:
   - jtframe_zxtres_top.vhd
   # DeMiSTify specific board modules
   - ../zx3a200/rtl/audio_i2s.vhd 
-  - ../zx3a200/rtl/joydecoder_neptuno.v
   - ../zx3a200/rtl/joystick_sega.vhd
   # PLLs
   - ../zx3a200/pllgame/jtframe_pllgame.qip
@@ -16,4 +15,4 @@ here:
   - ../zx3a200/pll6671/jtframe_pll6671.qip
   # ZXtres wrapper (Display port video)
   - ../zx3a200/zx3w/zxtres_wrapper_a35t.v
-  - ../zx3a200/zx3w.yaml  
+  - ../zx3a200/zx3w.yaml
