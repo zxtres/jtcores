@@ -150,6 +150,7 @@ module jtframe_mist #(parameter
     output      [ 7:0] debug_bus,
     input       [ 7:0] debug_view,
 
+    output         scan2x_enb,      // scan doubler enable bar = scan doubler disable.
     output         osd_en
 );
 
@@ -161,7 +162,7 @@ wire          osd_shown;
 
 wire [7:0]    scan2x_r, scan2x_g, scan2x_b;
 wire          scan2x_hs, scan2x_vs, scan2x_clk;
-wire          scan2x_enb;
+//wire        scan2x_enb;
 wire [6:0]    core_mod;
 wire [3:0]    but_start, but_coin;
 

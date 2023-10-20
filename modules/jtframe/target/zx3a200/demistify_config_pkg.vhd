@@ -95,6 +95,7 @@ constant demistify_serialdebug : std_logic := '0';
 			JOY2_BUS	:	 IN STD_LOGIC_VECTOR(5 DOWNTO 0);
 			JOY_SELECT	:	 OUT STD_LOGIC;
 
+			SCAN2x_ENB	:	 OUT STD_LOGIC;
 			OSD_EN		:	 OUT STD_LOGIC
 
 		);

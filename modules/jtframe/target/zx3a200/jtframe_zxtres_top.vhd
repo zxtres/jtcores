@@ -130,6 +130,8 @@ architecture RTL of jtframe_zxtres_top is
 	signal vga_x_hs  : std_logic;
 	signal vga_x_vs  : std_logic;
 
+	signal scan2x_enb: std_logic;
+
 	-- RS232 serial
 	signal rs232_rxd : std_logic;
 	signal rs232_txd : std_logic;
@@ -350,6 +352,7 @@ guest : component mist_top
 		AUDIO_L    => sigma_l,
 		AUDIO_R    => sigma_r,
 
+		SCAN2x_ENB => scan2x_enb,
 		OSD_EN	   => osd_en
 	);
 
@@ -427,7 +430,7 @@ zxtres_wrapper_inst : zxtres_wrapper
     reset_n => 	reset_n,     --'1',
     reboot_fpga => '0',
 	----
-    video_output_sel => '0',	-- 0: RGB 15kHz + DP   1: VGA + DP pantalla azul
+    video_output_sel => ~scan2x_enb,	-- 0: RGB 15kHz + DP   1: VGA + DP pantalla azul
     disable_scanlines => '1',  	-- 1: sin scanlines  0: emular scanlines (cuidado con el policía del retro!)  
     monochrome_sel => '0',  	-- 0 : RGB, 1: fósforo verde, 2: fósforo ámbar, 3: escala de grises
     interlaced_image => '0', 	-- 1: Indico que la fuente de video es una señal entrelazada, no progresiva.
