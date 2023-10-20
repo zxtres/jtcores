@@ -393,7 +393,7 @@ controller : entity work.substitute_mcu
 		ps2m_dat_out => ps2_mouse_dat_out,
 
 		-- Buttons
-		buttons => (others => '1'),	-- 0 = opens OSD
+		buttons => (0 => (not osd_en), others => '1'),	-- 0 => OSD_button
 
 		-- Joysticks
 		joy1 => joya,
