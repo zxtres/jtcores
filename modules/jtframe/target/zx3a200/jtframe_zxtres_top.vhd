@@ -430,7 +430,7 @@ zxtres_wrapper_inst : zxtres_wrapper
     reset_n => 	reset_n,     --'1',
     reboot_fpga => '0',
 	----
-    video_output_sel => ~scan2x_enb,	-- 0: RGB 15kHz + DP   1: VGA + DP pantalla azul
+    video_output_sel => not scan2x_enb,	-- 0: RGB 15kHz + DP   1: VGA + DP pantalla azul
     disable_scanlines => '1',  	-- 1: sin scanlines  0: emular scanlines (cuidado con el policía del retro!)  
     monochrome_sel => '0',  	-- 0 : RGB, 1: fósforo verde, 2: fósforo ámbar, 3: escala de grises
     interlaced_image => '0', 	-- 1: Indico que la fuente de video es una señal entrelazada, no progresiva.
@@ -444,11 +444,11 @@ zxtres_wrapper_inst : zxtres_wrapper
     vsync_ext_n => vga_x_vs,
     csync_ext_n => vga_x_hs & vga_x_vs,
 	----
-    -- ro => ro,
-    -- go => go,
-    -- bo => bo,
-    -- hsync => hsync,
-    -- vsync => vsync,
+    -- ro => vga_red,
+    -- go => vga_green,
+    -- bo => vga_blue,
+    -- hsync => vga_hsync,
+    -- vsync => vga_vsync,
 	----
     dp_tx_lane_p => dp_tx_lane_p,
     dp_tx_lane_n => dp_tx_lane_n,
