@@ -53,9 +53,9 @@ module jtcastle_main(
     input               gfx_firqn,
     input               gfx_irqn,
     input               gfx_nmin,
-    inout  reg          gfx1_cs,
-    inout  reg          gfx2_cs,
-    inout  reg          pal_cs,
+    inout               gfx1_cs,
+    inout               gfx2_cs,
+    inout               pal_cs,
 
     output reg [1:0]    video_bank,
     output reg          prio,
