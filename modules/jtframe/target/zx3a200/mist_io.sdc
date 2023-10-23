@@ -11,8 +11,8 @@ set RAM_IN {DRAM_D*}
 set VGA_OUT {VGA_R[*] VGA_G[*] VGA_B[*] VGA_HS VGA_VS}
 
 # non timing-critical pins would be in the "FALSE_IN/OUT" collection (IN inputs, OUT outputs)
-set FALSE_OUT {LED* PWM_AUDIO_* PS2_* JOYX_SEL_O UART_TXD SD_CS_N_O SD_MOSI_O SD_SCLK_O}
-set FALSE_IN  {SW* PS2_* JOY1* EAR UART_RXD SD_MISO_I}
+set FALSE_OUT {LED* PWM_AUDIO_* PS2_* JOY_SEL UART_TXD SD_CS_N_O SD_MOSI_O SD_SCLK_O}
+set FALSE_IN  {PS2_* JOY_DATA SD_MISO_I EAR_I UART_RXD}
 
 
 #**************************************************************
