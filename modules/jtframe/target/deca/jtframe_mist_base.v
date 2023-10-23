@@ -105,7 +105,7 @@ module jtframe_mist_base #(parameter
     output          ioctl_wr,
     output          ioctl_ram,
     output          ioctl_cheat,
-    output          ioctl_rom
+    output          ioctl_rom,
 
     output         osd_en
 );
