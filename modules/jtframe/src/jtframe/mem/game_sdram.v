@@ -98,8 +98,8 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .HS             ( HS            ),
     .VS             ( VS            ),
     // cabinet I/O
-    .start_button   ( start_button  ),
-    .coin_input     ( coin_input    ),
+    .cab_1p   ( cab_1p  ),
+    .coin     ( coin    ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     `ifdef JTFRAME_4PLAYERS
@@ -222,7 +222,7 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .gfx_en      ( gfx_en        )
 );
 
-assign dwnld_busy = downloading | prom_we; // prom_we is really just for sims
+assign dwnld_busy = ioctl_rom | prom_we; // prom_we is really just for sims
 assign dwnld_addr = {{if .Download.Pre_addr }}pre_addr{{else}}ioctl_addr{{end}};
 assign prog_addr = {{if .Download.Post_addr }}post_addr{{else}}raw_addr{{end}};
 assign prog_data = {{if .Download.Post_data }}{2{post_data}}{{else}}raw_data{{end}};
@@ -250,7 +250,7 @@ jtframe_dwnld #(
     .GFX16B0   ( {{ .Gfx16b0 }})
 ) u_dwnld(
     .clk          ( clk            ),
-    .downloading  ( downloading & ~ioctl_ram    ),
+    .ioctl_rom    ( ioctl_rom      ),
     .ioctl_addr   ( dwnld_addr     ),
     .ioctl_dout   ( ioctl_dout     ),
     .ioctl_wr     ( ioctl_wr       ),
@@ -269,7 +269,7 @@ jtframe_dwnld #(
 
 {{ range $bank, $each:=.SDRAM.Banks }}
 {{- if gt (len .Buses) 0 }}
-/* verilator tracing_off */
+`ifndef VERILATOR_KEEP_SDRAM /* verilator tracing_off */ `endif
 jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
 {{- $first := true}}
 {{- range $index, $each:=.Buses}}
@@ -278,6 +278,8 @@ jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
     {{- if not .Rw }}
     {{- with .Offset }}
     .SLOT{{$index}}_OFFSET({{.}}[21:0]),{{end}}{{end}}
+    {{- with .Cache_size }}
+    .CACHE{{$index}}_SIZE({{.}}),{{end}}
     .SLOT{{$index}}_AW({{ slot_addr_width . }}),
     .SLOT{{$index}}_DW({{ printf "%2d" .Data_width}})
 {{- end}}
@@ -359,7 +361,7 @@ jtframe_dual_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
     // Port 1 - {{$bus.Dual_port.Name}}
     .clk1   ( clk ),
     .data1  ( {{if $bus.Dual_port.Din}}{{$bus.Dual_port.Din}}{{else}}{{$bus.Dual_port.Name}}_dout{{end}} ),
-    .addr1  ( {{if $bus.Dual_port.Addr}}{{$bus.Dual_port.Addr}}{{else}}{{$bus.Dual_port.Name}}_addr{{ addr_range $bus }}{{end}}),{{ if $bus.Dual_port.Rw }}
+    .addr1  ( {{$bus.Dual_port.AddrFull}} ),{{ if $bus.Dual_port.Rw }}
     .we1    ( {{if $bus.Dual_port.We}}{{$bus.Dual_port.We}}{{else}}{{$bus.Dual_port.Name}}_we{{end}}  ), {{ else }}
     .we1    ( 2'd0 ),{{end}}
     .q1     ( {{if $bus.Dual_port.Dout}}{{$bus.Dual_port.Dout}}{{else}}{{$bus.Name}}2{{$bus.Dual_port.Name}}_data{{end}} )
@@ -409,13 +411,12 @@ jtframe_ioctl_dump #(
     {{- $first := true}}
     {{- range $k, $v := .Ioctl.Buses }}
     {{- if $first}}{{$first = false}}{{else}},{{end}}
-    .DW{{$k}}( {{$v.DW}} ),
-    .AW{{$k}}( {{$v.AW}} ){{end}}
+    .DW{{$k}}( {{$v.DW}} ), .AW{{$k}}( {{$v.AW}} ){{end}}
 ) u_dump (
-    .clk        ( clk       ),
+    .clk       ( clk        ),
     {{- range $k, $v := .Ioctl.Buses }}
-    .din{{$k}} ( {{$v.Dout}} ),
-    .addrin_{{$k}} ( {{$v.Ain}} ),
+    .din{{$k}}      ( {{$v.Dout}} ),
+    .addrin_{{$k}}  ( {{$v.Ain}} ),
     .addrout_{{$k}} ( {{$v.Aout}} ),
     {{end }}
     .ioctl_addr ( ioctl_addr[23:0] ),
@@ -429,12 +430,13 @@ jtframe_ioctl_dump #(
 // Clock enable generation
 {{- range $k, $v := .Clocks }} {{- range $cnt, $val := $v}}
 // {{ .Comment }} Hz from {{ .ClkName }}
-jtframe_frac_cen #(.W({{.W}}),.WC({{.WC}})) u_cen{{$cnt}}_{{.ClkName}}(
+jtframe_gated_cen #(.W({{.W}}),.NUM({{.Mul}}),.DEN({{.Div}}),.MFREQ(`JTFRAME_MCLK)) u_cen{{$cnt}}_{{.ClkName}}(
+    .rst    ( rst          ),
     .clk    ( {{.ClkName}} ),
-    .n      ( {{.WC}}'d{{.Mul    }} ),
-    .m      ( {{.WC}}'d{{.Div    }} ),
+    .busy   ( {{.Busy}}    ),
     .cen    ( { {{ .OutStr }} } ),
-    .cenb   (              )
+    .fave   (              ),
+    .fworst (              )
 );
 {{ end }}{{ end }}{{ end }}
 

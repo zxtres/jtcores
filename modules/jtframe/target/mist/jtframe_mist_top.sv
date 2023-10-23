@@ -84,7 +84,7 @@ wire [15:0] joyana_l1, joyana_l2, joyana_l3, joyana_l4,
 wire rst_req   = status[0];
 
 // ROM download
-wire          downloading, dwnld_busy;
+wire          ioctl_rom, dwnld_busy;
 
 wire [SDRAMW-1:0] prog_addr;
 wire [15:0]   prog_data;
@@ -179,6 +179,7 @@ wire        pxl_cen, pxl2_cen;
 wire [ 7:0] st_addr, st_dout;
 wire [ 7:0] paddle_1, paddle_2, paddle_3, paddle_4;
 wire [15:0] mouse_1p, mouse_2p;
+wire [31:0] dipsw;
 
 `ifdef JTFRAME_DIPBASE
 localparam DIPBASE=`JTFRAME_DIPBASE;
@@ -203,6 +204,7 @@ u_frame(
     .clk_pico       ( clk_pico       ),
     .pll_locked     ( pll_locked     ),
     .status         ( status         ),
+    .dipsw          ( dipsw          ),
     // Base video
     .game_r         ( red            ),
     .game_g         ( green          ),
@@ -279,7 +281,7 @@ u_frame(
     .ioctl_wr       ( ioctl_wr       ),
     .ioctl_ram      ( ioctl_ram      ),
 
-    .downloading    ( downloading    ),
+    .ioctl_rom      ( ioctl_rom      ),
     .dwnld_busy     ( dwnld_busy     ),
 
     .sdram_dout     ( sdram_dout     ),
@@ -349,17 +351,11 @@ u_frame(
 );
 
 wire        game_tx, game_rx;
-wire [31:0] dipsw;
 
 `ifdef JTFRAME_UART
 assign UART_TX = game_tx,
        game_rx = UART_RX;
 `endif
-
-assign dipsw = `ifdef JTFRAME_SIM_DIPS
-    `JTFRAME_SIM_DIPS `else
-    status[31+DIPBASE:DIPBASE] `endif;
-
 
 `include "jtframe_game_instance.v"
 

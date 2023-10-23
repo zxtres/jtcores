@@ -30,12 +30,12 @@ module jtgng_game(
     output          HS,
     output          VS,
     // cabinet I/O
-    input   [ 1:0]  start_button,
-    input   [ 1:0]  coin_input,
+    input   [ 1:0]  cab_1p,
+    input   [ 1:0]  coin,
     input   [ 5:0]  joystick1,
     input   [ 5:0]  joystick2,
     // SDRAM interface
-    input           downloading,
+    input           ioctl_rom,
     output          dwnld_busy,
     output          sdram_req,
     output  [21:0]  sdram_addr,
@@ -44,7 +44,7 @@ module jtgng_game(
     input           data_dst,
     input           sdram_ack,
     // ROM LOAD
-    input   [21:0]  ioctl_addr,
+    input   [25:0]  ioctl_addr,
     input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
     output  [21:0]  prog_addr,
@@ -94,7 +94,7 @@ wire [14:0] scr_addr;
 wire [15:0] obj_addr;
 
 wire        main_ok, snd_ok;
-wire        cen12, cen6, cen6b, cen3, cen1p5, cen1p5b;
+wire        cen6, cen3, cen1p5, cen1p5b;
 wire        LHBL_obj, LVBL_obj;
 
 wire        RnW, blue_cs, redgreen_cs, bus_ack, bus_req;
@@ -116,7 +116,7 @@ wire [ 8:0] scr_hpos, scr_vpos;
 // These signals are used by games which need
 // to read back from SDRAM during the ROM download process
 assign prog_rd    = 1'b0;
-assign dwnld_busy = downloading;
+assign dwnld_busy = ioctl_rom;
 
 assign block_flash = status[13];
 assign dip_flip    = flip;
@@ -125,9 +125,9 @@ assign debug_view  = debug_bus[7] ? st_snd :
 
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
-    .cen12  ( cen12     ),
+    .cen12  (           ),
     .cen6   ( cen6      ),
-    .cen6b  ( cen6b     ),
+    .cen6b  (           ),
     .cen3   ( cen3      ),
     .cen1p5 ( cen1p5    ),
     .cen1p5b( cen1p5b   ),
@@ -160,10 +160,10 @@ jtgng_timer u_timer(
 
 jtgng_prom_we u_prom_we(
     .clk         ( clk           ),
-    .downloading ( downloading   ),
+    .ioctl_rom   ( ioctl_rom     ),
 
     .ioctl_wr    ( ioctl_wr      ),
-    .ioctl_addr  ( ioctl_addr    ),
+    .ioctl_addr  (ioctl_addr[21:0]),
     .ioctl_dout  ( ioctl_dout    ),
 
     .prog_data   ( prog_data     ),
@@ -217,8 +217,8 @@ jtgng_main u_main(
     .rom_data   ( main_data     ),
     .rom_ok     ( main_ok       ),
     // Cabinet input
-    .start_button( start_button ),
-    .coin_input ( coin_input    ),
+    .cab_1p     ( cab_1p        ),
+    .coin       ( coin          ),
     .service    ( service       ),
     .joystick1  ( joystick1     ),
     .joystick2  ( joystick2     ),
@@ -265,7 +265,10 @@ jtgng_sound #(.PSG_ATT(1)) u_sound (
     .ym_snd         ( snd        ),
     .sample         ( sample     ),
     .peak           ( game_led   ),
-    .debug_view     ( st_snd     )
+    .debug_bus      ( debug_bus  ),
+    .debug_view     ( st_snd     ),
+    // unused
+    .snd2_latch     (            )
 );
 `else
     assign snd_addr   = 0;
@@ -418,7 +421,6 @@ jtframe_rom #(
     .sdram_ack   ( sdram_ack     ),
     .data_rdy    ( data_rdy      ),
     .data_dst    ( data_dst      ),
-    .downloading ( downloading   ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     )
 );

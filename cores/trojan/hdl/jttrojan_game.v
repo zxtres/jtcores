@@ -29,12 +29,12 @@ module jttrojan_game(
     output          HS,
     output          VS,
     // cabinet I/O
-    input   [ 1:0]  start_button,
-    input   [ 1:0]  coin_input,
+    input   [ 1:0]  cab_1p,
+    input   [ 1:0]  coin,
     input   [ 5:0]  joystick1,
     input   [ 5:0]  joystick2,
     // SDRAM interface
-    input           downloading,
+    input           ioctl_rom,
     output          dwnld_busy,
     output          sdram_req,
     output  [21:0]  sdram_addr,
@@ -43,7 +43,7 @@ module jttrojan_game(
     input           data_rdy,
     input           sdram_ack,
     // ROM LOAD
-    input   [24:0]  ioctl_addr,
+    input   [25:0]  ioctl_addr,
     input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
     output  [21:0]  prog_addr,
@@ -75,7 +75,7 @@ module jttrojan_game(
 // These signals are used by games which need
 // to read back from SDRAM during the ROM download process
 assign prog_rd    = 1'b0;
-assign dwnld_busy = downloading;
+assign dwnld_busy = ioctl_rom;
 
 wire [8:0] V;
 wire [8:0] H;
@@ -116,7 +116,7 @@ assign pxl_cen  = cen6;
 
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
 assign dip_flip = flip;
-
+/* verilator lint_off PINMISSING */
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
     .cen12  ( cen12     ),
@@ -135,7 +135,7 @@ jtframe_cen48 u_cen(
     .cen3qb (           ),
     .cen1p5b(           )
 );
-
+/* verilator lint_on PINMISSING */
 wire RnW;
 // sound
 wire sres_b, snd_int;
@@ -164,7 +164,7 @@ jtsectnz_prom_we #(
     .OBJ_OFFSET     ( OBJ_OFFSET    ))
 u_prom_we(
     .clk         ( clk           ),
-    .downloading ( downloading   ),
+    .ioctl_rom   ( ioctl_rom     ),
 
     .ioctl_wr    ( ioctl_wr      ),
     .ioctl_addr  ( ioctl_addr[21:0] ),
@@ -180,7 +180,7 @@ u_prom_we(
 );
 
 wire scr_cs;
-wire [8:0] scr_hpos, scr_vpos;
+wire [10:0] scr_hpos, scr_vpos;
 
 
 `ifndef NOMAIN
@@ -233,11 +233,11 @@ jtcommnd_main #(.GAME(2)) u_main(
     .rom_data   ( main_data     ),
     .rom_ok     ( main_ok       ),
     // Cabinet input
-    .start_button( start_button ),
-    .coin_input  ( coin_input   ),
-    .service     ( service      ),
-    .joystick1   ( joystick1[5:0] ),
-    .joystick2   ( joystick2[5:0] ),
+    .cab_1p     ( cab_1p        ),
+    .coin       ( coin          ),
+    .service    ( service       ),
+    .joystick1  ( joystick1[5:0]),
+    .joystick2  ( joystick2[5:0]),
 
     .RnW        ( RnW           ),
     // PROM 6L (interrupts)
@@ -247,7 +247,14 @@ jtcommnd_main #(.GAME(2)) u_main(
     // DIP switches
     .dip_pause  ( dip_pause     ),
     .dipsw_a    ( dipsw_a       ),
-    .dipsw_b    ( dipsw_b       )
+    .dipsw_b    ( dipsw_b       ),
+    // Unused
+    .char_on    (               ),
+    .scr1_on    (               ),
+    .scr2_on    (               ),
+    .obj_on     (               ),
+    .scr1_pal   (               ),
+    .scr2_pal   (               )
 );
 `else
 assign main_addr   = 17'd0;
@@ -256,8 +263,8 @@ assign scr_cs      = 1'b0;
 assign bus_ack     = 1'b0;
 assign flip        = 1'b0;
 assign RnW         = 1'b1;
-assign scr_hpos    = 9'd0;
-assign scr_vpos    = 9'd0;
+assign scr_hpos    = 0;
+assign scr_vpos    = 0;
 assign cpu_cen     = cen3;
 `endif
 
@@ -329,8 +336,8 @@ u_video(
     .scr_addr   ( scr_addr      ),
     .scr_data   ( scr_data      ),
     .scr_busy   ( scr_busy      ),
-    .scr_hpos   ( scr_hpos      ),
-    .scr_vpos   ( scr_vpos      ),
+    .scr_hpos   ( scr_hpos[8:0] ),
+    .scr_vpos   ( scr_vpos[8:0] ),
     .scr_ok     ( scr_ok        ),
     // SCROLL 2
     .scr2_hpos  ( scr2_hpos     ),
@@ -443,7 +450,6 @@ jtframe_rom #(
     .sdram_ack   ( sdram_ack     ),
     .data_dst    ( data_dst      ),
     .data_rdy    ( data_rdy      ),
-    .downloading ( downloading   ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     )
 );

@@ -69,10 +69,10 @@ module jtvigil_sdram(
     input     [15:0] data_read,
 
     // ROM LOAD
-    input            downloading,
+    input            ioctl_rom,
     output           dwnld_busy,
 
-    input    [24:0]  ioctl_addr,
+    input    [25:0]  ioctl_addr,
     input    [ 7:0]  ioctl_dout,
     input            ioctl_wr,
     output reg [21:0] prog_addr,
@@ -98,8 +98,8 @@ localparam [21:0] PCM_OFFSET  = (`PCM_START-BA1_START)>>1,
 wire [21:0] pre_addr;
 wire        is_tiles, is_obj, prom_we;
 
-assign dwnld_busy = downloading;
-assign is_tiles   = prog_ba==2 && ioctl_addr<SCR2_START;
+assign dwnld_busy = ioctl_rom;
+assign is_tiles   = prog_ba==2 && ioctl_addr[24:0]<SCR2_START;
 assign is_obj     = prog_ba==3 && !prom_we;
 
 always @* begin
@@ -118,7 +118,7 @@ jtframe_dwnld #(
     .SWAB      ( 1         )
 ) u_dwnld(
     .clk          ( clk            ),
-    .downloading  ( downloading    ),
+    .ioctl_rom    ( ioctl_rom      ),
     .ioctl_addr   ( ioctl_addr     ),
     .ioctl_dout   ( ioctl_dout     ),
     .ioctl_wr     ( ioctl_wr       ),
@@ -130,7 +130,9 @@ jtframe_dwnld #(
     .prog_ba      ( prog_ba        ),
     .prom_we      ( prom_we        ),
     .header       (                ),
-    .sdram_ack    ( prog_ack       )
+    .sdram_ack    ( prog_ack       ),
+    .gfx8_en      ( 1'b0           ),
+    .gfx16_en     ( 1'b0           )
 );
 /* verilator tracing_off */
 jtframe_rom_1slot #(

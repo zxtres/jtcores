@@ -46,8 +46,8 @@ module game_test(
     output          HS,
     output          VS,
     // cabinet I/O
-    input   [ 3:0]  start_button,
-    input   [ 3:0]  coin_input,
+    input   [ 3:0]  cab_1p,
+    input   [ 3:0]  coin,
     input   [ 9:0]  joystick1,
     input   [ 9:0]  joystick2,
     input   [ 9:0]  joystick3,
@@ -64,7 +64,7 @@ module game_test(
     input   [15:0]  joyana_r4,
 
     // SDRAM interface
-    input           downloading,
+    input           ioctl_rom,
     output          dwnld_busy,
 
     // ROM LOAD
@@ -286,7 +286,7 @@ endgenerate
 // Above 64MHz HF should be 1. SHIFTED depends on whether the SDRAM
 // clock is shifted or not.
 /* verilator tracing_off */
-wire prog_en = downloading | dwnld_busy;
+wire prog_en = ioctl_rom | dwnld_busy;
 
 jtframe_sdram64 #(
     .AW           ( SDRAMW        ),
@@ -558,8 +558,8 @@ u_game(
     // LED
     .game_led    ( game_led       ),
 
-    .start_button( start_button[STARTW-1:0] ),
-    .coin_input  ( coin_input[STARTW-1:0]  ),
+    .cab_1p( cab_1p[STARTW-1:0] ),
+    .coin  ( coin[STARTW-1:0]  ),
     // Joysticks
     .joystick1    ( joystick1[GAME_BUTTONS+3:0]   ),
     .joystick2    ( joystick2[GAME_BUTTONS+3:0]   ),
@@ -588,6 +588,9 @@ u_game(
     `endif
 `endif
 
+`ifdef JTFRAME_MOUSE
+    .mouse_1p( 16'd0 ), .mouse_2p( 16'd0 ), `endif
+
     // Sound control
     .enable_fm   ( enable_fm      ),
     .enable_psg  ( enable_psg     ),
@@ -600,7 +603,7 @@ u_game(
     .ioctl_din   ( ioctl_din      ),
 `endif
     // ROM load
-    .downloading ( downloading    ),
+    .ioctl_rom   ( ioctl_rom      ),
     .dwnld_busy  ( dwnld_busy     ),
     .data_read   ( data_read      ),
 

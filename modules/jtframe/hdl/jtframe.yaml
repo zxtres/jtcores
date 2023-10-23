@@ -3,6 +3,7 @@ jtframe:
       - jtframe_board.v
       - jtframe_debug.v
       - jtframe_led.v
+      - jtframe_bcd_cnt.v
       - jtframe_enlarger.v
       - jtframe_reset.v
       - jtframe_uart.v
@@ -12,7 +13,9 @@ jtframe:
       - jtframe_bcd_cnt.v
   - from: clocking
     get:
+      - jtframe_gated_cen.v
       - jtframe_frac_cen.v
+      - jtframe_freqinfo.v
       - jtframe_pxlcen.v
   - from: keyboard
     get:
@@ -31,12 +34,14 @@ jtframe:
       - jtframe_wirebw.v
   - from: sdram
     get:
+      - jtframe_dwnld.v
       - jtframe_sdram.v
       - jtframe_sdram64.yaml
       - jtframe_sdram_stats.v
   - from: ram
     get:
       - jtframe_dual_ram.v
+      - jtframe_dual_ram16.v
       - jtframe_rpwp_ram.v
       - jtframe_bram_rom.v
       - jtframe_prom.v

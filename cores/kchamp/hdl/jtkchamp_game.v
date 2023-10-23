@@ -56,16 +56,16 @@ reg  [24:0] dwn_addr;
 wire [ 7:0] pre_data;
 
 assign prog_rd    = 0;
-assign dwnld_busy = downloading;
+assign dwnld_busy = ioctl_rom;
 assign flip       = ~dip_flip ^ ~main_flip;
 assign debug_view = {3'd0, enc, 2'd0, link_joys, flip};
 assign link_joys  = status[13];
 
-reg  [24:0] post_addr;
+reg  [25:0] post_addr;
 wire        is_obj = ioctl_addr[21:0] >= OBJ_START && ioctl_addr[21:0]<PROM_START[21:0];
 
 always @(*) begin
-    post_addr = ioctl_addr[24:0];
+    post_addr = ioctl_addr;
     if( is_obj ) begin
         post_addr[0]     =~ioctl_addr[13]; // pixels 8-15
         post_addr[1]     = ioctl_addr[16]; // bit plane
@@ -99,8 +99,8 @@ jtkchamp_main u_main(
     .enc            ( enc           ),
     .link_joys      ( link_joys     ),
     // cabinet I/O
-    .game_start     ( start_button  ),
-    .coin           ( coin_input    ),
+    .game_start     ( cab_1p        ),
+    .coin           ( coin          ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     // GFX
@@ -223,7 +223,7 @@ jtkchamp_video u_video(
 jtframe_dwnld #(.PROM_START(PROM_START),.SWAB(1))
 u_dwnld(
     .clk            ( clk           ),
-    .downloading    ( downloading   ),
+    .ioctl_rom      ( ioctl_rom     ),
     .ioctl_addr     ( post_addr     ),
     .ioctl_dout     ( ioctl_dout    ),
     .ioctl_wr       ( ioctl_wr      ),
@@ -233,7 +233,10 @@ u_dwnld(
     .prog_we        ( prog_we       ),
     .prom_we        ( prom_we       ),
     .sdram_ack      ( sdram_ack     ),
-    .header         (               )
+    // Unused:
+    .header         (               ),
+    .gfx8_en        ( 1'b0          ),
+    .gfx16_en       ( 1'b0          )
 );
 
 jtframe_rom #(
@@ -301,7 +304,6 @@ jtframe_rom #(
     .sdram_ack   ( sdram_ack     ),
     .data_dst    ( data_dst      ),
     .data_rdy    ( data_rdy      ),
-    .downloading ( downloading   ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     )
 );

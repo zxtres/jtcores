@@ -35,6 +35,7 @@ type SDRAMBus struct {
     Addr       string `yaml:"addr"`
     Addr_width int    `yaml:"addr_width"` // Width for counting all *bytes*
     Data_width int    `yaml:"data_width"`
+    Cache_size int    `yaml:"cache_size"`
     Rw         bool   `yaml:"rw"`
     Dsn        string `yaml:"dsn"`  // optional name for dsn signal
     Din        string `yaml:"din"`  // optional name for din signal
@@ -64,6 +65,8 @@ type BRAMBus struct {
         Dout string `yaml:"dout"` // optional name for dout signal
         Rw   bool   `yaml:"rw"`
         We   string `yaml:"we"`
+        // filled later
+        AddrFull string           // contains the bus indexes
     } `yaml:"dual_port"`
     ROM struct { // Use the BRAM as ROM
         Offset string `yaml:"offset"`
@@ -110,11 +113,13 @@ type ClockCfg struct {
     Mul     int      `yaml:"mul"`       // defaults to 1 if missing
     Freq    float64  `yaml:"freq"`
     Outputs []string `yaml:"outputs"`
+    Gate    []string `yaml:"gate"`      // SDRAM buses that will halt the clock enable
     // values for jtframe_frac_cen instantiation
     ClkName string
     WC, W   int
     OutStr  string
     Comment string
+    Busy    string
 }
 
 type IoctlBus struct{

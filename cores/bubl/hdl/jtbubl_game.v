@@ -67,7 +67,7 @@ end
 `ifndef NOMAIN
 jtbubl_main u_main(
     .rst            ( rst           ),
-    .clk24          ( clk           ),        // 24 MHz
+    .clk            ( clk           ),        // 24 MHz
     .cen6           ( cen6          ),
     .cen4           ( cen4          ),
 
@@ -95,10 +95,10 @@ jtbubl_main u_main(
     .main_stb       ( main_stb      ),
     .main_flag      ( main_flag     ),
     .main_latch     ( main_latch    ),
-    .snd_rst       ( snd_rst      ),
+    .snd_rst        ( snd_rst       ),
     // cabinet I/O
-    .start_button   ( start_button  ),
-    .coin_input     ( coin_input    ),
+    .cab_1p         ( cab_1p        ),
+    .coin           ( coin          ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     .service        ( service       ),
@@ -126,7 +126,7 @@ assign vram_cs = 0;
 assign pal_cs  = 0;
 assign black_n = 1;
 `endif
-
+/* verilator tracing_off */
 jtbubl_video u_video(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -139,7 +139,7 @@ jtbubl_video u_video(
     .VS             ( VS            ),
     .flip           ( flip          ),
     .dip_pause      ( dip_pause     ),
-    .start_button   ( &start_button ),
+    .cab_1p   ( &cab_1p ),
     // PROMs
     .prom_we        ( prom_we       ),
     .prog_addr      ( prog_addr[7:0]),
@@ -200,6 +200,8 @@ assign snd      = 0;
 assign sample   = 0;
 assign snd_flag = 0;
 assign main_stb = 0;
+assign game_led = 0;
+assign main_latch = 0;
 `endif
 
 endmodule

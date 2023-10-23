@@ -62,8 +62,8 @@ module jtsf_main #(
     // cabinet I/O
     input       [ 9:0] joystick1,
     input       [ 9:0] joystick2,
-    input       [ 1:0] start_button,
-    input       [ 1:0] coin_input,
+    input       [ 1:0] cab_1p,
+    input       [ 1:0] coin,
     input              service,
     input              game_id,
     // BUS sharing
@@ -156,10 +156,11 @@ assign mcu_master = ~mcu_brn & bus_ack;
 assign BUSn       = ASn | (LDSn & UDSn);
 
 `ifdef SIMULATION
-wire [24:0] A_full = {A,1'b0};
+wire [23:0] A_full = {A,1'b0};
 `endif
 
 jtframe_sync #(.W(15+8+1+1+1)) u_mcus(
+    .clk_in ( clk       ),
     .clk_out( clk       ),
     .raw    ( {mcu_addr, mcu_dout, mcu_wr, mcu_ds, mcu_acc } ),
     .sync   ( {mcu_addr_s, mcu_dout_s, mcu_wr_s, mcu_ds_s, mcu_acc_s } )
@@ -295,7 +296,7 @@ always @(posedge clk) begin
                 joystick2[BUT6], // 8
                 5'h1f,           // 7-3
                 joystick1[BUT6], // 2
-                coin_input       // 1-0
+                coin       // 1-0
             };
         3'd1: cabinet_input <= game_id==0 ? { // IN1 in MAME
             joystick2[BUT5],
@@ -339,7 +340,7 @@ always @(posedge clk) begin
             LVBL, // freeze when high
             4'hf,
             service,
-            start_button
+            cab_1p
         };
         default: cabinet_input <= 16'hffff;
     endcase
@@ -372,7 +373,7 @@ end
 jtframe_68kdtack u_dtack( // 48 -> 8MHz
     .rst        ( rst        ),
     .clk        ( clk        ),
-    .num        ( 5'd1       ),
+    .num        ( 4'd1       ),
     .den        ( 5'd6       ),
     .cpu_cen    ( cen8       ),
     .cpu_cenb   ( cen8b      ),
@@ -381,7 +382,13 @@ jtframe_68kdtack u_dtack( // 48 -> 8MHz
     .bus_legit  ( char_busy  ),
     .ASn        ( ASn        ),
     .DSn        ({UDSn,LDSn} ),
-    .DTACKn     ( DTACKn     )
+    .DTACKn     ( DTACKn     ),
+    .wait2      ( 1'd0       ),
+    .wait3      ( 1'd0       ),
+    // unused
+    .frst       ( 1'd0       ),
+    .fave       (            ),
+    .fworst     (            )
 );
 
 // OBJ RAM is implemented in BRAM

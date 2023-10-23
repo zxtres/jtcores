@@ -67,7 +67,7 @@ assign eff_flip = dip_flip;
 
 always @* begin
     post_addr = prog_addr;
-    if( ioctl_addr>=OBJ_START[24:0] && ioctl_addr<`JTFRAME_BA3_START ) begin
+    if( ioctl_addr[24:0]>=OBJ_START[24:0] && ioctl_addr<`JTFRAME_BA3_START ) begin
         post_addr[5:1] = { post_addr[4:1], post_addr[5] };
     end
 end
@@ -111,8 +111,8 @@ jt1942_main #(.VULGUS(VULGUS)) u_main(
     .rom_data   ( main_data     ),
     .rom_ok     ( main_ok       ),
     // Cabinet input
-    .start_button( start_button ),
-    .coin_input  ( coin_input   ),
+    .cab_1p      ( cab_1p       ),
+    .coin        ( coin         ),
     .service     ( service      ),
     .joystick1   ( joystick1[5:0] ),
     .joystick2   ( joystick2[5:0] ),

@@ -28,7 +28,7 @@ module jtlabrun_video(
     output              VS,
     output              flip,
     input               dip_pause,
-    input               start_button,
+    input               cab_1p,
     // PROMs
     input      [ 8:0]   prog_addr,
     input      [ 3:0]   prog_data,
@@ -98,7 +98,7 @@ jtframe_cen48 u_cen(
 
 jtcontra_gfx #(
     .BYPASS_VPROM({1'b0,GAME==LABRUN}),
-    .BYPASS_OPROM(GAME==FLANE)
+    .BYPASS_OPROM( {1'b0,GAME==FLANE})
     ) u_gfx(
     .rst        ( rst           ),
     .clk        ( clk           ),

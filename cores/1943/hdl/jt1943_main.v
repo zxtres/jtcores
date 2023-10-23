@@ -62,8 +62,8 @@ module jt1943_main #(
     // cabinet I/O
     input   [6:0]      joystick1,
     input   [6:0]      joystick2,
-    input   [1:0]      start_button,
-    input   [1:0]      coin_input,
+    input   [1:0]      cab_1p,
+    input   [1:0]      coin,
     input              service,
     // BUS sharing
     output  [12:0]     cpu_AB,
@@ -194,7 +194,7 @@ always @(posedge clk, posedge rst)
         bank      <= {BANKW{1'b0}};
         scr1posh  <= 16'd0;
         scr2posh  <= 16'd0;
-        scrposv   <= 'd0;
+        scrposv   <= 0;
         flip      <= 0;
         sres_b    <= 1;
         coin_cnt  <= 1;  // omitting inverter in M54532 for coin counter.
@@ -222,10 +222,12 @@ always @(posedge clk, posedge rst)
         end
         if( snd_latch_cs && !wr_n ) snd_latch <= cpu_dout;
         if( scrposv_cs ) begin
-            if(GAME==0) scrposv <= cpu_dout;
+            if(GAME==0) scrposv[7:0] <= cpu_dout[7:0];
             if(GAME==1) begin
                 if( !A[0] ) scrposv[ 7:0] <= cpu_dout;
+                /* verilator lint_off SELRANGE */
                 if(  A[0] ) scrposv[15:8] <= cpu_dout;
+                /* verilator lint_on SELRANGE */
             end
         end
         if( scr1posh_cs[0] )  scr1posh[ 7:0] <= cpu_dout;
@@ -260,12 +262,12 @@ wire [7:0] security;
 
 always @(*) begin
     case( A[2:0] )
-        3'd0: cabinet_input = { coin_input, // COINS
+        3'd0: cabinet_input = { coin, // COINS
                      service, 1'b1 /* tilt */, // undocumented. D5 & D4 what are those?
                             // service and tilt in Side Arms
                      ~LVBL,
                      GAME==1 ? wrerr_n : 1'b1, // /WRERR - palette write error (Side Arms)
-                     start_button }; // START
+                     cab_1p }; // START
         3'd1: cabinet_input = { 1'b1, joystick1 };
         3'd2: cabinet_input = { 1'b1, joystick2 };
         3'd3: cabinet_input = dipsw_a;

@@ -7,9 +7,12 @@ export JTFRAME=$JTROOT/modules/jtframe
 source $JTFRAME/bin/setprj.sh
 export PATH=$PATH:/usr/local/go/bin
 
-if [ ! -z "$2" ]; then
-    BETAKEY="-d JTFRAME_UNLOCKKEY=$2"
+BETAKEY="$2"
+if [ -z "$BETAKEY" ]; then
+    BETAKEY=`printf "0x%04X%04X" $RANDOM $RANDOM`
+    echo "WARNING: remote compilation with no beta key. Assigning random one"
 fi
+BETAKEY="-d JTFRAME_UNLOCKKEY=$BETAKEY"
 
 if [ -e $CORES/$1/cfg/macros.def ]; then
     jtframe

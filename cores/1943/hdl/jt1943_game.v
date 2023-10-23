@@ -29,12 +29,12 @@ module jt1943_game(
     output          HS,
     output          VS,
     // cabinet I/O
-    input   [ 1:0]  start_button,
-    input   [ 1:0]  coin_input,
+    input   [ 1:0]  cab_1p,
+    input   [ 1:0]  coin,
     input   [ 6:0]  joystick1,
     input   [ 6:0]  joystick2,
     // SDRAM interface
-    input           downloading,
+    input           ioctl_rom,
     output          dwnld_busy,
     output          sdram_req,
     output  [21:0]  sdram_addr,
@@ -43,7 +43,7 @@ module jt1943_game(
     input           data_rdy,
     input           sdram_ack,
     // ROM LOAD
-    input   [21:0]  ioctl_addr,
+    input   [25:0]  ioctl_addr,
     input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
     output  [21:0]  prog_addr,
@@ -75,7 +75,7 @@ module jt1943_game(
 // These signals are used by games which need
 // to read back from SDRAM during the ROM download process
 assign prog_rd    = 1'b0;
-assign dwnld_busy = downloading;
+assign dwnld_busy = ioctl_rom;
 
 parameter CLK_SPEED=48;
 
@@ -124,6 +124,7 @@ jtframe_cen48 u_cen(
     .cen4   (           ),
     .cen4_12(           ),
     .cen3q  (           ),
+    .cen16  (           ),
     .cen16b (           ),
     .cen12b (           ),
     .cen6b  (           ),
@@ -167,10 +168,10 @@ wire [12:0] prom_we;
 
 jt1943_prom_we #(.SND_BRAM(1)) u_prom_we(
     .clk         ( clk           ),
-    .downloading ( downloading   ),
+    .ioctl_rom   ( ioctl_rom     ),
 
     .ioctl_wr    ( ioctl_wr      ),
-    .ioctl_addr  ( ioctl_addr    ),
+    .ioctl_addr  (ioctl_addr[21:0]),
     .ioctl_dout  ( ioctl_dout    ),
 
     .prog_data   ( prog_data     ),
@@ -258,8 +259,8 @@ jt1943_main u_main(
     .rom_data   ( main_data     ),
     .rom_ok     ( main_ok       ),
     // Cabinet input
-    .start_button( start_button ),
-    .coin_input  ( coin_input   ),
+    .cab_1p      ( cab_1p       ),
+    .coin        ( coin         ),
     .service     ( service      ),
     .joystick1   ( { joy1_btn, joystick1[3:0]}    ),
     .joystick2   ( { joy2_btn, joystick2[3:0]}    ),
@@ -268,7 +269,12 @@ jt1943_main u_main(
     .dipsw_b    ( dipsw_b       ),
     .dipsw_c    (               ),
     .dip_pause  ( dip_pause     ),
-    .coin_cnt   (               )
+    .coin_cnt   (               ),
+    // unused ports (used in SideArms only)
+    .blue_cs    (               ),
+    .redgreen_cs(               ),
+    .eres_n     (               ),
+    .wrerr_n    (               )
 );
 `else
     assign scr1posh  = 16'h5f3a;
@@ -309,6 +315,7 @@ jtgng_sound u_sound (
     // Interface with main CPU
     .sres_b         ( sres_b     ),
     .snd_latch      ( snd_latch  ),
+    .snd2_latch     (            ),
     .snd_int        ( V[5]       ),
     // sound control
     .enable_psg     ( enable_psg ),
@@ -323,6 +330,7 @@ jtgng_sound u_sound (
     .ym_snd         ( snd        ),
     .sample         ( sample     ),
     .peak           ( game_led   ),
+    .debug_bus      ( debug_bus  ),
     .debug_view     ( debug_view )
 );
 
@@ -523,7 +531,6 @@ jtframe_rom #(
     .sdram_ack   ( sdram_ack     ),
     .data_dst    ( data_dst      ),
     .data_rdy    ( data_rdy      ),
-    .downloading ( downloading   ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     )
 );

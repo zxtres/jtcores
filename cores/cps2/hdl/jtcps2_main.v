@@ -43,8 +43,8 @@ module jtcps2_main(
     input   [1:0]      joymode,
     input   [9:0]      joystick1, joystick2, joystick3, joystick4,
     input   [1:0]      dial_x, dial_y,
-    input   [3:0]      start_button,
-    input   [3:0]      coin_input,
+    input   [3:0]      cab_1p,
+    input   [3:0]      coin,
     input              service,
     input              tilt,
     input   [31:0]     dipsw,      // bit 0 used to enable the spinner on Eco Fighters
@@ -111,7 +111,6 @@ wire        BRn, BGACKn, BGn;
 wire        ASn;
 reg         io_cs, eeprom_cs,
             sys_cs, paddle_en;
-wire        dial_cs;
 reg         pre_ram_cs, pre_vram_cs, pre_oram_cs,
             reg_ram_cs, reg_vram_cs, reg_oram_cs;
 reg         dsn_dly, one_wait;
@@ -126,7 +125,6 @@ assign cpu_cen   = cen16;
 // As RAM and VRAM share contiguous spaces in the SDRAM
 // it is important to prevent overlapping
 assign addr      = ram_cs ? {2'b0, A[15:1] } : A[17:1];
-assign dial_cs   = 0; // dial_cs is not driven! review it
 
 // high during DMA transfer
 wire BUSn, UDSn, LDSn;
@@ -146,7 +144,7 @@ assign ppu_rstn = 1'b1;
 always @(posedge clk) begin
     case( debug_bus[1:0] )
         2: st_dout <= spin1p[7:0];
-        3: st_dout <= spin1p[11:8];
+        3: st_dout <= {4'd0, spin1p[11:8] };
         default: st_dout <= { 2'd0, dir2p, dir1p, 2'd0, dipsw[0], paddle_en };
     endcase
 end
@@ -258,7 +256,7 @@ always @(posedge clk) begin
     // Base system, 4 players, 4 buttons
     in0 <= { joystick2[7:0], joystick1[7:0] };
     in1 <= { joystick4[7:0], joystick3[7:0] };
-    in2 <= { coin_input, start_button, ~5'b0, service, dip_test, eeprom_sdo };
+    in2 <= { coin, cab_1p, ~5'b0, service, dip_test, eeprom_sdo };
     case( joymode )
         default:;
         BUT6: begin
@@ -399,7 +397,7 @@ jtcps2_decrypt u_decrypt(
 wire       int1, // VBLANK
            int2, // Raster
            skip_but;
-assign  skip_but = ~&start_button;
+assign  skip_but = ~&cab_1p;
 //assign inta_n = ~&{ FC, ~BGACKn }; // interrupt ack. according to Loic's DL-1827 schematic
 assign inta_n = ~&{ FC, A[19:16] }; // ctrl like M68000's manual
 wire   vpa_n = ~&{ FC, ~ASn };
@@ -435,6 +433,7 @@ jtframe_68kdma #(.BW(1)) u_arbitration(
 jtframe_m68k u_cpu(
     .clk        ( clk         ),
     .rst        ( rst         ),
+    .RESETn     (             ),
     .cpu_cen    ( cen16       ),
     .cpu_cenb   ( cen16b      ),
 

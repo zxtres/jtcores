@@ -63,7 +63,7 @@ localparam OBJ_START = `JTFRAME_BA2_START + (`OBJ_OFFSET<<1);
 
 always @* begin
     post_addr = prog_addr;
-    if( ioctl_addr>=OBJ_START[24:0] && ioctl_addr<`JTFRAME_BA3_START ) begin
+    if( ioctl_addr[24:0]>=OBJ_START[24:0] && ioctl_addr<`JTFRAME_BA3_START ) begin
         post_addr[5:1] = { post_addr[4:1], post_addr[5] };
     end
 end
@@ -129,11 +129,11 @@ jtcommnd_main u_main(
     .rom_data   ( main_data     ),
     .rom_ok     ( main_ok       ),
     // Cabinet input
-    .start_button( start_button ),
-    .coin_input  ( coin_input   ),
-    .service     ( service      ),
-    .joystick1   ( joystick1[5:0] ),
-    .joystick2   ( joystick2[5:0] ),
+    .cab_1p     ( cab_1p        ),
+    .coin       ( coin          ),
+    .service    ( service       ),
+    .joystick1  ( joystick1[5:0]),
+    .joystick2  ( joystick2[5:0]),
 
     .RnW        ( RnW           ),
     // PROM 6L (interrupts)
@@ -198,7 +198,6 @@ jtgng_video #(
     .clk        ( clk           ),
     .cen12      ( cen12         ),
     .cen6       ( cen6          ),
-    .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB[10:0]  ),
     .V          ( V[7:0]        ),
     .H          ( H             ),

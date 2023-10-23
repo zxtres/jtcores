@@ -41,8 +41,8 @@ module jtcastle_main(
     output              ram_we,
     input       [ 7:0]  ram_dout,
     // cabinet I/O
-    input       [ 1:0]  start_button,
-    input       [ 1:0]  coin_input,
+    input       [ 1:0]  cab_1p,
+    input       [ 1:0]  coin,
     input       [ 6:0]  joystick1,
     input       [ 6:0]  joystick2,
     input               service,
@@ -170,7 +170,7 @@ always @(posedge clk, posedge rst) begin
                 2: if( cpu_we ) snd_irq   <= 1;
                 // 3: AFR in sch - watchdog
                 4: case( A[1:0] ) // COINEN in sch.
-                    0: port_in <= {3'b111, start_button, service, coin_input };
+                    0: port_in <= {3'b111, cab_1p, service, coin };
                     1: port_in <= {2'b11, joystick1[5:0] };
                     2: port_in <= {2'b11, joystick2[5:0] };
                     3: port_in <= {2'b11, joystick2[6], joystick1[6], dipsw_c[3:0] };
@@ -203,10 +203,13 @@ jtkcpu u_cpu(
     .firq_n (gfx_firqn               ),
 
     // memory bus
-    .din    ( cpu_din   ),
-    .dout   ( cpu_dout  ),
-    .addr   ({Aupper, A}),
-    .we     ( cpu_we    )
+    .din        ( cpu_din   ),
+    .dout       ( cpu_dout  ),
+    .addr       ({Aupper, A}),
+    .we         ( cpu_we    ),
+    // Debug
+    .pcbad      (           ),
+    .buserror   (           )
 );
 /* verilator tracing_on */
 endmodule

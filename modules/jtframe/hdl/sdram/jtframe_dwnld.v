@@ -29,7 +29,7 @@
 
 module jtframe_dwnld(
     input                clk,
-    input                downloading,
+    input                ioctl_rom,
     input      [25:0]    ioctl_addr, // max 64 MB
     input      [ 7:0]    ioctl_dout,
     input                ioctl_wr,
@@ -80,7 +80,7 @@ assign prog_rd   = 0;
 `endif
 
 always @(*) begin
-    header    = HEADER!=0 && ioctl_addr < HEADER && downloading;
+    header    = HEADER!=0 && ioctl_addr < HEADER && ioctl_rom;
     part_addr = ioctl_addr-HEADER;
     if( gfx8_en  ) part_addr[GFX8B0 +:5] = { part_addr[GFX8B0 +:3], part_addr[GFX8B0+3 +:2] }; // HHVVV  -> VVVHH
     if( gfx16_en ) part_addr[GFX16B0+:6] = { part_addr[GFX16B0+:4], part_addr[GFX16B0+4+:2] }; // HHVVVV -> VVVVHH
@@ -113,7 +113,7 @@ always @(*) begin
 end
 
 always @(posedge clk) begin
-    if ( ioctl_wr && downloading && !header ) begin
+    if ( ioctl_wr && ioctl_rom && !header ) begin
         if( is_prom ) begin
             prog_addr <= part_addr[21:0];
             prom_we   <= 1;
@@ -130,8 +130,8 @@ always @(posedge clk) begin
         prog_mask <= (eff_addr[0]^SWAB[0]) ? 2'b10 : 2'b01;
     end
     else begin
-        if(!downloading || sdram_ack) prog_we <= 0;
-        if(!downloading) prom_we <= 0;
+        if(!ioctl_rom || sdram_ack) prog_we <= 0;
+        if(!ioctl_rom) prom_we <= 0;
     end
 end
 
@@ -145,7 +145,9 @@ parameter [31:0] GAME_ROM_LEN = `GAME_ROM_LEN;
 integer          f, readcnt, dumpcnt;
 reg       [ 7:0] mem[0:`GAME_ROM_LEN];
 
+`ifdef JTFRAME_SDRAM_BANKS
 initial prog_ba=0;
+`endif
 
 initial begin
     dumpcnt = PROM_START+HEADER;
@@ -170,12 +172,12 @@ initial begin
     end
 end
 
-// The PROM starts downloading after the header section is over
+// The PROM starts ioctl_rom after the header section is over
 reg start_ok=0;
 initial prog_we=0;
 
 always @(posedge clk) begin
-    if( downloading ) start_ok<=1;
+    if( ioctl_rom ) start_ok<=1;
     if( dumpcnt < GAME_ROM_LEN && start_ok && !header) begin
         prom_we   <= 1;
         prog_we   <= 0;

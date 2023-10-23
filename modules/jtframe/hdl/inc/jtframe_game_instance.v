@@ -29,7 +29,7 @@ assign sim_dwnld_busy = dwnld_busy;
 
 `ifdef TESTINPUTS
     test_inputs u_test_inputs(
-        .loop_rst       ( downloading    ),
+        .loop_rst       ( ioctl_rom      ),
         .LVBL           ( LVBL           ),
         .game_joystick1 ( game_joy1[6:0] ),
         .button_1p      ( game_start[0]  ),
@@ -89,7 +89,7 @@ u_game(
     .game_led    ( game_led[0]    ),
 
     // Inputs
-    .start_button ( game_start[STARTW-1:0]      ), .coin_input ( game_coin[STARTW-1:0]       ),
+    .cab_1p ( game_start[STARTW-1:0]      ), .coin ( game_coin[STARTW-1:0]       ),
     .joystick1    ( game_joy1[`JTFRAME_BUTTONS+3:0] ), .joystick2  ( game_joy2[`JTFRAME_BUTTONS+3:0] ), `ifdef JTFRAME_4PLAYERS
     .joystick3    ( game_joy3[`JTFRAME_BUTTONS+3:0] ), .joystick4  ( game_joy4[`JTFRAME_BUTTONS+3:0] ), `endif `ifdef JTFRAME_PADDLE
     .paddle_1     ( paddle_1         ), .paddle_2     ( paddle_2         ), `ifdef JTFRAME_4PLAYERS
@@ -111,7 +111,7 @@ u_game(
     .ioctl_ram   ( ioctl_ram      ),
     .ioctl_din   ( ioctl_din      ), `endif
     // ROM load
-    .downloading ( downloading    ),
+    .ioctl_rom   ( ioctl_rom      ),
     .dwnld_busy  ( dwnld_busy     ),
     .data_read   ( sdram_dout     ),
 

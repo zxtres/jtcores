@@ -207,8 +207,8 @@ jtcop_main u_main(
     .joyana2     ( joyana_r2  ),
     .dial_x      ( dial_x     ),
     .dial_y      ( dial_y     ),
-    .start_button(start_button),
-    .coin_input  ( coin_input ),
+    .cab_1p      ( cab_1p     ),
+    .coin        (  coin      ),
     .service     ( service    ),
     // RAM access
     .ram_cs      ( ram_cs     ),
@@ -413,11 +413,12 @@ jtcop_snd u_sound(
         end
     end
 
+    wire nc;
     jtframe_frac_cen #(.WC(3)) u_cenmcu(
         .clk ( clk24    ),
         .n   ( 3'd1     ),
         .m   ( 3'd3     ),
-        .cen ( cen_mcu  ),
+        .cen ({nc,cen_mcu}),
         .cenb(          )
     );
 
@@ -633,10 +634,10 @@ jtcop_sdram u_sdram(
     .data_read   ( data_read     ),
 
     // ROM load
-    .downloading ( downloading   ),
-    .dwnld_busy  ( dwnld_busy    ),
+    .ioctl_rom  ( ioctl_rom  ),
+    .dwnld_busy ( dwnld_busy ),
 
-    .ioctl_addr ( ioctl_addr ),
+    .ioctl_addr ( ioctl_addr[24:0] ),
     .ioctl_dout ( ioctl_dout ),
     .ioctl_din  ( ioctl_din  ),
     .ioctl_wr   ( ioctl_wr   ),

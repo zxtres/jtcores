@@ -1,4 +1,5 @@
 params:
+  - { name: RAM_OFFSET,   value: "22'h20_0000"   }
   - { name: PCM_OFFSET,   value: "(`PCM_START-`JTFRAME_BA1_START) >> 1"   }
   - { name: SCR_OFFSET,   value: "(`SCR_START-`JTFRAME_BA2_START) >> 1"   }
 clocks:
@@ -11,6 +12,8 @@ clocks:
       outputs:
         - cen_24
         - cen_12
+        - cen_6
+        - cen_3
 sdram:
   banks:
     - buses:
@@ -20,10 +23,6 @@ sdram:
         - name: sub
           addr_width: 22
           data_width: 8
-        - name: ram
-          addr_width: 14  # the PCB seems to support 17 bits too
-          data_width: 8
-          rw: true
     - buses:
         - name: snd
           addr_width: 17
@@ -35,46 +34,87 @@ sdram:
     - buses:
         - name: mask
           addr_width: 17
-          data_width: 32
-        - name: scr
+          data_width: 8
+          cache_size: 8
+        - name: scr # 4-byte burst here
           addr_width: 20
-          data_width: 32
+          data_width: 8
           offset: SCR_OFFSET
-
     - buses:
         - name: obj
           addr_width: 20
           data_width: 32
 bram:
-  # 2 (Fix) + 8 (SCR-A) + 8 (SCR-B) + 16 (OBJ) + 4 (PAL) = 38 kB
-  - name: fram
-    data_width: 16
-    addr_width: 12
-    sim_file: true
-    ioctl: { save: true, order: 0 }
-    dual_port: { name: main, we: fx_we, rw: true, din: ram_din, dout: mf_dout }
-  - name: scra
-    data_width: 16
-    addr_width: 13
-    sim_file: true
-    ioctl: { save: true, order: 1 }
-    dual_port: { name: vram, we: va_we, rw: true, din: ram_din, dout: ma_dout }
-  - name: scrb
-    data_width: 16
-    addr_width: 13
-    sim_file: true
-    ioctl: { save: true, order: 2 }
-    dual_port: { name: vram, we: vb_we, rw: true, din: ram_din, dout: mb_dout }
-  - name: oram
-    data_width: 16
-    addr_width: 14
-    rw: true
-    sim_file: true
-    ioctl: { save: true, order: 3 }
-    dual_port: { name: main, we: obj_we, rw: true, din: ram_din, dout: mo_dout }
-  - name: pal
+  - name: ram
+    addr_width: 15  # the PCB seems to support 17 bits too
     data_width: 8
+    # offset: RAM_OFFSET
+    rw: true
+  # Tile map
+  - name: tmap
+    addr_width: 15
+    data_width: 16
+    ioctl: { save: true, order: 1 }
+    dual_port:
+      name: vram
+      din: bdout16
+      dout: vram_dout
+      rw: true
+  # Sound CPU RAM
+  - name: sndram
+    addr_width: 13
+    data_width:  8
+    rw: true
+  # Object RAM
+  - name: oram
     addr_width: 12
-    sim_file: true
+    data_width: 16
+    rw: true
+    ioctl: { save: true, order: 5 }
+    dual_port:
+      name: obus
+      din: bdout16
+      dout: obus_dout
+      rw: true
+  # Palette RAM, 3x8kB
+  # colmix muxes rpal,gpal,bpal to pal_dout -> main/sub
+  - name: red
+    addr_width: 13
+    data_width: 8
+    addr: rgb_addr
+    ioctl: { save: true, order: 2 }
+    dual_port:
+      name: rpal
+      addr: pal_addr
+      din: ram_din
+      dout: rpal_dout
+      rw: true
+  - name: green
+    addr_width: 13
+    data_width: 8
+    addr: rgb_addr
+    ioctl: { save: true, order: 3 }
+    dual_port:
+      name: gpal
+      addr: pal_addr
+      din: ram_din
+      dout: gpal_dout
+      rw: true
+  - name: blue
+    addr_width: 13
+    data_width: 8
+    addr: rgb_addr
     ioctl: { save: true, order: 4 }
-    dual_port: { name: main, we: pal_we, rw: true, addr: "main_addr[12:1]", din: "ram_din[7:0]", dout: mp_dout }
+    dual_port:
+      name: bpal
+      addr: pal_addr
+      din: ram_din
+      dout: bpal_dout
+      rw: true
+  # EEROM
+  - name: eerom
+    addr_width: 11
+    data_width: 8
+    din: mcu_dout
+    rw: true
+    ioctl: { save: true, restore: true, order: 0 }

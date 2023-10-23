@@ -29,12 +29,12 @@ module jtexed_game(
     output          HS,
     output          VS,
     // cabinet I/O
-    input   [ 1:0]  start_button,
-    input   [ 1:0]  coin_input,
+    input   [ 1:0]  cab_1p,
+    input   [ 1:0]  coin,
     input   [ 5:0]  joystick1,
     input   [ 5:0]  joystick2,
     // SDRAM interface
-    input           downloading,
+    input           ioctl_rom,
     output          dwnld_busy,
     output          sdram_req,
     output  [21:0]  sdram_addr,
@@ -43,7 +43,7 @@ module jtexed_game(
     input           data_rdy,
     input           sdram_ack,
     // ROM LOAD
-    input   [24:0]  ioctl_addr,
+    input   [25:0]  ioctl_addr,
     input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
     output reg [21:0]  prog_addr,
@@ -75,7 +75,7 @@ module jtexed_game(
 // These signals are used by games which need
 // to read back from SDRAM during the ROM download process
 assign prog_rd    = 0;
-assign dwnld_busy = downloading;
+assign dwnld_busy = ioctl_rom;
 assign debug_view = 0;
 
 wire [8:0] V;
@@ -167,7 +167,7 @@ wire        main_cs;
 // OBJ
 wire OKOUT, blcnten, bus_req, bus_ack;
 wire [ 8:0] obj_AB;
-wire [ 7:0] main_ram, game_cfg;
+wire [ 7:0] main_ram;
 
 localparam        CPU_OFFSET  = 0,
                   SND_OFFSET  = `SND_START  >> 1,
@@ -181,19 +181,19 @@ localparam        CPU_OFFSET  = 0,
 
 // Address transformations for optimum SDRAM download
 wire [21:0] pre_prog;
-reg  [24:0] pre_io;
+reg  [25:0] pre_io;
 
 always @(*) begin
     // IOCTL
     pre_io = ioctl_addr;
     if( ioctl_addr>=(MAP2_OFFSET<<1) && ioctl_addr<(CHAR_OFFSET<<1) ) // Map 2
-        pre_io = { ioctl_addr[24:7], ioctl_addr[5:0], ioctl_addr[6] };
+        pre_io = { ioctl_addr[25:7], ioctl_addr[5:0], ioctl_addr[6] };
 
 //    if ( ioctl_addr>=(SCR1_OFFSET<<1) && ioctl_addr<(SCR2_OFFSET<<1) )  // Scroll 1
 //        pre_io = { ioctl_addr[24:7], ioctl_addr[5:2], ioctl_addr[6], ioctl_addr[1:0] };
 
     if( ioctl_addr>=(SCR2_OFFSET<<1) && ioctl_addr<(OBJ_OFFSET<<1) )  // Scroll 2
-        pre_io = { ioctl_addr[24:8], ioctl_addr[5:1], ioctl_addr[7:6], ioctl_addr[0] };
+        pre_io = { ioctl_addr[25:8], ioctl_addr[5:1], ioctl_addr[7:6], ioctl_addr[0] };
 
     // Programming address
     prog_addr = pre_prog;
@@ -205,23 +205,26 @@ always @(*) begin
 
 end
 
+wire [7:0] nc;
 
 jtframe_dwnld #(
     .PROM_START(PROM_OFFSET),
     .SWAB      (          1)  // regular byte order
 ) u_dwnld(
     .clk          ( clk          ),
-    .downloading  ( downloading  ),
+    .ioctl_rom    ( ioctl_rom    ),
     .ioctl_addr   ( pre_io       ),
     .ioctl_dout   ( ioctl_dout   ),
     .ioctl_wr     ( ioctl_wr     ),
     .prog_addr    ( pre_prog     ),
-    .prog_data    ( prog_data    ),
+    .prog_data    ({nc,prog_data}),
     .prog_mask    ( prog_mask    ), // active low
     .prog_we      ( prog_we      ),
     .prom_we      ( promsel_we   ),
     .header       (              ),
-    .sdram_ack    ( sdram_ack    )
+    .sdram_ack    ( sdram_ack    ),
+    .gfx8_en      ( 1'b0         ),
+    .gfx16_en     ( 1'b0         )
 );
 
 `ifndef NOMAIN
@@ -281,11 +284,11 @@ jtcommnd_main #(.GAME(3)) u_main(
     .rom_data   ( main_data     ),
     .rom_ok     ( main_ok       ),
     // Cabinet input
-    .start_button( start_button ),
-    .coin_input  ( coin_input   ),
-    .service     ( service      ),
-    .joystick1   ( joystick1[5:0] ),
-    .joystick2   ( joystick2[5:0] ),
+    .cab_1p     ( cab_1p        ),
+    .coin       ( coin          ),
+    .service    ( service       ),
+    .joystick1  ( joystick1[5:0]),
+    .joystick2  ( joystick2[5:0]),
 
     .RnW        ( RnW           ),
     // PROM 6L (interrupts)
@@ -346,7 +349,6 @@ u_video(
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB[11:0]  ),
-    .game_sel   ( game_cfg[0]   ),
     .V          ( V             ),
     .H          ( H             ),
     .RnW        ( RnW           ),
@@ -486,11 +488,10 @@ jtframe_rom #(
     .slot8_dout  ( obj_data      ),
 
     // SDRAM interface
-    .sdram_rd   ( sdram_req     ),
+    .sdram_rd    ( sdram_req     ),
     .sdram_ack   ( sdram_ack     ),
     .data_dst    ( data_dst      ),
     .data_rdy    ( data_rdy      ),
-    .downloading ( downloading   ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     )
 );

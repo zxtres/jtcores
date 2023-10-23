@@ -120,7 +120,7 @@ module jtframe_mister #(parameter
     output              ioctl_ram,
 
     input               dwnld_busy,
-    output              downloading,
+    output              ioctl_rom,
 
     input  [SDRAMW-1:0] prog_addr,
     input        [15:0] prog_data,
@@ -391,7 +391,7 @@ jtframe_mister_dwnld u_dwnld(
 
     .prog_we        ( prog_we        ),
     .prog_rdy       ( prog_rdy       ),
-    .downloading    ( downloading    ),
+    .ioctl_rom      ( ioctl_rom      ),
     .dwnld_busy     ( dwnld_busy     ),
 
     .hps_download   ( hps_download   ),
@@ -602,7 +602,8 @@ jtframe_board #(
     .game_rst_n     ( game_rst_n      ),
     .rst_req        ( rst_req         ),
     .pll_locked     ( pll_locked      ),
-    .downloading    ( dwnld_busy      ),
+    .ioctl_ram      ( ioctl_ram       ),
+    .ioctl_rom      ( dwnld_busy      ),
 
     .clk_sys        ( clk_sys         ),
     .clk_rom        ( clk_rom         ),
@@ -655,6 +656,7 @@ jtframe_board #(
     .dial_y         ( dial_y          ),
     // DIP and OSD settings
     .status         ( status          ),
+    .dipsw          ( dipsw           ),
     .enable_fm      ( enable_fm       ),
     .enable_psg     ( enable_psg      ),
     .dip_test       ( dip_test        ),
@@ -875,7 +877,7 @@ wire rot_clk;
     jtframe_mr_ddrmux u_ddrmux(
         .rst            ( rst             ),
         .clk            ( clk_rom         ),
-        .downloading    ( downloading     ),
+        .ioctl_rom      ( ioctl_rom       ),
         // Fast DDR load
         .ddrld_burstcnt ( ddrld_burstcnt  ),
         .ddrld_addr     ( ddrld_addr      ),

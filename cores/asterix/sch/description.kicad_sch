@@ -222,9 +222,24 @@
     )
   )
 
-  (text "Source: System 16 The Arcade Museum\n        wikipedia.org/wiki/"
-    (at 259.08 227.33 0)
-    (effects (font (size 2 2) italic) (justify left bottom))
-    (uuid 24c41db7-b5af-4a92-ae1b-3e57c0f8e2cd)
+  (text "Asterix is a horizontal-scrolling beat'em up arcade game released \nin 1992 by Konami. It is based on the French comic series Asterix \nand Obelix. The player fights as either Asterix the Gaul or his \nbest friend, Obelix, as they take on the 'might' of the oppressive\nRoman Empire. Asterix includes a variety of humorous fighting moves,\nwhich are demonstrated in the game's attract mode. The artwork and\nfeel of Asterix remains true to its French source material, and the\ngame's many humorous touches (such as the way defeated Legionnaires\ncrawl away) will be instantly familiar to fans of the comic-book and\ncartoon series. Bonus levels - such as the chariot race that awaits \nat the end of the first level - introduce different gameplay elements\nto provide a break from the fighting. Despite this game being \ndeveloped by a Japanese company, all text in the game is either \nin English or French. "
+    (at 135.89 137.16 0)
+    (effects (font (size 2.54 2.54)) (justify left bottom))
+    (uuid 60eb2c58-a048-4643-ab3b-4cde0831d80c)
+  )
+  (text "Source: https://en.wikipedia.org/wiki/X-Men_(1992_video_game)\n	   http://www.system16.com/hardware.php?id=570&gid=830#830"
+    (at 210.82 193.04 0)
+    (effects (font (size 1.27 1.27) bold italic) (justify left bottom))
+    (uuid 91ce2b20-5818-4cb5-9a13-000e9d61f4e4)
+  )
+  (text "Konami Game Number : GX068\nCPU : 68000\nOther Chips       : 054358\nObjects Hardware : 053245 053244\nVideo Hardware   : 054157 054156\nColor Mixture     : 053251\nSound Hardware  : Z80\nPCM              : 053260  "
+    (at 135.89 179.07 0)
+    (effects (font (size 2.54 2.54) (thickness 0.508) bold) (justify left bottom))
+    (uuid a5e1bc2f-f614-4929-86a9-e7d9ae653ad0)
+  )
+  (text "   Asterix (arcade game)\nKONAMI XEXEX BASED HARDWARE"
+    (at 158.75 64.77 0)
+    (effects (font (size 3.81 3.81) (thickness 0.762) bold) (justify left bottom))
+    (uuid bbd43dc1-2225-4972-a235-efe637860ed3)
   )
 )

@@ -61,7 +61,7 @@ always @(*) begin
         post_addr[0]   = ~prog_addr[3];
         post_addr[3:1] =  prog_addr[2:0];
     end
-    if( ioctl_addr[21:0] >= OBJ_START && ioctl_addr[21:0]<PROM_START ) begin
+    if( ioctl_addr[21:0] >= OBJ_START && ioctl_addr[24:0]<PROM_START ) begin
         post_addr[0]   = ~prog_addr[3];
         post_addr[1]   = ~prog_addr[4];
         post_addr[5:2] =  { prog_addr[5], prog_addr[2:0] }; // making [5] explicit for now
@@ -80,8 +80,8 @@ jtroc_main u_main(
     .rom_data       ( main_data     ),
     .rom_ok         ( main_ok       ),
     // cabinet I/O
-    .start_button   ( start_button  ),
-    .coin_input     ( coin_input    ),
+    .cab_1p         ( cab_1p        ),
+    .coin           ( coin          ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     .service        ( service       ),

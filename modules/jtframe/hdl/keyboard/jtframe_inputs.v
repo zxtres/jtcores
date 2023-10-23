@@ -75,7 +75,7 @@ module jtframe_inputs(
     input              ioctl_wr,
     output      [ 7:0] ioctl_merged,
     // For simulation only
-    input              downloading
+    input              ioctl_rom
 );
 
 parameter BUTTONS    = 2,
@@ -189,7 +189,7 @@ function [9:0] apply_rotation;
     begin
     apply_rotation = {10{ACTIVE_LOW[0]}} ^
         (!rot ? joy_in & { 5'h1f, autofire, 4'hf } :
-        flip ?
+        ~flip ?
          { joy_in[9:5],joy_in[4]&autofire, joy_in[1], joy_in[0], joy_in[2], joy_in[3] } :
          { joy_in[9:5],joy_in[4]&autofire, joy_in[0], joy_in[1], joy_in[3], joy_in[2] });
     end
@@ -264,7 +264,7 @@ always @(posedge clk, posedge rst) begin
 
         // state variables:
 `ifndef DIP_PAUSE // Forces pause during simulation
-        if( downloading )
+        if( ioctl_rom )
             game_pause<=0;
         else begin// toggle
             if( (key_pause && !last_pause) || (joy_pause && !last_joypause) )

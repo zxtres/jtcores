@@ -73,14 +73,14 @@ module jtrumble_sdram #(
     input    [15:0] data_read,
 
     // ROM LOAD
-    input           downloading,
+    input           ioctl_rom,
     output reg      dwnld_busy,
 
     // PROMs
     output [1:0]    prom_banks,
     output          prom_prior_we,
 
-    input   [24:0]  ioctl_addr,
+    input   [25:0]  ioctl_addr,
     input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
     output  [21:0]  prog_addr,
@@ -141,8 +141,8 @@ assign ba0_din_m = 3;
 reg last_dwn;
 
 always @(posedge clk) begin
-    last_dwn   <= downloading;
-    dwnld_busy <= downloading | last_dwn | convert;
+    last_dwn   <= ioctl_rom;
+    dwnld_busy <= ioctl_rom | last_dwn | convert;
 end
 
 jtframe_dwnld #(
@@ -153,7 +153,7 @@ jtframe_dwnld #(
     .SWAB      ( 1         )
 ) u_dwnld(
     .clk          ( clk            ),
-    .downloading  ( downloading    ),
+    .ioctl_rom    ( ioctl_rom      ),
     .ioctl_addr   ( ioctl_addr     ),
     .ioctl_dout   ( ioctl_dout     ),
     .ioctl_wr     ( ioctl_wr       ),
@@ -165,7 +165,9 @@ jtframe_dwnld #(
     .prog_ba      ( dwn_ba         ),
     .prom_we      ( prom_we        ),
     .header       (                ),
-    .sdram_ack    ( prog_ack       )
+    .sdram_ack    ( prog_ack       ),
+    .gfx8_en      ( 1'b0           ),
+    .gfx16_en     ( 1'b0           )
 );
 
 `ifdef SIMULATION
@@ -180,7 +182,7 @@ jtgng_obj32 #(
     .OBJ_END  ( 22'h40000 )
 ) u_obj32(
     .clk         ( clk          ),
-    .downloading ( downloading  ),
+    .ioctl_rom   ( ioctl_rom    ),
     .sdram_dout  ( data_read    ),
     .convert     ( convert      ),
     .prog_addr   ( conv_addr    ),
@@ -192,7 +194,12 @@ jtgng_obj32 #(
     .data_ok     ( prog_rdy     )   // using prog_dst would corrupt the graphics
 );
 `else
-assign convert=0;
+assign conv_addr = 0;
+assign conv_data = 0;
+assign conv_we   = 0;
+assign conv_rd   = 0;
+assign conv_mask = 0;
+assign convert   = 0;
 `endif
 
 /* xxx tracing_off */

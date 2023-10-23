@@ -40,8 +40,8 @@ module jthige_main(
     // cabinet I/O
     input   [4:0]      joystick1,
     input   [4:0]      joystick2,
-    input   [1:0]      start_button,
-    input   [1:0]      coin_input,
+    input   [1:0]      cab_1p,
+    input   [1:0]      coin,
     // BUS sharing
     output  [12:0]     cpu_AB,
     output             rd_n,
@@ -129,8 +129,8 @@ always @(*) begin
     case( A[2:0] )
         3'd0: cabinet_input = { 4'hf, joystick1[3:0] };
         3'd1: cabinet_input = { 4'hf, joystick2[3:0] & joystick1[3:0] };
-        3'd2: cabinet_input = { coin_input[0], coin_input[1], // COINS
-                    start_button[0], start_button[1],
+        3'd2: cabinet_input = { coin[0], coin[1], // COINS
+                    cab_1p[0], cab_1p[1],
                     joystick1[4], dip_pause,
                     joystick2[4], 1'b1 }; // START
         3'd3: cabinet_input = dipsw_a;
@@ -239,8 +239,10 @@ jt49_bus #(.COMP(2'b10)) u_ay0( // note that input ports are not multiplexed
     // unused
     .IOA_in ( 8'h0      ),
     .IOA_out(           ),
+    .IOA_oe (           ),
     .IOB_in ( 8'h0      ),
     .IOB_out(           ),
+    .IOB_oe (           ),
     .A(), .B(), .C() // unused outputs
 );
 
@@ -258,8 +260,10 @@ jt49_bus #(.COMP(2'b10)) u_ay1( // note that input ports are not multiplexed
     // unused
     .IOA_in ( 8'h0      ),
     .IOA_out(           ),
+    .IOA_oe (           ),
     .IOB_in ( 8'h0      ),
     .IOB_out(           ),
+    .IOB_oe (           ),
     .A(), .B(), .C() // unused outputs
 );
 

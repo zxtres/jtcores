@@ -28,13 +28,13 @@ module jtvigil_game(
     output          HS,
     output          VS,
     // cabinet I/O
-    input   [ 1:0]  start_button,
-    input   [ 1:0]  coin_input,
+    input   [ 1:0]  cab_1p,
+    input   [ 1:0]  coin,
     input   [ 5:0]  joystick1,
     input   [ 5:0]  joystick2,
 
     // SDRAM interface
-    input           downloading,
+    input           ioctl_rom,
     output          dwnld_busy,
 
     // Bank 0: allows R/W
@@ -61,7 +61,7 @@ module jtvigil_game(
     input    [15:0] data_read,
 
     // RAM/ROM LOAD
-    input   [24:0]  ioctl_addr,
+    input   [25:0]  ioctl_addr,
     input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
     output  [21:0]  prog_addr,
@@ -172,8 +172,8 @@ jtvigil_main u_main(
     // cabinet I/O
     .joystick1   ( joystick1  ),
     .joystick2   ( joystick2  ),
-    .start_button(start_button),
-    .coin_input  ( coin_input ),
+    .cab_1p      ( cab_1p     ),
+    .coin        (  coin      ),
     .service     ( service    ),
     // ROM access
     .rom_cs      ( main_cs    ),
@@ -327,7 +327,7 @@ jtvigil_sdram u_sdram(
     .data_read   ( data_read     ),
 
     // ROM load
-    .downloading ( downloading   ),
+    .ioctl_rom   ( ioctl_rom     ),
     .dwnld_busy  ( dwnld_busy    ),
 
     .ioctl_addr  ( ioctl_addr    ),

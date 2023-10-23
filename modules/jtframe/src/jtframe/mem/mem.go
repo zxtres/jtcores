@@ -25,6 +25,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"text/template"
 
@@ -326,15 +327,8 @@ func check_banks( macros map[string]string, cfg *MemConfig ) {
 	}
 }
 
-func fill_implicit_ports( macros map[string]string, cfg *MemConfig ) {
+func fill_implicit_ports( macros map[string]string, cfg *MemConfig, Verbose bool ) {
 	implicit := make( map[string]bool )
-	nonblank := func( a, b string ) string {
-		if a=="" {
-			return b
-		} else {
-			return a
-		}
-	}
 	// get implicit names
 	for _, bank := range cfg.SDRAM.Banks {
 		for _, each := range bank.Buses {
@@ -360,6 +354,9 @@ func fill_implicit_ports( macros map[string]string, cfg *MemConfig ) {
 		if k>=0 { p.Name = p.Name[0:k] }
 		if t,_:=implicit[p.Name]; t { return }
 		old, fnd := all[p.Name]
+		if Verbose {
+			fmt.Printf("Adding port: %s\n", p.Name)
+		}
 		if fnd {
 			if old.Input || p.Input { // overwrite if the port should be an input
 				// required for JTKARNOV's objram_dout signal, which comes from one
@@ -385,7 +382,7 @@ func fill_implicit_ports( macros map[string]string, cfg *MemConfig ) {
 		each := &cfg.BRAM[k]
 		bram_rom := !each.Rw && !each.Dual_port.Rw // BRAM used as ROM
 		if each.Addr == "" { each.Addr = each.Name + "_addr" }
-		if each.Din  == "" && !bram_rom { each.Din  = each.Name + "_din"  }
+		if each.Din  == "" && each.Rw { each.Din  = each.Name + "_din"  }
 		if each.Dout == "" {
 			if bram_rom {
 				each.Dout = each.Name + "_data"
@@ -417,14 +414,17 @@ func fill_implicit_ports( macros map[string]string, cfg *MemConfig ) {
 			})
 		}
 		if each.Dual_port.Name!="" {
+			if each.Dual_port.Addr == "" { each.Dual_port.Addr = each.Dual_port.Name + "_addr" }
+			if each.Dual_port.Dout == "" { each.Dual_port.Dout = each.Name+"2"+each.Dual_port.Name+"_data" }
+			if each.Dual_port.Din  == "" { each.Dual_port.Din  = each.Dual_port.Name+"_dout" }
 			add( Port{
-				Name: each.Dual_port.Name+"_addr",
+				Name: each.Dual_port.Addr,
 				MSB:  each.Addr_width-1,
 				LSB:  each.Data_width>>4, // 8->0, 16->1
 			})
 			if each.Dual_port.Rw {
 				add( Port{
-					Name: nonblank( each.Dual_port.Din, each.Dual_port.Name+"_dout"),
+					Name: each.Dual_port.Din,
 					MSB: each.Data_width-1,
 				})
 			}
@@ -434,19 +434,16 @@ func fill_implicit_ports( macros map[string]string, cfg *MemConfig ) {
 					MSB: each.Data_width>>4, // 8->0, 16->1
 				})
 			}
-			if each.Dual_port.Dout != "" {
-				add( Port{
-					Name: each.Dual_port.Dout,
-					MSB: each.Data_width-1,
-					Input: true,
-				})
+			add( Port{
+				Name: each.Dual_port.Dout,
+				MSB: each.Data_width-1,
+				Input: true,
+			})
+			// Fill the rest
+			if strings.Index(each.Dual_port.Addr,"[")>=0 {
+				each.Dual_port.AddrFull = each.Dual_port.Addr
 			} else {
-				name:= each.Name+"2"+each.Dual_port.Name+"_data"
-				add( Port{
-					Name: name,
-					MSB: each.Data_width-1,
-					Input: true,
-				})
+				each.Dual_port.AddrFull = fmt.Sprintf("%s[%d:%d]", each.Dual_port.Addr, each.Addr_width-1, each.Data_width>>4)
 			}
 		}
 	}
@@ -455,30 +452,40 @@ func fill_implicit_ports( macros map[string]string, cfg *MemConfig ) {
 	for _, each := range all { cfg.Ports=append(cfg.Ports,each) }
 }
 
-func make_ioctl( cfg *MemConfig, verbose bool ) {
+func make_ioctl( macros map[string]string, cfg *MemConfig, verbose bool ) int {
 	found := false
 	dump_size := 0
 	total_blocks := 0
+	tosave := make([]*BRAMBus, len(cfg.BRAM))
 	for k, each := range cfg.BRAM {
+		if each.Ioctl.Order>=len(tosave) {
+			fmt.Printf("ioctl.order is too big for element %s in mem.yaml\n",each.Name)
+			os.Exit(1)
+		}
 		if each.Ioctl.Save {
 			found = true
-			i := each.Ioctl.Order
-			cfg.Ioctl.Buses[i].Name = each.Name
-			cfg.Ioctl.Buses[i].AW = each.Addr_width
-			cfg.Ioctl.Buses[i].AWl = each.Data_width>>4
-			cfg.Ioctl.Buses[i].Aout = each.Name+"_amux"
-			cfg.Ioctl.Buses[i].Ain  = each.Name+"_addr"
-			if each.Addr!="" { cfg.Ioctl.Buses[i].Ain = each.Addr }
-			cfg.Ioctl.Buses[i].DW = each.Data_width
-			cfg.Ioctl.Buses[i].Dout = each.Name+"_dout"
-			cfg.BRAM[k].Addr = each.Name+"_amux"
-			dump_size += 1<<each.Addr_width
-			cfg.Ioctl.Buses[i].Size = 1<<each.Addr_width
-			cfg.Ioctl.Buses[i].SizekB = cfg.Ioctl.Buses[i].Size >> 10
-			cfg.Ioctl.Buses[i].Blocks = cfg.Ioctl.Buses[i].Size >> 8
-			cfg.Ioctl.Buses[i].SkipBlocks = total_blocks
-			total_blocks += cfg.Ioctl.Buses[i].Blocks
+			tosave[each.Ioctl.Order] = &cfg.BRAM[k]
 		}
+	}
+	for _, each := range tosave {
+		if each == nil { continue }
+		each.Sim_file=true
+		i := each.Ioctl.Order
+		cfg.Ioctl.Buses[i].Name = each.Name
+		cfg.Ioctl.Buses[i].AW = each.Addr_width
+		cfg.Ioctl.Buses[i].AWl = each.Data_width>>4
+		cfg.Ioctl.Buses[i].Aout = each.Name+"_amux"
+		cfg.Ioctl.Buses[i].Ain  = each.Name+"_addr"
+		if each.Addr!="" { cfg.Ioctl.Buses[i].Ain = each.Addr }
+		cfg.Ioctl.Buses[i].DW = each.Data_width
+		cfg.Ioctl.Buses[i].Dout = each.Name+"_dout"
+		each.Addr = each.Name+"_amux"
+		dump_size += 1<<each.Addr_width
+		cfg.Ioctl.Buses[i].Size = 1<<each.Addr_width
+		cfg.Ioctl.Buses[i].SizekB = cfg.Ioctl.Buses[i].Size >> 10
+		cfg.Ioctl.Buses[i].Blocks = cfg.Ioctl.Buses[i].Size >> 8
+		cfg.Ioctl.Buses[i].SkipBlocks = total_blocks
+		total_blocks += cfg.Ioctl.Buses[i].Blocks
 	}
 	cfg.Ioctl.SkipAll = total_blocks
 	if found {
@@ -496,9 +503,21 @@ func make_ioctl( cfg *MemConfig, verbose bool ) {
 			each.Ain  = "1'd0"
 		}
 	}
-	if verbose {
-		fmt.Printf("JTFRAME_IOCTL_RD=%d\n", dump_size)
+	// warn if JTFRAME_IOCTL_RD is below the required one
+	ioctl_rd, fnd := macros["JTFRAME_IOCTL_RD"]
+	suggest := (ioctl_rd=="" && dump_size!=0) || verbose
+	if fnd {
+		aux2, _ := strconv.ParseInt(ioctl_rd,0,32)
+		aux := int(aux2)
+		if aux < dump_size {
+			suggest = true
+			fmt.Printf("WARNING: JTFRAME_IOCTL_RD in macros.def is %d too short.\n", dump_size-aux)
+		}
 	}
+	if suggest {
+		fmt.Printf("Set:\tJTFRAME_IOCTL_RD=%d\n", dump_size)
+	}
+	return dump_size
 }
 
 func make_dump2bin( args Args, cfg *MemConfig ) {
@@ -592,8 +611,8 @@ func Run(args Args) {
 	}
 	macros := get_macros( args.Core, args.Target )
 	check_banks( macros, &cfg )
-	fill_implicit_ports( macros, &cfg )
-	make_ioctl( &cfg, args.Verbose )
+	fill_implicit_ports( macros, &cfg, args.Verbose )
+	make_ioctl( macros, &cfg, args.Verbose )
 	fill_gfx_sort( macros, &cfg )
 	// Fill the clock configuration
 	make_clocks( macros, &cfg )

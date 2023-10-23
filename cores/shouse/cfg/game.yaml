@@ -1,0 +1,25 @@
+game:
+  - from: shouse
+    get:
+      - "*.v"
+jtframe:
+  - get:
+      - jtframe_ff.v
+      - jtframe_bcd_cnt.v
+  - from: cpu
+    get:
+      - mc6809i.v
+      - 6801_core.sv
+      - jt63701v.v
+  - from: clocking
+    get:
+      - jtframe_freqinfo.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_linebuf.v
+      - jtframe_obj.yaml
+modules:
+  jt:
+    - name: jt51
+

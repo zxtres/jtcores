@@ -69,8 +69,8 @@ jttrack_main u_main(
     .rom_data       ( main_data     ),
     .rom_ok         ( main_ok       ),
     // cabinet I/O
-    .start_button   ( start_button  ),
-    .coin_input     ( coin_input    ),
+    .cab_1p         ( cab_1p        ),
+    .coin           ( coin          ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     .joystick3      ( joystick3     ),
@@ -143,7 +143,7 @@ jttrack_snd u_sound(
     .snd        ( snd       ),
     .sample     ( sample    ),
     .peak       ( game_led  ),
-    .debug_view ( dbg_view  )
+    .debug_view (debug_view )
 );
 `else
     assign snd_cs=0;

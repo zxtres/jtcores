@@ -31,15 +31,15 @@ module jtpang_game(
     output          HS,
     output          VS,
     // cabinet I/O
-    input   [ 1:0]  start_button,
-    input   [ 1:0]  coin_input,
+    input   [ 1:0]  cab_1p,
+    input   [ 1:0]  coin,
     input   [ 7:0]  joystick1,
     input   [ 7:0]  joystick2,
     input   [15:0]  mouse_1p,
     input   [15:0]  mouse_2p,
 
     // SDRAM interface
-    input           downloading,
+    input           ioctl_rom,
     output          dwnld_busy,
 
     // Bank 0: allows R/W
@@ -65,7 +65,7 @@ module jtpang_game(
     input    [15:0] data_read,
 
     // RAM/ROM LOAD
-    input   [24:0]  ioctl_addr,
+    input   [25:0]  ioctl_addr,
     input   [ 7:0]  ioctl_dout,
     output  [ 7:0]  ioctl_din,
     input           ioctl_wr,
@@ -201,8 +201,8 @@ jtpang_main u_main(
 
     .joystick1   ( joystick1    ),
     .joystick2   ( joystick2    ),
-    .start_button(start_button  ),
-    .coin        ( coin_input[0]),
+    .cab_1p      ( cab_1p       ),
+    .coin        ( coin[0]      ),
     .service     ( service      ),
     .test        ( dip_test     ),
 
@@ -346,7 +346,7 @@ jtpang_sdram u_sdram(
     .ba_rdy     ( ba_rdy        ),
     .data_read  ( data_read     ),
 
-    .downloading( downloading   ),
+    .ioctl_rom  ( ioctl_rom     ),
     .dwnld_busy ( dwnld_busy    ),
 
     .kabuki_we  ( kabuki_we     ),

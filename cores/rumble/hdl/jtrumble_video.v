@@ -87,22 +87,19 @@ wire [3:0] cc;
 
 wire       HINIT, preLVBL, preLHBL;
 wire       LVBL_obj, LHBL_obj;
-reg  [31:0] LHBL_sh;
+reg  [8:0] LHBL_sh;
 wire [8:0] H;
 
-always @(posedge clk) vmid<=V==9'h60;
-
-always @(posedge clk) if(pxl_cen) LHBL_sh <= { LHBL_sh[30:0], !(H[8] ? H[7:0] > 9'h1A7 : H[7:0] < 9'h047) };
+always @(posedge clk) begin
+    vmid <= V==9'h60;
+    if(pxl_cen) begin
+        LHBL_sh    <= LHBL_sh << 1;
+        LHBL_sh[0] <= !(H[8] ? H[7:0] > 8'hA7 : H[7:0] < 8'h47);
+    end
+end
 
 assign LVBL_obj = ~V[8];
-assign LHBL_obj = flip ? LHBL_sh[8] : LHBL_sh[6]; // LHBL_sh[debug_bus[4:0]];
-
-// jtframe_sh #(.width(1), .stages(5) ) u_sh(
-//     .clk    ( clk       ),
-//     .clk_en ( pxl_cen   ),
-//     .din    ( LHBL      ),
-//     .drop   ( LHBL_obj  )
-// );
+assign LHBL_obj = flip ? LHBL_sh[8] : LHBL_sh[6];
 
 // Frame rate and blanking as the original
 // Sync pulses slightly adjusted
@@ -171,15 +168,6 @@ jtgng_char #(
 );
 
 `ifndef NOSCR
-// wire [7:0] scr_pre;
-//
-// jtframe_sh #(.width(8),.stages(5)) u_hb_dly(
-//     .clk    ( clk      ),
-//     .clk_en ( pxl_cen     ),
-//     .din    ( scr_pre  ),
-//     .drop   ( scr_pxl  )
-// );
-
 jtgng_scroll #(
     .HOFFSET( 1    ),
     .ROM_AW ( SCRW  ),

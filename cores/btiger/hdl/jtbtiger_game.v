@@ -32,12 +32,12 @@ module jtbtiger_game(
     output          HS,
     output          VS,
     // cabinet I/O
-    input   [ 1:0]  start_button,
-    input   [ 1:0]  coin_input,
-    input   [ 6:0]  joystick1,
-    input   [ 6:0]  joystick2,
+    input   [ 1:0]  cab_1p,
+    input   [ 1:0]  coin,
+    input   [ 5:0]  joystick1,
+    input   [ 5:0]  joystick2,
     // SDRAM interface
-    input           downloading,
+    input           ioctl_rom,
     output          dwnld_busy,
     output          sdram_req,
     output  [21:0]  sdram_addr,
@@ -46,7 +46,7 @@ module jtbtiger_game(
     input           data_rdy,
     input           sdram_ack,
     // ROM LOAD
-    input   [21:0]  ioctl_addr,
+    input   [25:0]  ioctl_addr,
     input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
     output  [21:0]  prog_addr,
@@ -78,7 +78,7 @@ module jtbtiger_game(
 // These signals are used by games which need
 // to read back from SDRAM during the ROM download process
 assign prog_rd    = 1'b0;
-assign dwnld_busy = downloading;
+assign dwnld_busy = ioctl_rom;
 
 parameter CLK_SPEED=48;
 
@@ -124,7 +124,7 @@ wire cen8;
 
 assign {dipsw_a, dipsw_b} = dipsw[15:0];
 assign dip_flip = ~dipsw[6];
-
+/* verilator lint_off PINMISSING */
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
     .cen12  ( cen12     ),
@@ -141,6 +141,7 @@ jtframe_cen3p57 u_cen3p57(
     .cen_3p57 ( cenfm     ),
     .cen_1p78 (           )     // unused
 );
+/* verilator lint_on PINMISSING */
 
 wire LHBL_obj, LVBL_obj;
 
@@ -178,10 +179,10 @@ wire [4:0] prom_we;
 
 jtbtiger_prom_we u_prom_we(
     .clk         ( clk           ),
-    .downloading ( downloading   ),
+    .ioctl_rom   ( ioctl_rom     ),
 
     .ioctl_wr    ( ioctl_wr      ),
-    .ioctl_addr  ( ioctl_addr    ),
+    .ioctl_addr  (ioctl_addr[21:0]),
     .ioctl_dout  ( ioctl_dout    ),
 
     .prog_data   ( prog_data     ),
@@ -255,11 +256,11 @@ jtbtiger_main u_main(
     .rom_data   ( main_data     ),
     .rom_ok     ( main_ok       ),
     // Cabinet input
-    .start_button( start_button ),
-    .coin_input  ( coin_input   ),
-    .service     ( service      ),
-    .joystick1   ( joystick1[5:0] ),
-    .joystick2   ( joystick2[5:0] ),
+    .cab_1p     ( cab_1p        ),
+    .coin       ( coin          ),
+    .service    ( service       ),
+    .joystick1  ( joystick1[5:0]),
+    .joystick2  ( joystick2[5:0]),
 
     .RnW        ( RnW           ),
     // DIP switches
@@ -286,11 +287,12 @@ jtbtiger_mcu u_mcu(
     .rst        (  rst24      ),
     .clk        (  clk24      ),
     .clk_rom    (  clk        ),
+    .LVBL       ( LVBL        ),
     .mcu_dout   (  mcu_dout   ),
     .mcu_din    (  mcu_din    ),
     .mcu_wr     (  mcu_wr     ),
     .mcu_rd     (  mcu_rd     ),
-    .prog_addr  (  prog_addr  ),
+    .prog_addr  (  prog_addr[11:0]  ),
     .prom_din   (  prog_data  ),
     .prom_we    (  prom_mcu   )
 );
@@ -322,7 +324,8 @@ jtgng_sound #(.LAYOUT(4),.FM_GAIN(8'h0C)) u_sound (
     .peak           ( game_led       ),
     // Unused
     .snd2_latch     (                ),
-    .debug_view     ( debug_view     )
+    .debug_view     ( debug_view     ),
+    .debug_bus      ( debug_bus      )
 );
 
 wire scr_ok, char_ok;
@@ -401,6 +404,7 @@ jtbtiger_video u_video(
 wire [7:0] scr_nc; // no connect
 
 // Scroll data: Z, Y, X
+/* verilator lint_off PINMISSING */
 jtframe_rom #(
     .SLOT0_AW    ( 14              ), // Char
     .SLOT0_DW    ( 16              ),
@@ -454,13 +458,12 @@ jtframe_rom #(
     .slot8_dout  ( obj_data      ),
 
     // SDRAM interface
-    .sdram_rd   ( sdram_req     ),
+    .sdram_rd    ( sdram_req     ),
     .sdram_ack   ( sdram_ack     ),
     .data_dst    ( data_dst      ),
     .data_rdy    ( data_rdy      ),
-    .downloading ( downloading   ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     )
 );
-
+/* verilator lint_on PINMISSING */
 endmodule

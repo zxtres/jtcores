@@ -288,7 +288,7 @@ always @(posedge clk or negedge reset_n)
     end else if(cen3) begin
         last_fmx_cs <= fmx_cs;
         fm_wait  <= {  fm_wait[0], fmx_cs_posedge };
-    end // else if(cen3)
+    end
 
 reg last_rom_cs, rom_lock;
 
@@ -392,6 +392,8 @@ jt03 u_fm0(
     .IOB_in (            ),
     .IOA_out(            ),
     .IOB_out(            ),
+    .IOA_oe (            ),
+    .IOB_oe (            ),
     .psg_A  (            ),
     .psg_B  (            ),
     .psg_C  (            ),
@@ -418,6 +420,8 @@ jt03 u_fm1(
     .IOB_in (            ),
     .IOA_out(            ),
     .IOB_out(            ),
+    .IOA_oe (            ),
+    .IOB_oe (            ),
     .psg_A  (            ),
     .psg_B  (            ),
     .psg_C  (            ),

@@ -61,12 +61,12 @@ module jtpang_sdram(
     input     [15:0] data_read,
 
     // ROM LOAD
-    input            downloading,
+    input            ioctl_rom,
     output           dwnld_busy,
     output           kabuki_we,
     output reg       kabuki_en,
 
-    input    [24:0]  ioctl_addr,
+    input    [25:0]  ioctl_addr,
     input    [ 7:0]  ioctl_dout,
     input            ioctl_wr,
     input            ioctl_ram,
@@ -95,7 +95,7 @@ reg  [ 8:0] frame_cnt;
 reg         ram_done = 0;   // it cannot use the rst signal
 
 assign dwn_wr    = ioctl_wr & ~ioctl_ram;
-assign dwnld_busy = downloading;
+assign dwnld_busy = ioctl_rom;
 assign is_obj    = prog_ba==3 && !prom_we;
 assign kabuki_we = dwn_wr && header && ioctl_addr[3:0]<11;
 
@@ -107,7 +107,7 @@ end
 
 always @(posedge clk) begin
     LVBLl  <= LVBL;
-    if( downloading ) begin
+    if( ioctl_rom ) begin
         frame_cnt <= 0;
         if( ioctl_ram && ioctl_wr ) ram_done <= 1;
     end else if( !LVBL & LVBLl ) begin
@@ -131,7 +131,7 @@ jtframe_dwnld #(
     .SWAB      ( 1         )
 ) u_dwnld(
     .clk          ( clk            ),
-    .downloading  ( downloading    ),
+    .ioctl_rom    ( ioctl_rom      ),
     .ioctl_addr   ( ioctl_addr     ),
     .ioctl_dout   ( ioctl_dout     ),
     .ioctl_wr     ( dwn_wr         ),
@@ -143,7 +143,9 @@ jtframe_dwnld #(
     .prog_ba      ( prog_ba        ),
     .prom_we      ( prom_we        ),
     .header       ( header         ),
-    .sdram_ack    ( prog_ack       )
+    .sdram_ack    ( prog_ack       ),
+    .gfx8_en      ( 1'b0           ),
+    .gfx16_en     ( 1'b0           )
 );
 
 /* verilator tracing_off */
