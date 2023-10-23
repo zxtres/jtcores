@@ -32,6 +32,7 @@ module jtframe_mist #(parameter
     input              pll_locked,
     // interface with microcontroller
     output      [63:0] status,
+    output      [31:0] dipsw,
     // Base video
     input [COLORW-1:0] game_r, game_g, game_b,
     input              LHBL,
@@ -101,7 +102,7 @@ module jtframe_mist #(parameter
     input       [ 7:0] ioctl_din,
     output             ioctl_ram,
     input              dwnld_busy,
-    output             downloading,
+    output             ioctl_rom,
 
 //////////// board
     output             rst,      // synchronous reset
@@ -173,6 +174,9 @@ wire  [ 7:0]  ioctl_merged;
 
 assign paddle_3 = 0;
 assign paddle_4 = 0;
+assign dipsw = `ifdef JTFRAME_SIM_DIPS
+    `JTFRAME_SIM_DIPS `else
+    status[31+DIPBASE:DIPBASE] `endif;
 
 always @* begin
     board_status = { {64-DIPBASE{1'b0}}, status[DIPBASE-1:0] };
@@ -273,7 +277,7 @@ jtframe_mist_base #(
     .ioctl_wr       ( ioctl_wr      ),
     .ioctl_ram      ( ioctl_ram     ),
     .ioctl_cheat    ( ioctl_cheat   ),
-    .downloading    ( downloading   ),
+    .ioctl_rom      ( ioctl_rom     ),
 
     .osd_en         (osd_en         )
 );
@@ -294,7 +298,8 @@ jtframe_board #(
     .rst_req        ( rst_req         ),
     .sdram_init     ( sdram_init      ),
     .pll_locked     ( pll_locked      ),
-    .downloading    ( dwnld_busy      ), // use busy signal from game module
+    .ioctl_ram      ( ioctl_ram       ),
+    .ioctl_rom      ( dwnld_busy      ), // use busy signal from game module
 
     .clk_sys        ( clk_sys         ),
     .clk_rom        ( clk_rom         ),
@@ -333,8 +338,8 @@ jtframe_board #(
     .game_tilt      ( game_tilt       ),
     .dial_x         ( dial_x          ),
     .dial_y         ( dial_y          ),
-    .spinner_1      ( 8'd0            ),
-    .spinner_2      ( 8'd0            ),
+    .spinner_1      ( 9'd0            ),
+    .spinner_2      ( 9'd0            ),
     // Mouse & paddle
     .bd_mouse_dx    ( bd_mouse_dx     ),
     .bd_mouse_dy    ( bd_mouse_dy     ),
@@ -350,6 +355,7 @@ jtframe_board #(
     .mouse_2p       ( mouse_2p        ),
     // DIP and OSD settings
     .status         ( board_status    ),
+    .dipsw          ( dipsw[23:0]     ),
     .enable_fm      ( enable_fm       ),
     .enable_psg     ( enable_psg      ),
     .dip_test       ( dip_test        ),

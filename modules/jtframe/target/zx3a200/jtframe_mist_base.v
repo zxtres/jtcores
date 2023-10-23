@@ -110,13 +110,14 @@ module jtframe_mist_base #(parameter
     output          ioctl_wr,
     output          ioctl_ram,
     output          ioctl_cheat,
-    output          downloading,
+    output          ioctl_rom
 
     output          scan2x_toggle,
     output          osd_en
 );
 
-localparam [7:0] IDX_CHEAT = 8'h10,
+localparam [7:0] IDX_ROM   = 8'h00,
+                 IDX_CHEAT = 8'h10,
                  IDX_NVRAM = 8'hFF;
 
 wire        ypbpr, no_csync;
@@ -129,7 +130,7 @@ wire spi_do_dio;
 assign SPI_DO = CONF_DATA0 ? spi_do_dio : spi_do_uio; // DO comes from user_io when CONF_DATA0 is low
 `endif
 
-assign downloading = ioctl_download;
+assign ioctl_rom   =  ioctl_index == IDX_ROM && ioctl_download;
 assign ioctl_ram   = (ioctl_index == IDX_NVRAM && ioctl_download) || ioctl_upload;
 assign ioctl_cheat = ioctl_index == IDX_CHEAT && ioctl_download;
 
