@@ -3,10 +3,10 @@ here:
   - jtframe_mist_clocks.v  
   - jtframe_atlas_cyc_top.vhd
   # DeMiSTify specific board modules     
-  - ../deca/DeMiSTify/Board/atlas_cyc/constraints.sdc
-  - ../deca/DeMiSTify/Board/atlas_cyc/audio/audio_i2s.vhd
-  - ../deca/DeMiSTify/Board/atlas_cyc/USB2PS2/USB_PS2_PUBLIC.v
-  - ../deca/DeMiSTify/Board/atlas_cyc/hdmi1/hdmi1.qip
+  - demistify/atlas_cyc/constraints.sdc
+  - demistify/atlas_cyc/audio/audio_i2s.vhd
+  - demistify/atlas_cyc/USB2PS2/USB_PS2_PUBLIC.v
+  - demistify/atlas_cyc/hdmi1/hdmi1.qip
   # PLLs  (12 MHz to 48, 49.15, 50.35, 53.37 MHz )
   - pll6000/jtframe_pll6000.qip
   - pll6144/jtframe_pll6144.qip
