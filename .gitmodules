@@ -46,6 +46,3 @@
 [submodule "modules/jtframe/target/pocket"]
 	path = modules/jtframe/target/pocket
 	url = git@github.com:jotego/pocket.git
-[submodule "modules/jtframe/target/deca/DeMiSTify"]
-	path = modules/jtframe/target/deca/DeMiSTify
-	url = https://github.com/robinsonb5/DeMiSTify.git

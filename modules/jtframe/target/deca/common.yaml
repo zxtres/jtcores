@@ -10,7 +10,7 @@ here:
   - mc2_hid_joy.vhd
   # DeMiSTify
   - demistify_config_pkg.vhd
-  - DeMiSTify/controller/controller.qip
+  - demistify/controller/controller.qip
   - firmware/controller_rom1_byte.vhd
   - firmware/controller_rom2_byte.vhd
 jtframe:

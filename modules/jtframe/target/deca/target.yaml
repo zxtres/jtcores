@@ -3,12 +3,12 @@ here:
   - jtframe_mist_clocks.v  
   - jtframe_deca_top.vhd
   # DeMiSTify specific board modules
-  - DeMiSTify/Board/deca/constraints.sdc      
-  - DeMiSTify/Board/deca/audio/AUDIO_SPI_CTL_RD.v
-  - DeMiSTify/Board/deca/audio/SPI_RAM.v
-  - DeMiSTify/Board/deca/audio/audio_i2s.vhd
-  - DeMiSTify/Board/deca/hdmi/I2C_Controller.v
-  - DeMiSTify/Board/deca/hdmi/I2C_HDMI_Config.v
+  - demistify/deca/constraints.sdc      
+  - demistify/deca/audio/AUDIO_SPI_CTL_RD.v
+  - demistify/deca/audio/SPI_RAM.v
+  - demistify/deca/audio/audio_i2s.vhd
+  - demistify/deca/hdmi/I2C_Controller.v
+  - demistify/deca/hdmi/I2C_HDMI_Config.v
   # ddr3 framebuffer
   - jtframe_lfbuf_ddr_deca.v
   - jtframe_lfbuf_ddr_deca_ctrl.v  
