@@ -45,3 +45,8 @@ CORE_OSD=OD,Button aid,Off,On
 [mister|pocket]
 -JTFRAME_SKIP
 
+[mist|sidi]
+-JTFRAME_CREDITS
+NOCREDITS
+JTFRAME_OSD_NOCREDITS
+
