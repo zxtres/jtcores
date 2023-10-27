@@ -432,9 +432,9 @@ LED5 <= not act_led;
 
 zxtres_wrapper_inst : zxtres_wrapper
   generic map (
-	HSTART => 128,  --kicker (48 right, 108 cent) --128 s16b ok
+	HSTART => 128,  --128 s16b, kicker(48right,108cent)  --250 cps1/cps15/cps2
 	VSTART => 15,
-	CLKVIDEO => 48,
+	CLKVIDEO => 48,	--48 most cores		--96 cps1/cps15/cps2
 	INITIAL_FIELD => 0
   )
   port map (
