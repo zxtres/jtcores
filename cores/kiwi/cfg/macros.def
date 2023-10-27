@@ -49,3 +49,20 @@ CORE_OSD=OD,Button aid,Off,On
 # Fixed sensitivty for Arkanoid 2 as there is
 # no OSD control for this at the moment
 JTFRAME_DIAL_SENSTY=2
+
+[mist|sidi]
+-JTFRAME_CREDITS
+NOCREDITS
+JTFRAME_OSD_NOCREDITS
+
+# diff --git a/jt12/hdl/jt12_sh.v b/jt12/hdl/jt12_sh.v
+# -reg [stages-1:0] bits[width-1:0];
+# +(* ramstyle = "logic" *) reg [stages-1:0] bits[width-1:0];
+
+# diff --git a/jt12/hdl/jt12_sh_rst.v b/jt12/hdl/jt12_sh_rst.v
+# -reg [stages-1:0] bits[width-1:0];
+# +(* ramstyle = "logic" *) reg [stages-1:0] bits[width-1:0];
+
+
+
+
