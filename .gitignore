@@ -3,10 +3,8 @@
 *.bak
 *.bin
 *.cfg
-*.f
 *.fmt
 *.fst
-*.hex
 *.jdi
 *.jpg
 *.json
@@ -21,8 +19,6 @@
 *.p
 *.pin
 *.png
-*.qpf
-*.qsf
 *.RAM
 *.raw
 *.rbf
@@ -62,8 +58,17 @@ cores/*/sch/*/*pdf
 cores/*/sch/*pdf
 cores/*/sidi/*
 cores/*/sockit/*
+cores/*/de1soc/*
+cores/*/de10std/*
+cores/*/deca/*
+cores/*/demistify/*
+cores/*/de10lite/*
 cores/*/ver/regrun
 cores/*/zxuno/*
+cores/*/deca/*
+cores/*/de10lite/*
+cores/*/atlas_cyc/*
+cores/*/zx3*/*
 default.dip
 defmacros.h
 dump2bin.sh
@@ -101,3 +106,5 @@ vsim.do
 waiver
 work
 x
+jtcores_deca*
+jtcores_zxtres*
