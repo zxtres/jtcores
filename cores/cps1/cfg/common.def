@@ -33,7 +33,7 @@ JTFRAME_STEREO
 JTFRAME_IOCTL_RD=128
 JTFRAME_DEBUG
 
-[mist|sidi]
+[mist|sidi|deca|de10lite|atlas_cyc|zx3a35|zx3a100|zx3a200]
 CORE_OSD=O5,Turbo,Off,On;
 JTFRAME_DIPBASE=8
 NOCREDITS

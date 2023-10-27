@@ -17,3 +17,8 @@ PCM_START =0x24000
 
 # Video
 
+[deca|de10lite|atlas_cyc]
+# OSD credits cannot be used when
+# DIP base is less than 13
+JTFRAME_OSD_NOCREDITS
+JTFRAME_DIPBASE=8
