@@ -9,7 +9,9 @@ use work.demistify_config_pkg.all;
 
 entity jtframe_zxtres_top is
 	generic (
-		VIDEO_OUTPUT: natural := 2  -- 1=MIST VIDEO, 2=ZXTRES WRAPPER
+		VGA_OUTPUT: natural   := 2;   -- 1=MIST VIDEO, 2=ZXTRES WRAPPER
+		CLKVIDEO    : natural := 48;  -- 48=most cores, 96=cps1,cps15, cps2
+		HSTART 		: natural := 128  -- 128 s16b, 108 kicker, 250 cps1/cps15/cps2
 	);	
 	port (
 		CLK_50      : in std_logic;
@@ -219,8 +221,8 @@ PS2_KEYBOARD_DAT    <= '0' when ps2_keyboard_dat_out = '0' else 'Z';
 ps2_keyboard_clk_in <= PS2_KEYBOARD_CLK;
 PS2_KEYBOARD_CLK    <= '0' when ps2_keyboard_clk_out = '0' else 'Z';
 
--- VIDEO_OUTPUT    1=MIST VIDEO, 2=ZXTRES WRAPPER
-VIDEO_1 : if VIDEO_OUTPUT = 1 generate --  1=MIST VIDEO
+-- VGA_OUTPUT    1=MIST VIDEO, 2=ZXTRES WRAPPER
+VIDEO_1 : if VGA_OUTPUT = 1 generate --  1=MIST VIDEO
 	-- Video signals from guest mist_top 
 	VGA_R  <= vga_red(7 downto 2)   & vga_red(7 downto 6);
 	VGA_G  <= vga_green(7 downto 2) & vga_green(7 downto 6);
@@ -229,7 +231,7 @@ VIDEO_1 : if VIDEO_OUTPUT = 1 generate --  1=MIST VIDEO
 	VGA_VS <= vga_vsync;
 end generate VIDEO_1;
 
-VIDEO_2 : if VIDEO_OUTPUT = 2 generate -- 2=ZXTRES WRAPPER
+VIDEO_2 : if VGA_OUTPUT = 2 generate -- 2=ZXTRES WRAPPER
 	-- Video signals from zxtres_wrapper
 	VGA_R  <= vga_red_w;
 	VGA_G  <= vga_green_w;
@@ -432,9 +434,9 @@ LED5 <= not act_led;
 
 zxtres_wrapper_inst : zxtres_wrapper
   generic map (
-	HSTART => 128,  --128 s16b, kicker(48right,108cent)  --250 cps1/cps15/cps2
+	HSTART => HSTART,  --128 s16b, kicker(48right,108cent)  --250 cps1/cps15/cps2
 	VSTART => 15,
-	CLKVIDEO => 48,	--48 most cores		--96 cps1/cps15/cps2
+	CLKVIDEO => CLKVIDEO,	--48 most cores		--96 cps1/cps15/cps2
 	INITIAL_FIELD => 0
   )
   port map (
