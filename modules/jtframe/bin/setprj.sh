@@ -30,6 +30,7 @@ unset ALLFOLDERS
 export ROM=$JTROOT/rom
 export RLS=$JTROOT/release
 export MRA=$JTROOT/release/mra
+export POCKET=$JTFRAME/target/pocket
 DOC=$JTROOT/doc
 MAME=$JTROOT/doc/mame
 export MODULES=$JTROOT/modules
@@ -63,6 +64,10 @@ function incore {
 function swcore {
     if [ -z "$JTROOT" ]; then
         echo Have you forgot to define JTROOT?
+        return
+    fi
+    if [ `pwd` = "$JTROOT/cores" ]; then
+        cd $1/$2
         return
     fi
     IFS=/ read -ra string <<< $(pwd)
