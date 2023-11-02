@@ -249,7 +249,8 @@ clkin_buff : component IBUF
 	);
 
 -- JOYSTICKS
-joystick_serial_inst : entity work.joystick_serial
+joystick_serial_inst : entity work.joydecoder_neptuno	-- neogeo joy controller
+--joystick_serial_inst : entity work.joystick_serial	-- jtframe neptuno target joy controller
 	port map (
 		clk_i 		  => vga_clk,		-- vga_clk = clk_sys
 		joy_data_i 	  => JOY_DATA,

@@ -5,6 +5,7 @@ here:
   - jtframe_zxtres_top.vhd
   # DeMiSTify specific board modules
   - rtl/audio_i2s.vhd 
+  - rtl/joydecoder_neptuno.v
   - rtl/joystick_sega.vhd
   # PLLs
   - pllgame/jtframe_pllgame.qip
