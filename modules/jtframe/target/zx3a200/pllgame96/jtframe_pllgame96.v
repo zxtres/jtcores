@@ -109,9 +109,10 @@ module jtframe_pllgame96
   //------------------------------------
 wire clk_in1_clk_wiz_0;
 wire clk_in2_clk_wiz_0;
-  IBUF clkin1_ibufg
-   (.O (clk_in1_clk_wiz_0),
-    .I (clk_in1));
+  // IBUF clkin1_ibufg
+  //  (.O (clk_in1_clk_wiz_0),
+  //   .I (clk_in1));
+assign clk_in1_clk_wiz_0 = clk_in1;
 
   // Clocking PRIMITIVE
   //------------------------------------
