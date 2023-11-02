@@ -2,12 +2,7 @@ here:
   - ../deca/common.yaml
   - jtframe_de10lite_top.vhd
   # DeMiSTify specific board modules
-  - ../deca/demistify/deca/constraints.sdc      
-  - ../deca/demistify/deca/audio/AUDIO_SPI_CTL_RD.v
-  - ../deca/demistify/deca/audio/SPI_RAM.v
-  - ../deca/demistify/deca/audio/audio_i2s.vhd
-  - ../deca/demistify/deca/hdmi/I2C_Controller.v
-  - ../deca/demistify/deca/hdmi/I2C_HDMI_Config.v
+  - demistify/deca/constraints.sdc      
 target:
   - from: deca
     get:
