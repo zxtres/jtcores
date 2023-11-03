@@ -2,7 +2,6 @@
 ## DEVICE  Artix7 A35T, A100T, A200T
 ##
 
-
 # Set pin definitions for downstream constraints
 set RAM_CLK DRAM_CLK
 set RAM_OUT {DRAM_DQ* DRAM_ADDR* DRAM_BA* DRAM_RAS_N DRAM_CAS_N DRAM_WE_N DRAM_*DQM DRAM_CS_N DRAM_CKE}
@@ -21,14 +20,12 @@ set FALSE_IN  {PS2_* JOY_DATA SD_MISO_I EAR_I UART_RXD dp_refclk_* dp_tx_hp_dete
 
 #set_time_format -unit ns -decimal_places 3
 
-
 #**************************************************************
 # Create Clock
 #**************************************************************
 
 # create_clock -name {CLOCK_27[0]} -period 37.037 -waveform { 0.000 18.518 } [get_ports {CLOCK_27[0]}]
 # create_clock -name {SPI_SCK}  -period 41.666 -waveform { 20.8 41.666 } [get_ports {SPI_SCK}]
-
 
 #**************************************************************
 # Create Generated Clock
@@ -46,18 +43,11 @@ set topmodule "guest/"
 
 # set sdram_clock "guest/u_clocks/u_pll_game/clk_out3_pll"
 
-# create_generated_clock -name SDRAM_CLK -source \
-#     [get_pins {clk_out3_pll}] \
-#     -divide_by 1 \
-#     [get_ports ${RAM_CLK}]
-
 create_generated_clock -name SDRAM_CLK -source [get_pins guest/u_clocks/u_pll_game/mmcm_adv_inst/CLKOUT2] -divide_by 1 [get_ports ${RAM_CLK}]
 
 #**************************************************************
 # Set Clock Latency
 #**************************************************************
-
-
 
 #**************************************************************
 # Set Clock Uncertainty
@@ -92,12 +82,18 @@ set_output_delay -clock  SDRAM_CLK -min -0.8 \
     [get_ports ${RAM_OUT}]
 
 
-
 #**************************************************************
 # Set Clock Groups
 #**************************************************************
 
 set_clock_groups -asynchronous -group [get_clocks spiclk] -group [get_clocks {guest/u_clocks/u_pll_game/clk_out1_clk_wiz_0 clk_out2_clk_wiz_0 clk_out3_clk_wiz_0 clk_out4_clk_wiz_0 clk_out5_clk_wiz_0 dp_refclk tx_symbol_clk}]
+
+set_clock_groups -asynchronous -group [get_clocks $hostclk] -group [get_clocks {guest/u_clocks/u_pll_game/clk_out1_clk_wiz_0 clk_out2_clk_wiz_0 clk_out3_clk_wiz_0 clk_out4_clk_wiz_0 clk_out5_clk_wiz_0 dp_refclk tx_symbol_clk}]
+set_clock_groups -asynchronous -group [get_clocks $supportclk] -group [get_clocks {guest/u_clocks/u_pll_game/clk_out1_clk_wiz_0 clk_out2_clk_wiz_0 clk_out3_clk_wiz_0 clk_out4_clk_wiz_0 clk_out5_clk_wiz_0 dp_refclk tx_symbol_clk}]
+set_clock_groups -asynchronous -group [get_clocks spiclk] -group [get_clocks SDRAM_CLK]
+set_clock_groups -asynchronous -group [get_clocks $hostclk] -group [get_clocks SDRAM_CLK]
+set_clock_groups -asynchronous -group [get_clocks $supportclk] -group [get_clocks SDRAM_CLK]
+
 
 #**************************************************************
 # Set False Path
@@ -128,17 +124,14 @@ set_multicycle_path -setup -end -from [get_ports ${RAM_IN}] -to [get_cells ${top
 #**************************************************************
 
 
-
 #**************************************************************
 # Set Minimum Delay
 #**************************************************************
 
 
-
 #**************************************************************
 # Set Input Transition
 #**************************************************************
-
 
 
 #**************************************************************
