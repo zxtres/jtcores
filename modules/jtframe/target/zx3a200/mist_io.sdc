@@ -11,8 +11,8 @@ set RAM_IN {DRAM_D*}
 set VGA_OUT {VGA_R[*] VGA_G[*] VGA_B[*] VGA_HS VGA_VS}
 
 # non timing-critical pins would be in the "FALSE_IN/OUT" collection (IN inputs, OUT outputs)
-set FALSE_OUT {LED* PWM_AUDIO_* PS2_* JOY_SEL UART_TXD SD_CS_N_O SD_MOSI_O SD_SCLK_O}
-set FALSE_IN  {PS2_* JOY_DATA SD_MISO_I EAR_I UART_RXD}
+set FALSE_OUT {LED* PWM_AUDIO_* PS2_* JOY_SEL UART_TXD SD_CS_N_O SD_MOSI_O SD_SCLK_O dp_tx_lane_* dp_tx_auxch_tx_* dp_tx_auxch_rx_*}
+set FALSE_IN  {PS2_* JOY_DATA SD_MISO_I EAR_I UART_RXD dp_refclk_* dp_tx_hp_detect dp_tx_auxch_tx_* dp_tx_auxch_rx_*}
 
 
 #**************************************************************
@@ -97,7 +97,7 @@ set_output_delay -clock  SDRAM_CLK -min -0.8 \
 # Set Clock Groups
 #**************************************************************
 
-set_clock_groups -asynchronous -group [get_clocks spiclk] -group [get_clocks {guest/u_clocks/u_pll_game/clk_out1_clk_wiz_0 clk_out2_clk_wiz_0 clk_out3_clk_wiz_0 clk_out4_clk_wiz_0 clk_out5_clk_wiz_0}]
+set_clock_groups -asynchronous -group [get_clocks spiclk] -group [get_clocks {guest/u_clocks/u_pll_game/clk_out1_clk_wiz_0 clk_out2_clk_wiz_0 clk_out3_clk_wiz_0 clk_out4_clk_wiz_0 clk_out5_clk_wiz_0 dp_refclk tx_symbol_clk}]
 
 #**************************************************************
 # Set False Path
