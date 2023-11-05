@@ -706,32 +706,18 @@ module dp_memory (
   output wire [7:0] bout
   );
 
-  reg [2:0] fb [0:640*240-1];  // 640*240 pixeles
-  reg [2:0] dout;
+  reg [8:0] fb [0:640*240-1];  // 640*240 pixeles
+  reg [8:0] dout;
 
-  assign rout = {8{dout[2]}};
-  assign gout = {8{dout[1]}};
-  assign bout = {8{dout[0]}};
+  assign rout = {dout[8:6], dout[8:6], dout[8:7]};
+  assign gout = {dout[5:3], dout[5:3], dout[5:4]};
+  assign bout = {dout[2:0], dout[2:0], dout[2:1]};
 
   always @(posedge clkw) begin
     if (we == 1'b1) begin
-      fb[aw] <= {rin[7],gin[7],bin[7]};
+      fb[aw] <= {rin[7:5],gin[7:5],bin[7:5]};
     end
   end
-
-  // reg [8:0] fb [0:640*240-1];  // 640*240 pixeles
-  // reg [8:0] dout;
-
-  // assign rout = {dout[8:6], dout[8:6], dout[8:7]};
-  // assign gout = {dout[5:3], dout[5:3], dout[5:4]};
-  // assign bout = {dout[2:0], dout[2:0], dout[2:1]};
-
-  // always @(posedge clkw) begin
-  //   if (we == 1'b1) begin
-  //     fb[aw] <= {rin[7:5],gin[7:5],bin[7:5]};
-  //   end
-  // end
-
 
   always @(posedge clkr) begin
     dout <= fb[ar];
