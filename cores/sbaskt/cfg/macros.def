@@ -27,3 +27,8 @@ JTFRAME_ROTATE
 # Video
 JTFRAME_CREDITS_PAGES=6
 
+[deca|de10lite|atlas_cyc|zx3a35|zx3a100|zx3a200]
+# OSD credits cannot be used when
+# DIP base is less than 13
+JTFRAME_OSD_NOCREDITS
+JTFRAME_DIPBASE=8
