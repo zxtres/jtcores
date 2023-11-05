@@ -6,6 +6,7 @@ here:
   - jtframe_zxtres_top.vhd
   # DeMiSTify specific board modules
   - ../zx3a200/rtl/audio_i2s.vhd 
+  - ../zx3a200/rtl/joydecoder_neptuno.v  
   - ../zx3a200/rtl/joystick_sega.vhd
   # PLLs
   - ../zx3a200/pllgame/jtframe_pllgame.qip

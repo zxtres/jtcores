@@ -197,7 +197,6 @@ architecture RTL of jtframe_zxtres_top is
 
 	signal CLK_50_buf : std_logic;
 	
-	alias clock_input : std_logic is CLK_50;
 	alias sigma_l 	  : std_logic is PWM_AUDIO_L;
 	alias sigma_r 	  : std_logic is PWM_AUDIO_R;
 
@@ -244,12 +243,13 @@ end generate VIDEO_2;
 -- Buffered input clock
 clkin_buff : component IBUF 
 	port map (
-		O => (CLK_50_buf),
-		I => (clock_input)
+		I => (CLK_50),
+		O => (CLK_50_buf)
 	);
 
 -- JOYSTICKS
-joystick_serial_inst : entity work.joystick_serial
+joystick_serial_inst : entity work.joydecoder_neptuno	-- neogeo joy controller
+--joystick_serial_inst : entity work.joystick_serial	-- jtframe neptuno target joy controller
 	port map (
 		clk_i 		  => vga_clk,		-- vga_clk = clk_sys
 		joy_data_i 	  => JOY_DATA,
@@ -301,7 +301,7 @@ dac_r_s <= (dac_r(15) & dac_r(15 downto 1));
 
 guest : component mist_top
 	port map (
-		CLOCK_27 	=> clock_input & clock_input,
+		CLOCK_27 	=> CLK_50_buf & CLK_50_buf,
 		LED 		=> act_led,
 
 		--SDRAM
