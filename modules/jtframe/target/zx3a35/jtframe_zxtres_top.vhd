@@ -197,6 +197,7 @@ architecture RTL of jtframe_zxtres_top is
 
 	signal CLK_50_buf : std_logic;
 	
+	alias clock_input : std_logic is CLK_50;
 	alias sigma_l 	  : std_logic is PWM_AUDIO_L;
 	alias sigma_r 	  : std_logic is PWM_AUDIO_R;
 
@@ -243,7 +244,7 @@ end generate VIDEO_2;
 -- Buffered input clock
 clkin_buff : component IBUF 
 	port map (
-		I => (CLK_50),
+		I => (clock_input),
 		O => (CLK_50_buf)
 	);
 
@@ -301,7 +302,7 @@ dac_r_s <= (dac_r(15) & dac_r(15 downto 1));
 
 guest : component mist_top
 	port map (
-		CLOCK_27 	=> CLK_50_buf & CLK_50_buf,
+		CLOCK_27 	=> clock_input & clock_input,
 		LED 		=> act_led,
 
 		--SDRAM

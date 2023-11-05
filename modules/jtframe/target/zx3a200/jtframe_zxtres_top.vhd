@@ -244,8 +244,8 @@ end generate VIDEO_2;
 -- Buffered input clock
 clkin_buff : component IBUF 
 	port map (
-		O => (CLK_50_buf),
-		I => (clock_input)
+		I => (clock_input),
+		O => (CLK_50_buf)
 	);
 
 -- JOYSTICKS
