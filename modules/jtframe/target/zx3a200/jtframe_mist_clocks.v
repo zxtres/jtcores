@@ -71,7 +71,7 @@ assign pll0_lock = 1;
 	.clk_out1(pll_base),                 
 	// Status and control signals
 	.reset(1'b0),                   // input reset
-	.locked(pll2_lock)              // output locked
+	.locked(pll2_lock)             // output locked
 );
 
 `else
