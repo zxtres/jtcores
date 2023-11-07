@@ -5,7 +5,6 @@ Instructions to compile cores for ZXtres ports of Jotego cores.
 **Prerequisites**
 
 - Ubuntu 20.04
-- Install Quartus 17 or higher  in /opt/intelFPGA_lite
 - Install Vivado 2022.2
 - Run the jotego_20.04.sh script to get other required packages in place  [https://github.com/jotego/jtcores/blob/master/modules/jtframe/doc/compilation.md](https://github.com/jotego/jtcores/blob/master/modules/jtframe/doc/compilation.md)
 
