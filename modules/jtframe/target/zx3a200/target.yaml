@@ -4,7 +4,7 @@ here:
   - jtframe_mist_clocks.v  
   - jtframe_zxtres_top.vhd
   # DeMiSTify specific board modules
-  - rtl/audio_i2s.vhd 
+  - ../neptuno/audio_top.vhd
   - rtl/joydecoder_neptuno.v
   - rtl/joystick_sega.vhd
   # PLLs
