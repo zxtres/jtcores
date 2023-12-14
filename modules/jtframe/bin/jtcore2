@@ -638,7 +638,7 @@ if [ $SEED != 1 ]; then
 fi
 
 # Do not use [[ ]] in this if statement !!
-if is_mister_family || test $TARGET = neptuno; then
+if is_mister_family || test $TARGET = neptuno || test $TARGET = poseidon150; then
     echo $TARGET
     RBF=$PRJPATH/${TARGET}/$OUTPUTDIR/$corename.rbf
 elif test $TARGET = deca || test $TARGET = de10lite; then

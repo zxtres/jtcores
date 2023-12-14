@@ -55,7 +55,7 @@ JTFRAME_OSD_NOLOGO
 # Make it the same as KEY_START
 JTFRAME_PROM_START=0x298000
 
-[pocket|mister|sockit|de1soc|de10std|neptuno|zx3a35|zx3a100|zx3a200]
+[pocket|mister|sockit|de1soc|de10std|neptuno|zx3a35|zx3a100|zx3a200|poseidon150]
 -JTFRAME_SKIP
 # Take clock down to 50MHz and use the
 # line-based frame buffer for objects
