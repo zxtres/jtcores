@@ -234,6 +234,24 @@ assign VGA_CLK   = clk_sys;    //clk6 (6MHz 320x224@60); pxl2_cen (12MHz 640x224
 `endif   
 
 
+// `ifdef DEMISTIFY        // HDMI video output with OSD
+
+// wire [7:0]    scan2x_r, scan2x_g, scan2x_b;
+// wire          scan2x_hs, scan2x_vs, scan2x_clk, scan2x_de;
+
+// assign RED_x     = scan2x_r;
+// assign GREEN_x   = scan2x_g;
+// assign BLUE_x    = scan2x_b;
+// assign HS_x      = scan2x_hs;
+// assign VS_x      = scan2x_vs;
+// assign VGA_CE    = pxl2_cen;        //KO: 1, pxl2_cen, pxl_cen
+// assign VGA_CLK   = clk_sys;         //scan2x_clk
+// assign VGA_DE    = scan2x_de;
+
+// `endif   
+
+
+
 `ifndef JTFRAME_STEREO
     assign snd_right = snd_left;
 `endif
@@ -452,7 +470,16 @@ u_frame(
     .joy2_bus       ( JOY2_BUS       ),
     .JOY_SELECT     ( JOY_SELECT     ),
     .scan2x_enb     ( scan2x_enb     ),
-    .scan2x_toggle  ( scan2x_toggle  ),            
+    .scan2x_toggle  ( scan2x_toggle  ),        
+
+    .scan2x_r       ( scan2x_r       ),
+    .scan2x_g       ( scan2x_g       ), 
+    .scan2x_b       ( scan2x_b       ),
+    .scan2x_hs      ( scan2x_hs      ),
+    .scan2x_vs      ( scan2x_vs      ),
+    .scan2x_clk     ( scan2x_clk     ),
+    .scan2x_de      ( scan2x_de      ),
+
     .osd_en         ( osd_en         ),
 	`endif   
     // DIP and OSD settings

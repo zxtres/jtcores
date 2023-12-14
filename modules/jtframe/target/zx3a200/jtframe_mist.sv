@@ -153,6 +153,15 @@ module jtframe_mist #(parameter
 
     output             scan2x_enb,      // scan doubler enable bar = scan doubler disable.
     output             scan2x_toggle,
+
+    output     [7:0]   scan2x_r,
+    output     [7:0]   scan2x_g, 
+    output     [7:0]   scan2x_b,
+    output             scan2x_hs,
+    output             scan2x_vs,
+    output             scan2x_clk,
+    output             scan2x_de,
+
     output             osd_en
 );
 
@@ -162,8 +171,8 @@ reg  [63:0]   board_status;
 wire          ps2_kbd_clk, ps2_kbd_data;
 wire          osd_shown;
 
-wire [7:0]    scan2x_r, scan2x_g, scan2x_b;
-wire          scan2x_hs, scan2x_vs, scan2x_clk;
+// wire [7:0]    scan2x_r, scan2x_g, scan2x_b;
+// wire          scan2x_hs, scan2x_vs, scan2x_clk, scan2x_de;
 //wire        scan2x_enb;
 wire [6:0]    core_mod;
 wire [3:0]    but_start, but_coin;
@@ -476,7 +485,7 @@ jtframe_board #(
     .hdmi_arx       (                 ),
     .hdmi_ary       (                 ),
     .scan2x_cen     (                 ),
-    .scan2x_de      (                 ),
+    .scan2x_de      ( scan2x_de       ),
     .scan2x_sl      (                 )
 );
 
