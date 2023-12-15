@@ -1,16 +1,12 @@
+# POSEIDON QMTECH_CycloneIV_EP4CGX150GX
 here:
-  # POSEIDON QMTECH_CycloneIV_EP4CGX150GX
-  - jtframe_poseidon150_top.sv
-  - jtframe_mist_clocks.v
-  # Common with MiST
   - common.yaml
-  - ../mist/user_io.v
-  - ../mist/data_io.v
-  - ../mist/jtframe_mist.sv  
+  - jtframe_poseidon150_top.sv
   # I2S audio
   - ../neptuno/audio_top.vhd
+  #- jtframe_mist_clocks.v
   # 50 to 27MHz conversion
-  - ../neptuno/pll_neptuno.qip
+  #- ../neptuno/pll_neptuno.qip
 
 
 

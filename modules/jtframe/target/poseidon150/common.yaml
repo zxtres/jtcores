@@ -14,11 +14,11 @@ jtframe:
     get:
       - jtframe_scan2x.v
 target:
-  - from: mist
+  - from: deca
     get:
-      #- jtframe_mist_clocks.v
+      - jtframe_mist_clocks.v
       # PLLs
-      - pllgame/jtframe_pllgame.qip
+      #- pllgame/jtframe_pllgame.qip
       - pllgame96/jtframe_pllgame96.qip
       - pll6000/jtframe_pll6000.qip
       - pll6144/jtframe_pll6144.qip
@@ -27,6 +27,10 @@ target:
   - from: mist
     unless: POCKET
     get:
+      - pllgame/jtframe_pllgame.qip    
+      - user_io.v
+      - data_io.v
+      - jtframe_mist.sv      
       - mist_io.sdc
       - jtframe_mist_base.v
       - osd.sv
