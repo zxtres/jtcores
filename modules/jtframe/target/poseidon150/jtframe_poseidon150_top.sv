@@ -364,6 +364,53 @@ assign UART_TX = game_tx,
 
 `include "jtframe_game_instance.v"
 
+
+`ifdef JTFRAME_LF_BUFFER
+
+    // line-frame buffer
+    wire        [ 7:0] game_vrender;
+    wire        [ 8:0] game_hdump;
+    wire        [ 8:0] ln_addr;
+    wire        [15:0] ln_data;
+    wire               ln_done;
+    wire               ln_we;
+    wire               ln_hs;
+    wire        [15:0] ln_pxl;
+    wire        [ 7:0] ln_v;
+
+    wire [ 7:0] st_lpbuf;
+
+    // this places the pxl1_cen in the pixel centre
+    reg pxl1_cen;
+    always @(posedge clk_sys) pxl1_cen <= pxl2_cen & ~pxl_cen;
+
+    // line-frame buffer.
+    jtframe_lfbuf_bram u_lf_buf(
+        .rst        ( rst           ),
+        .clk        ( clk_rom       ),
+        .pxl_cen    ( pxl1_cen      ),
+
+        .vs         ( vs            ),
+        .lvbl       ( LVBL          ),
+        .lhbl       ( LHBL          ),
+        .vrender    ( game_vrender  ),
+        .hdump      ( game_hdump    ),
+
+        // interface with the game core
+        .ln_addr    ( ln_addr       ),
+        .ln_data    ( ln_data       ),
+        .ln_done    ( ln_done       ),
+        .ln_hs      ( ln_hs         ),
+        .ln_pxl     ( ln_pxl        ),
+        .ln_v       ( ln_v          ),
+        .ln_we      ( ln_we         ),
+
+        .st_addr    ( st_addr       ),
+        .st_dout    ( st_lpbuf      )
+    );
+`endif
+
+
 audio_top u_audio_i2s(
     .clk_50MHz (CLK_50          ),
     .dac_SCLK  (I2S_BCLK        ),

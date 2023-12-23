@@ -13,6 +13,11 @@ jtframe:
   - from: video
     get:
       - jtframe_scan2x.v
+      # Line Framebuffer for Outrun
+      - jtframe_lfbuf_bram.v
+      - jtframe_lfbuf_bram_ctrl.v
+      - jtframe_lfbuf_line.v      
+      
 target:
   - from: deca
     get:
