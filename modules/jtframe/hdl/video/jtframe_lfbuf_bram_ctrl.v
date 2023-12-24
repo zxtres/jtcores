@@ -76,11 +76,9 @@ always @(posedge clk)
         douta <= ram[bram_addr];
 
 assign fb_over    = &fb_addr;
-// assign bram_addr  = { {21-AW{1'd0}}, act_addr };
 assign bram_addr  = act_addr;
 assign nx_rd_addr = rd_addr + 1'd1;
 assign bram_data  = bram_we  ? 16'hzzzz : fb_din;
-// assign fb_dout    = ~bram_we ? 16'd0    : bram_data;
 assign fb_dout    = ~bram_we ? 16'd0    : douta;
 
 always @(posedge clk) begin
