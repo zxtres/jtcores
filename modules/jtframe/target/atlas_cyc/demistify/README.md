@@ -1,1 +1,0 @@
-see ../deca/demistify folder for common DeMiSTify files (controller, EightThirtyTwo, firmware)
