@@ -18,13 +18,10 @@ PCM0_START=0xA0000
 PCM1_START=0xC0000
 JTFRAME_PROM_START=0x140000
 
-[mist|sidi|deca|de10lite|atlas_cyc]
+[mist|sidi|demist_*|mist_*]
 # OSD credits cannot be used when
 # DIP base is less than 13
 JTFRAME_OSD_NOCREDITS
-
-[deca|de10lite|atlas_cyc|zx3a35|zx3a100|zx3a200|poseidon150]
-JTFRAME_DIPBASE=8
 
 [mister]
 JTFRAME_ARX=4

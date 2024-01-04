@@ -34,9 +34,13 @@ JTFRAME_IOCTL_RD=128
 JTFRAME_DEBUG
 JTFRAME_DIPBASE=8
 
-[mist|sidi|deca|de10lite|atlas_cyc|zx3a35|zx3a100|zx3a200|poseidon150]
-CORE_OSD=O5,Turbo,Off,On;
+[mist|sidi]
 NOCREDITS
+
+[mist|sidi|demist_*|mist_*]
+CORE_OSD=O5,Turbo,Off,On;
+# OSD credits cannot be used when
+# DIP base is less than 13
 JTFRAME_OSD_NOCREDITS
 
 [mister]
